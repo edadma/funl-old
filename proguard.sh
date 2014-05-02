@@ -1,0 +1,1 @@
+java -jar ~/Downloads/proguard4.11/lib/proguard.jar @config.pro

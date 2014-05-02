@@ -1,0 +1,12 @@
+def
+    filter( p, [] )         = []
+    filter( p, x:xs )
+        | p( x )            = x : filter( p, xs )
+        | otherwise         = filter( p, xs )
+
+    qsort( [] )             = []
+    qsort( p:xs )           = qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
+
+main
+    println( qsort([4, 2, 1, 3, 0, 2]) )
+    println( qsort(["bob", "alice", "barry", "zoe", "charlotte", "fred"]) )
