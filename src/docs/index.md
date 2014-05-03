@@ -70,7 +70,7 @@ As a more interesting example, here is an (not fairly efficient) implementation 
 
 	def
 	  filter( p, [] )         = []
-	  filter( p, x:xs	)
+	  filter( p, x:xs )
 	    | p( x )              = x : filter( p, xs )
 	    | otherwise           = filter( p, xs )
 
