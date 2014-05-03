@@ -1,8 +1,8 @@
-package ca.hyperreal.funl
+package funl
 
 import org.scalatest._
 
-import Evaluator._
+import funl.interp.Evaluator._
 
 
 class Constructs extends FreeSpec with Matchers

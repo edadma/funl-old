@@ -1,9 +1,9 @@
-package ca.hyperreal.funl
+package funl
 
 import org.scalatest._
 import prop.PropertyChecks
 
-import Evaluator._
+import funl.interp.Evaluator._
 
 /*
 class Statements extends FreeSpec with PropertyChecks with Matchers
