@@ -15,6 +15,8 @@ class Evaluator
 {
 	type Function = List[Any] => Any
 
+	class Module( name: String )
+	
 	class Datatype( name: String )
 	
 	case class Constructor( datatype: Symbol, name: Symbol, fields: List[Symbol] )
