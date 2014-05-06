@@ -42,8 +42,6 @@ main
 // 	for i <- 1..10000000 do 0
 // 
 // 	println time() - start
-
-	println( "starting" )
 	
 	var s = Parser.lexical.read(r)
 

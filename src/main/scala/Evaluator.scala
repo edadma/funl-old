@@ -14,8 +14,7 @@ import funl.lia.{Complex, Math}
 class Evaluator
 {
 	type Function = List[Any] => Any
-
-	class Module( name: String )
+	type SymbolMap = HashMap[Symbol, Any]
 	
 	class Datatype( name: String )
 	
@@ -104,9 +103,9 @@ class Evaluator
 
 	class Holder( var v: Any )
 
-	class Activation( val closure: Closure )
+	class Activation( val closure: Closure, val module: Module )
 	{
-		val scope = new ArrayStack[HashMap[Symbol, Any]]
+		val scope = new ArrayStack[SymbolMap]
 		
 		override def toString = "Activation( " + closure + ", " + scope + " )"
 	}
@@ -120,7 +119,9 @@ class Evaluator
 
 	class ContinueThrowable extends Throwable
 
-	val variables = new HashMap[Symbol, Any]
+	class Module( name: String, symbols: SymbolMap )
+
+	val symbols = new SymbolMap
 	val datatypes = new HashSet[Symbol]
 	val stack = new StackArray[Any]
 	val activations = new ArrayStack[Activation]
@@ -222,23 +223,21 @@ class Evaluator
 		buf.toList
 	}
 	
-	def enterEnvironment( closure: Closure )
+	def enterEnvironment( closure: Closure, module: Module )
 	{
-	val a = new Activation( closure )
-	
-		activations push a
+		activations push new Activation( closure, module )
 		enterScope
 	}
 	
 	def exitEnvironment = activations.pop
 	
-	def enterScope = activations.top.scope push new HashMap[Symbol, Any]
+	def enterScope = activations.top.scope push new SymbolMap
 
-	def topScope
-	{
-		activations.top.scope.clear
-		enterScope
-	}
+// 	def topScope
+// 	{
+// 		activations.top.scope.clear
+// 		enterScope
+// 	}
 
 	def exitScope = activations.top.scope pop
 	
@@ -879,7 +878,7 @@ class Evaluator
 		}
 	}
 	
-	def clear( map: HashMap[Symbol, Any], p: PatternAST )
+	def clear( map: SymbolMap, p: PatternAST )
 	{
 		p match
 		{
@@ -915,7 +914,7 @@ class Evaluator
 			case _ => sys.error( "unknown type" )
 		}
 	
-	def unify( map: HashMap[Symbol, Any], a: Any, p: PatternAST ): Boolean =
+	def unify( map: SymbolMap, a: Any, p: PatternAST ): Boolean =
 		p match
 		{
 			case IntegerLiteralPatternAST( i ) => a == i
@@ -982,7 +981,7 @@ class Evaluator
 				alts exists (unify( map, a, _ ))
 		}
 
-	def pattern( map: HashMap[Symbol, Any], args: List[Any], parms: List[PatternAST] ) =
+	def pattern( map: SymbolMap, args: List[Any], parms: List[PatternAST] ) =
 	{
 		def pattern( ah: Any, at: List[Any], ph: PatternAST, pt: List[PatternAST] ): Boolean =
 		{

@@ -6,12 +6,12 @@ trait AST
 case class SourceAST( components: List[ComponentAST] ) extends AST
 
 trait ComponentAST extends AST
-case class NativeAST( pkg: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
-case class ConstAST( name: Symbol, const: ExprAST ) extends ComponentAST
-case class VarAST( name: Symbol, init: Option[ExprAST] ) extends ComponentAST
-case class DataAST( name: Symbol, constructors: List[(Symbol, List[Symbol])] ) extends ComponentAST
-case class DefAST( name: Symbol, func: FunctionExprAST ) extends ComponentAST
-case class MainAST( s: StatementAST ) extends ComponentAST
+case class NativeAST( module: Symbol, pkg: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
+case class ConstAST( module: Symbol, name: Symbol, const: ExprAST ) extends ComponentAST
+case class VarAST( module: Symbol, name: Symbol, init: Option[ExprAST] ) extends ComponentAST
+case class DataAST( module: Symbol, name: Symbol, constructors: List[(Symbol, List[Symbol])] ) extends ComponentAST
+case class DefAST( module: Symbol, name: Symbol, func: FunctionExprAST ) extends ComponentAST
+case class MainAST( module: Symbol, s: StatementAST ) extends ComponentAST
 
 trait StatementAST extends AST
 case class ExpressionStatementAST( e: ExprAST ) extends StatementAST
@@ -24,7 +24,7 @@ case class IntegerLiteralExprAST( i: Int ) extends ExprAST
 case class DoubleLiteralExprAST( d: Double ) extends ExprAST
 case class BooleanLiteralExprAST( b: Boolean ) extends ExprAST
 case class StringLiteralExprAST( s: String ) extends ExprAST
-case class VariableExprAST( v: Symbol ) extends ExprAST
+case class VariableExprAST( module: Symbol, v: Symbol ) extends ExprAST
 case class ApplyExprAST( f: ExprAST, args: List[ExprAST], var tailrecursive: Boolean ) extends ExprAST
 case class BinaryExprAST( left: ExprAST, op: Symbol, right: ExprAST ) extends ExprAST
 case class UnaryExprAST( op: Symbol, exp: ExprAST ) extends ExprAST
