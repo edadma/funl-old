@@ -7,8 +7,6 @@ import io.Source
 // import pickling._
 // import binary._
 
-import funl.options._
-
 import funl.interp.{Parser, Evaluator, TailRecursion}
 
 

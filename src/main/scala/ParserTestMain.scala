@@ -20,6 +20,7 @@ def lines( file ) = Source.fromFile( File(file), 'UTF-8', 1000 ).getLines()
 
 def fib( n ) =
 	a, b = 0, 1
+	
 	while a < n do
 		print( a + (if b < n then ", " else "\n") )
 		a, b = b, a+b
@@ -42,6 +43,8 @@ main
 // 
 // 	println time() - start
 
+	println( "starting" )
+	
 	var s = Parser.lexical.read(r)
 
 // 	while (!s.atEnd)
