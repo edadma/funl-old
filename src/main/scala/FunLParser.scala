@@ -80,7 +80,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 	lazy val className = ident ~ opt("=>" ~> symbol) ^^ {case name ~ alias => (name, alias)}
 	
 	lazy val native =
-		dottedName ~ opt("=>" ~> symbol) <~ lexical.Newline ^^
+		dottedName ~ opt("=>" ~> symbol) <~ Newline ^^
 			{case name ~ alias => NativeAST( module, name.init.mkString( "." ), List((name.last, alias)) )} |
 		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) ^^
 			{case pkg ~ names => NativeAST( module, pkg.mkString( "." ), names )}
