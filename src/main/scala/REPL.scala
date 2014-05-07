@@ -4,7 +4,7 @@ import java.io.PrintWriter
 
 import scala.tools.jline.console.ConsoleReader
 
-import funl.interp.Evaluator
+import funl.interp.{Evaluator, Module}
 import funl.interp.Evaluator._
 
 
@@ -24,7 +24,7 @@ object REPL extends App
 	out.println( "Type :help for more information." )
 	out.println
 
-	eval.enterEnvironment( null )
+	eval.enterEnvironment( null, new Module('REPL) )
 
 	while ({line = reader.readLine; line != null})
 	{
@@ -34,16 +34,18 @@ object REPL extends App
 				out.println( ":help                      print this summary" )
 				out.println( ":quit                      exit the interpreter" )
 				out.println
-			case ":quit" => sys.exit
+			case ":quit" =>
+				out.close
+				sys.exit
 			case _ =>
 				try
 				{
-				val res = statement( line, eval )
+				val res = statement( 'REPL, line, eval )
 				val name = "res" + count
 
 					out.println( name + ": " + res.getClass.getName + " = " + res )
 					out.println
-					eval.assign( Symbol(name) -> res )
+					eval.assign( 'REPL, Symbol(name) -> res )
 					count += 1
 				}
 				catch

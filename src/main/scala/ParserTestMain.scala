@@ -5,11 +5,11 @@ import scala.util.parsing.input.CharSequenceReader
 
 object ParserTestMain extends App
 {
-	def plugin( eval: Evaluator )
-	{
-		eval.function( 'f, a => a.head.asInstanceOf[Int] + 2 )
-	}
-
+// 	def plugin( eval: Evaluator )
+// 	{
+// 		eval.function( 'f, a => a.head.asInstanceOf[Int] + 2 )
+// 	}
+// 
 	val r = new CharSequenceReader(
 """
 class java.lang.System
@@ -42,8 +42,9 @@ main
 // 	for i <- 1..10000000 do 0
 // 
 // 	println time() - start
-	
-	var s = Parser.lexical.read(r)
+
+	val parser = new FunLParser( 'main )
+	var s = parser.lexical.read(r)
 
 // 	while (!s.atEnd)
 // 	{
@@ -51,22 +52,20 @@ main
 // 		s = s.rest
 // 	}
 
-	val p = Parser.parseSource( r )
+	val p = parser.parseSource( r )
 
 	p match
 	{
-		case Parser.Success( l, _ ) =>
+		case parser.Success( l, _ ) =>
 			val eval = new Evaluator()
 
 //		println( l )
 			TailRecursion( l )
 //		println( l )
 			eval( l )
-//			println( eval.constants )
-//			println( eval.activations )
-		case Parser.Failure( m, r ) =>
+		case parser.Failure( m, r ) =>
 			println( r.pos + ": " + m + '\n' + r.pos.longString )
-		case Parser.Error( m, r ) =>
+		case parser.Error( m, r ) =>
 			println( r.pos + ": " + m )
 	}
 }

@@ -110,7 +110,7 @@ class Evaluator
 		override def toString = "Activation( " + closure + ", " + scope + " )"
 	}
 	
-	class Closure( val calling: Activation, val func: List[FunctionExprAST] )
+	class Closure( val calling: Activation, val module: Module, val func: List[FunctionExprAST] )
 	{
 		override def toString = "<closure>"
 	}
@@ -119,8 +119,6 @@ class Evaluator
 
 	class ContinueThrowable extends Throwable
 
-	class Module( name: String, symbols: SymbolMap )
-
 	val symbols = new SymbolMap
 	val datatypes = new HashSet[Symbol]
 	val stack = new StackArray[Any]
@@ -128,18 +126,37 @@ class Evaluator
 	
 	var last: Any = null
 
-	def assign( key: Symbol, value: Any )
+	def module( m: Symbol ) =
 	{
-		if (variables contains key)
-			sys.error( "already declared: " + key )
-		else
-			variables(key) = value
+		symbols.get(m) match
+		{
+			case None =>
+				val res = new Module( m )
+			
+				symbols(m) = res
+				res
+			case Some( res ) => res.asInstanceOf[Module]
+		}
 	}
 	
-	def assign( vs: (Symbol, Any)* ): Evaluator =
+	def symbol( m: Symbol, key: Symbol ) = module( m ).symbols(key)
+
+	def symbolExists( m: Symbol, key: Symbol ) = module( m ).symbols contains key
+	
+	def assign( m: Symbol, key: Symbol, value: Any )
+	{
+	val syms = module(m).symbols
+	
+		if (syms contains key)
+			sys.error( "already declared: " + key )
+		else
+			syms(key) = value
+	}
+	
+	def assign( module: Symbol, vs: (Symbol, Any)* ): Evaluator =
 	{
 		for ((k, v) <- vs)
-			assign( k, v )
+			assign( module, k, v )
 
 		this
 	}
@@ -161,25 +178,7 @@ class Evaluator
 		else
 			_display( a )
 	
-	assign(
-		'i -> Complex( 0, 1 ),
-		'sys -> this
-		)
-
-	function( 'println, a => println(a map (display(_)) mkString(", ")) )
-	function( 'print, a => print(a map (display(_)) mkString(", ")) )
-	function( 'Array, a => new HolderArray( a.head.asInstanceOf[Int]) )
-	function( 'Map, a =>
-		if (a isEmpty)
-			new HolderMap( null )
-		else
-			new HolderMap( a.head.asInstanceOf[collection.Map[Any, Any]] ) )
-	function( 'class, a => a.head.getClass )
-	function( 'error, a => {println(a.head.toString); sys.exit( 1 )} )
-	function( 'require, a => require(a.head.asInstanceOf[Boolean], a.last.toString) )
-	function( 'symbol, a => Symbol(String.valueOf(a.head)) )
-	
-	def function( n: Symbol, f: Function ) = variables(n) = f
+	def function( m: Symbol, n: Symbol, f: Function ) = assign( m, n, f )
 
 	def eval( t: AST ) =
 	{
@@ -255,7 +254,7 @@ class Evaluator
 
 	def apply( t: AST, creatvars: Boolean = false ): Any =
 	{
-		def vars( name: Symbol ) =
+		def vars( m: Symbol, name: Symbol ) =
 		{
 			def vars( a: Activation ): Any =
 			{
@@ -264,8 +263,8 @@ class Evaluator
 					case None =>
 						if (a.closure != null && a.closure.calling != null)
 							vars( a.closure.calling )
-						else if (variables contains name)
-							variables(name)
+						else if (symbolExists( m, name ))
+							symbol( m, name )
 						else if (creatvars)
 							newVar( name )
 						else
@@ -288,40 +287,56 @@ class Evaluator
 		
 		t match
 		{
-			case SourceAST( cs ) =>
+			case ModuleAST( m, cs ) =>
+				assign( m,
+					'i -> Complex( 0, 1 ),
+					'sys -> this
+					)
+				function( m, 'println, a => println(a map (display(_)) mkString(", ")) )
+				function( m, 'print, a => print(a map (display(_)) mkString(", ")) )
+				function( m, 'Array, a => new HolderArray( a.head.asInstanceOf[Int]) )
+				function( m, 'Map, a =>
+					if (a isEmpty)
+						new HolderMap( null )
+					else
+						new HolderMap( a.head.asInstanceOf[collection.Map[Any, Any]] ) )
+				function( m, 'class, a => a.head.getClass )
+				function( m, 'error, a => {println(a.head.toString); sys.exit( 1 )} )
+				function( m, 'require, a => require(a.head.asInstanceOf[Boolean], a.last.toString) )
+				function( m, 'symbol, a => Symbol(String.valueOf(a.head)) )
 				apply( cs )
-			case NativeAST( pkg, names ) =>
+			case NativeAST( m, pkg, names ) =>
 				for ((n, a) <- names)
-					assign( if (a == None) Symbol(n) else a.get, Class.forName( pkg + '.' + n ) )
-			case ConstAST( name, expr ) =>
-				assign( name, eval(expr) )
-			case VarAST( n, v ) =>
-				if (variables contains n)
+					assign( m, if (a == None) Symbol(n) else a.get, Class.forName( pkg + '.' + n ) )
+			case ConstAST( m, name, expr ) =>
+				assign( m, name, eval(expr) )
+			case VarAST( m, n, v ) =>
+				if (symbols contains n)
 					sys.error( "already declared: " + n )
 				else
-					variables(n) = new Holder( if (v == None) null else eval(v.get) )
-			case DataAST( n, cs ) =>
+					symbols(n) = new Holder( if (v == None) null else eval(v.get) )
+			case DataAST( m, n, cs ) =>
 				if (datatypes contains n) sys.error( "already declared: " + n )
 				
 				datatypes.add( n )
 
 				for ((name, fields) <- cs)
 					if (fields isEmpty)
-						assign( name, new Record(n, name, Nil, Nil) )
+						assign( m, name, new Record(n, name, Nil, Nil) )
 					else
-						assign( name, Constructor(n, name, fields) )
-			case DefAST( name, func ) =>
-				if (variables contains name)
+						assign( m, name, Constructor(n, name, fields) )
+			case DefAST( m, name, func ) =>
+				if (module(m).symbols contains name)
 				{
-					if (variables(name).isInstanceOf[Closure])
-						variables(name) = new Closure( null, variables(name).asInstanceOf[Closure].func :+ func )
+					if (symbol(m, name).isInstanceOf[Closure])
+						module(m).symbols(name) = new Closure( null, module(m), symbols(name).asInstanceOf[Closure].func :+ func )
 					else
 						sys.error( "already declared: " + name )
 				}
 				else
-					variables( name ) = new Closure( null, List(func) )
-			case MainAST( l ) =>
-				enterEnvironment( null )
+					module(m).symbols(name) = new Closure( null, module(m), List(func) )
+			case MainAST( m, l ) =>
+				enterEnvironment( null, module(m) )
 				apply( l )
 			case ExpressionStatementAST( e ) =>
 				last = eval( e )
@@ -459,9 +474,9 @@ class Evaluator
 							push( beval(right) )
 				}
 			case NotExprAST( e ) => push( !beval(e) )
-			case VariableExprAST( v ) => push( vars(v) )
-			case c: CaseFunctionExprAST => push( new Closure(if (activations isEmpty) null else activations.top, c.cases) )
-			case f: FunctionExprAST => push( new Closure(if (activations isEmpty) null else activations.top, List(f)) )
+			case VariableExprAST( m, v ) => push( vars(m, v) )
+			case CaseFunctionExprAST( m, cases ) => push( new Closure(if (activations isEmpty) null else activations.top, module(m), cases) )
+			case f@FunctionExprAST( m, _, _ ) => push( new Closure(if (activations isEmpty) null else activations.top, module(m), List(f)) )
 			case ApplyExprAST( f, args, tailrecursive ) =>
 				apply( f )
 				apply( args )
@@ -522,7 +537,7 @@ class Evaluator
 							argList
 						else
 						{
-							enterEnvironment( c )
+							enterEnvironment( c, c.module )
 							occur( argList )
 							exitEnvironment
 						}
@@ -1023,37 +1038,41 @@ object Evaluator
 {
 	case class PARSE_FAILURE( message: String )
 	
-	def expr( e: String, where: (Symbol, Any)* ) =
-	{
-		Parser.parseExpression( new CharSequenceReader(e) ) match
-		{
-			case Parser.Success( l, _ ) =>
-				val e = new Evaluator
-				
-					e.assign( where: _* )
-					e.enterEnvironment( null )
-					e.eval( l )
-			case Parser.Failure( m, r ) => PARSE_FAILURE( m )
-			case Parser.Error( m, r ) => PARSE_FAILURE( m )
-		}
-	}
+// 	def expr( e: String, where: (Symbol, Any)* ) =
+// 	{
+// 		Parser.parseExpression( new CharSequenceReader(e) ) match
+// 		{
+// 			case Parser.Success( l, _ ) =>
+// 				val e = new Evaluator
+// 				
+// 					e.assign( where: _* )
+// 					e.enterEnvironment( null )
+// 					e.eval( l )
+// 			case Parser.Failure( m, r ) => PARSE_FAILURE( m )
+// 			case Parser.Error( m, r ) => PARSE_FAILURE( m )
+// 		}
+// 	}
 
-	def statement( s: String ): Any =
+	def statement( m: Symbol, s: String ): Any =
 	{
 	val eval = new Evaluator
 
-		eval.enterEnvironment( null )
-		statement( s, eval )
+		eval.enterEnvironment( null, new Module(m) )
+		statement( m, s, eval )
 	}
 
-	def statement( s: String, eval: Evaluator ) =
-		Parser.parseStatement( new CharSequenceReader(s) ) match
+	def statement( m: Symbol, s: String, eval: Evaluator ) =
+	{
+	val parser = new FunLParser( m )
+	
+		parser.parseStatement( new CharSequenceReader(s) ) match
 		{
-			case Parser.Success( l, _ ) =>
+			case parser.Success( l, _ ) =>
 //				println( l )
 				eval.apply( l )
 				eval.last
-			case Parser.Failure( m, r ) => PARSE_FAILURE( m )
-			case Parser.Error( m, r ) => PARSE_FAILURE( m )
+			case parser.Failure( m, r ) => PARSE_FAILURE( m )
+			case parser.Error( m, r ) => PARSE_FAILURE( m )
 		}
+	}
 }

@@ -3,12 +3,12 @@ package funl.interp
 
 object TailRecursion
 {
-	def apply( s: SourceAST )
+	def apply( s: ModuleAST )
 	{
 		for (c <- s.components)
 			c match
 			{
-				case DefAST( name, func ) =>
+				case DefAST( _, name, func ) =>
 					for (p <- func.parts)
 						expr( name, p.body )
 				case _ =>
@@ -28,13 +28,13 @@ object TailRecursion
 			case a@ApplyExprAST( f, _, _ ) =>
 				f match
 				{
-					case VariableExprAST( v ) =>
+					case VariableExprAST( _, v ) =>
 						if (v.name == n)
 							a.tailrecursive = true
-					case CaseFunctionExprAST( cases ) =>
+					case CaseFunctionExprAST( _, cases ) =>
 						for (c <- cases)
 							expr( n, c.parts.head.body )
-					case FunctionExprAST( _, parts ) =>
+					case FunctionExprAST( _, _, parts ) =>
 						expr( n, parts.head.body )
 					case _ =>
 				}

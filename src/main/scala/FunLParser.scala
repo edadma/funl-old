@@ -7,7 +7,7 @@ import util.parsing.input.Reader
 import funl.indentation._
 
 
-object Parser extends StandardTokenParsers with PackratParsers
+class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratParsers
 {
 	override val lexical =
 		new IndentationLexical( false, true, List("[", "(", "{"), List("]", ")", "}") )
@@ -21,7 +21,7 @@ object Parser extends StandardTokenParsers with PackratParsers
 				fraction ~ optExponent ^^
 					{case frac ~ exp => NumericLit( frac + exp )}
 
-			private def chr( c: Char ) = elem( "", ch => ch == c )
+			private def chr( c: Char ): Parser[Char] = elem( "", ch => ch == c )
 
 			private def sign = chr( '+' ) | chr( '-' )
 
@@ -31,10 +31,12 @@ object Parser extends StandardTokenParsers with PackratParsers
 					case Some(sign) => sign
 				}
 
-			private def fraction = '.' ~ rep1(digit) ^^
+			private def fraction: Parser[String] =
+				'.' ~ rep1(digit) ^^
 				{case dot ~ ff => dot :: (ff mkString "") :: Nil mkString ""}
 
-			private def optFraction = opt( fraction ) ^^
+			private def optFraction: Parser[String] =
+				opt( fraction ) ^^
 				{
 					case None => ""
 					case Some( fraction ) => fraction
@@ -43,7 +45,8 @@ object Parser extends StandardTokenParsers with PackratParsers
 			private def exponent = (chr( 'e' ) | chr( 'E' )) ~ optSign ~ rep1( digit ) ^^
 				{case e ~ optSign ~ exp => e :: optSign :: (exp mkString "") :: Nil mkString ""}
 
-			private def optExponent = opt( exponent ) ^^
+			private def optExponent: Parser[String] =
+				opt( exponent ) ^^
 				{
 					case None => ""
 					case Some( exponent ) => exponent
@@ -64,7 +67,7 @@ object Parser extends StandardTokenParsers with PackratParsers
 
 	def parseStatement( r: Reader[Char] ) = phrase( statement )( lexical.read(r) )
 
-	lazy val source: PackratParser[SourceAST] = rep(component) ^^ {case l => SourceAST(l.flatten)}
+	lazy val source: PackratParser[ModuleAST] = rep(component) ^^ {case l => ModuleAST(module, l.flatten)}
 
 	lazy val component: PackratParser[List[ComponentAST]] = natives | constants | variables | data | definitions | main
 
@@ -77,10 +80,10 @@ object Parser extends StandardTokenParsers with PackratParsers
 	lazy val className = ident ~ opt("=>" ~> symbol) ^^ {case name ~ alias => (name, alias)}
 	
 	lazy val native =
-		dottedName ~ opt("=>" ~> symbol) <~ Newline ^^
-			{case name ~ alias => NativeAST( name.init.mkString( "." ), List((name.last, alias)) )} |
+		dottedName ~ opt("=>" ~> symbol) <~ lexical.Newline ^^
+			{case name ~ alias => NativeAST( module, name.init.mkString( "." ), List((name.last, alias)) )} |
 		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) ^^
-			{case pkg ~ names => NativeAST( pkg.mkString( "." ), names )}
+			{case pkg ~ names => NativeAST( module, pkg.mkString( "." ), names )}
 
 	lazy val symbol = ident ^^ (Symbol( _ ))
 	
@@ -89,26 +92,26 @@ object Parser extends StandardTokenParsers with PackratParsers
 		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline
 
 	lazy val constant =
-		(symbol <~ "=") ~ expr <~ Newline ^^
-			{case n ~ c => ConstAST( n, c )}
+		(symbol <~ "=") ~ expr <~ lexical.Newline ^^
+			{case n ~ c => ConstAST( module, n, c )}
 
 	lazy val variables =
 		"var" ~> variable ^^ {case v => List( v )} |
 		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline
 
 	lazy val variable =
-		symbol ~ opt("=" ~> expr) <~ Newline ^^
-			{case n ~ v => VarAST( n, v )}
+		symbol ~ opt("=" ~> expr) <~ lexical.Newline ^^
+			{case n ~ v => VarAST( module, n, v )}
 
 	lazy val data =
 		"data" ~> datatype ^^ {case v => List( v )} |
 		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline
 
 	lazy val datatype =
-		(symbol <~ "=") ~ rep1sep(constructor, "|") <~ Newline ^^
-			{case typename ~ constructors => DataAST( typename, constructors )} |
-		constructor <~ Newline ^^
-			{case c => DataAST( c._1, List(c) )}
+		(symbol <~ "=") ~ rep1sep(constructor, "|") <~ lexical.Newline ^^
+			{case typename ~ constructors => DataAST( module, typename, constructors )} |
+		constructor <~ lexical.Newline ^^
+			{case c => DataAST( module, c._1, List(c) )}
 
 	lazy val constructor =
 		(symbol <~ "(") ~ (rep1sep(symbol, ",") <~ ")") ^^
@@ -122,27 +125,27 @@ object Parser extends StandardTokenParsers with PackratParsers
 
 	lazy val definition =
 		(symbol <~ "(") ~ (repsep(pattern, ",") <~ ")") ~ (part | parts) ^^
-			{case n ~ p ~ gs => DefAST( n, FunctionExprAST(p, gs) )}
+			{case n ~ p ~ gs => DefAST( module, n, FunctionExprAST(module, p, gs) )}
 
 	lazy val locals = opt("local" ~> rep1sep(symbol, ","))
 	
-	lazy val part = opt("|" ~> expr10) ~ locals ~ ("=" ~> expr) <~ Newline ^^
+	lazy val part = opt("|" ~> expr10) ~ locals ~ ("=" ~> expr) <~ lexical.Newline ^^
 		{case g ~ l ~ b => List(FunctionPartExprAST(g, l, b))}
 
 	lazy val subpart =
-		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ locals ~ ("=" ~> expr) <~ Newline ^^
+		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ locals ~ ("=" ~> expr) <~ lexical.Newline ^^
 			{case g ~ l ~ b => FunctionPartExprAST(g, l, b)}
 
 	lazy val parts =
-		Indent ~> rep1(subpart) <~ Dedent <~ Newline
+		lexical.Indent ~> rep1(subpart) <~ lexical.Dedent <~ lexical.Newline
 
 	lazy val main =
-		"main" ~> statement ^^ (s => List(MainAST( s )))
+		"main" ~> statement ^^ (s => List(MainAST( module, s )))
 
 	lazy val statements =
 		rep1(statement)
 
-	lazy val onl = opt(Newline)
+	lazy val onl = opt(lexical.Newline)
 	
 	lazy val statement: PackratParser[StatementAST] =
 // 		ident ~ rep1sep( expr, "," ) <~ Newline ^^
@@ -151,7 +154,7 @@ object Parser extends StandardTokenParsers with PackratParsers
 // 					ExpressionStatementAST( ApplyExprAST(VariableExprAST(Symbol(f)), Nil, false) )
 // 				else
 // 					ExpressionStatementAST( ApplyExprAST(VariableExprAST(Symbol(f)), args, false) )} |
-		statementExpr <~ Newline
+		statementExpr <~ lexical.Newline
 	
 	lazy val statementExpr: PackratParser[StatementAST] =
 		("val" ~> pattern <~ "=") ~ expr5 ^^
@@ -165,14 +168,14 @@ object Parser extends StandardTokenParsers with PackratParsers
 
  	lazy val functionCase =
  	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> expr10) ~ ("->" ~> expr) ^^
-		{case p ~ g ~ b => FunctionExprAST( p, List(FunctionPartExprAST(g, None, b)) )}
+		{case p ~ g ~ b => FunctionExprAST( module, p, List(FunctionPartExprAST(g, None, b)) )}
 // 		"case" ~> pattern ~ opt("if" ~> booleanExpr) ~ ("->" ~> expr <~ Newline) ^^
 // 			{case p ~ g ~ b => FunctionExprAST(List(p), List(FunctionPartExprAST(g, None, b)))}
 
 	lazy val functionExpr =
 		functionCase |
-		Indent ~> rep1(functionCase <~ Newline) <~ Dedent ^^
-			{case c => CaseFunctionExprAST( c )}
+		lexical.Indent ~> rep1(functionCase <~ lexical.Newline) <~ lexical.Dedent ^^
+			{case c => CaseFunctionExprAST( module, c )}
 
 	lazy val expr5 =
 // 		("\\" ~> rep1sep(pattern, ",") <~ "->") ~ expr ^^
@@ -280,7 +283,7 @@ object Parser extends StandardTokenParsers with PackratParsers
 			(StringLiteralExprAST( _ )) |
 		"(" ~> expr <~ ")" |
 		symbol ^^
-			{case v => VariableExprAST( v )} |
+			{case v => VariableExprAST( module, v )} |
 		("true" | "false") ^^
 			(b => BooleanLiteralExprAST( b.toBoolean )) |
 		"(" ~ ")" ^^^
@@ -295,7 +298,7 @@ object Parser extends StandardTokenParsers with PackratParsers
 			(SetExprAST( _ )) |
 		"{" ~> repsep(entry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
-		Indent ~> statements <~ Dedent ^^
+		lexical.Indent ~> statements <~ lexical.Dedent ^^
 			(BlockExprAST( _ ))
 
 	lazy val pattern =

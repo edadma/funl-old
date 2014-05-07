@@ -7,7 +7,7 @@ import io.Source
 // import pickling._
 // import binary._
 
-import funl.interp.{Parser, Evaluator, TailRecursion}
+import funl.interp.{FunLParser, Evaluator, TailRecursion}
 
 
 object InterpreterMain extends App
@@ -25,10 +25,12 @@ object InterpreterMain extends App
 	else
 	{
 	val r = reader( opts('input) )
+	val m = Symbol(opts('input))
+	val parser = new FunLParser( m )
 	
-		Parser.parseSource( r ) match
+		parser.parseSource( r ) match
 		{
-			case Parser.Success( l, _ ) =>
+			case parser.Success( l, _ ) =>
 				TailRecursion( l )
 				
 				if (opts contains 'b)
@@ -36,9 +38,9 @@ object InterpreterMain extends App
 					println( "binary" )
 				}
 				else
-					new Evaluator().assign( 'args -> args.toIndexedSeq )( l )
-			case Parser.Failure( m, r ) => println( r.pos + ": " + m + '\n' + r.pos.longString )
-			case Parser.Error( m, r ) => println( r.pos + ": " + m )
+					new Evaluator().assign( m, 'args -> args.toIndexedSeq )( l )
+			case parser.Failure( m, r ) => println( r.pos + ": " + m + '\n' + r.pos.longString )
+			case parser.Error( m, r ) => println( r.pos + ": " + m )
 		}
 	}
 

@@ -3,7 +3,7 @@ package funl.interp
 
 trait AST
 
-case class SourceAST( components: List[ComponentAST] ) extends AST
+case class ModuleAST( module: Symbol, components: List[ComponentAST] ) extends AST
 
 trait ComponentAST extends AST
 case class NativeAST( module: Symbol, pkg: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
@@ -44,8 +44,8 @@ case class WhileExprAST( cond: ExprAST, body: ExprAST, e: Option[ExprAST] ) exte
 case class DoWhileExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class RepeatExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class RangeExprAST( f: ExprAST, t: ExprAST, b: Option[ExprAST], inclusize: Boolean ) extends ExprAST
-case class CaseFunctionExprAST( cases: List[FunctionExprAST] ) extends ExprAST
-case class FunctionExprAST( parms: List[PatternAST], parts: List[FunctionPartExprAST] ) extends ExprAST
+case class CaseFunctionExprAST( module: Symbol, cases: List[FunctionExprAST] ) extends ExprAST
+case class FunctionExprAST( module: Symbol, parms: List[PatternAST], parts: List[FunctionPartExprAST] ) extends ExprAST
 case class FunctionPartExprAST( cond: Option[ExprAST], locals: Option[List[Symbol]], body: ExprAST ) extends ExprAST
 case class DotExprAST( e: ExprAST, f: Symbol ) extends ExprAST
 case class BooleanConnectiveExprAST( left: ExprAST, op: Symbol, right: ExprAST ) extends ExprAST
