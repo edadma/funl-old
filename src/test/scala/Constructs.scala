@@ -2,7 +2,7 @@ package funl
 
 import org.scalatest._
 
-import funl.interp.Evaluator._
+import funl.interp.Interpreter._
 
 
 class Constructs extends FreeSpec with Matchers

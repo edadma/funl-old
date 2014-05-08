@@ -12,7 +12,7 @@ import java.io.PrintWriter
 import scala.tools.jline.console.ConsoleReader
 
 import funl.interp.{Evaluator, Module}
-import funl.interp.Evaluator._
+import funl.interp.Interpreter._
 
 
 object REPL extends App

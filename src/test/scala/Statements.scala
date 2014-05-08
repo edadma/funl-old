@@ -3,7 +3,7 @@ package funl
 import org.scalatest._
 import prop.PropertyChecks
 
-import funl.interp.Evaluator._
+import funl.interp.Interpreter._
 
 /*
 class Statements extends FreeSpec with PropertyChecks with Matchers

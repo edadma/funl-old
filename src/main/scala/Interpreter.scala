@@ -64,6 +64,8 @@ object Interpreter
 		}
 	}
 
+	def parse( module: Symbol, input: String ): AST = parse( module, new CharSequenceReader(input) )
+
 	def parse( module: Symbol, input: Reader[Char] ): AST =
 	{
 	val parser = new FunLParser( module )
@@ -94,4 +96,46 @@ object Interpreter
 
 //		val r = new PagedSeqReader( PagedSeq fromFile (args.head + ".fun") )
 	def parse( module: Symbol ): AST = parse( module, new FileInputStream(module.name + ".funl") )
+	
+	case class PARSE_FAILURE( message: String )
+
+// 	def expr( e: String, where: (Symbol, Any)* ) =
+// 	{
+// 		Parser.parseExpression( new CharSequenceReader(e) ) match
+// 		{
+// 			case Parser.Success( l, _ ) =>
+// 				val e = new Evaluator
+//
+// 					e.assign( where: _* )
+// 					e.enterEnvironment( null )
+// 					e.eval( l )
+// 			case Parser.Failure( m, r ) => PARSE_FAILURE( m )
+// 			case Parser.Error( m, r ) => PARSE_FAILURE( m )
+// 		}
+// 	}
+
+	def statement( m: Symbol, s: String ): Any =
+	{
+	val eval = new Evaluator
+
+		eval.enterEnvironment( null, new Module(m) )
+		statement( m, s, eval )
+	}
+
+	def statement( m: Symbol, s: String, eval: Evaluator ) =
+	{
+	val parser = new FunLParser( m )
+
+		parser.parseStatement( new CharSequenceReader(s) ) match
+		{
+			case parser.Success( l, _ ) =>
+//				println( l )
+				eval.apply( l )
+				eval.last
+			case parser.Failure( m, r ) => PARSE_FAILURE( m )
+			case parser.Error( m, r ) => PARSE_FAILURE( m )
+		}
+	}
+
+	def statement( s: String ): Any = statement( 'module, s )
 }
