@@ -29,8 +29,7 @@ class Evaluator
 	
 	case class Constructor( datatype: Symbol, name: Symbol, fields: List[Symbol] )
 
-	case class ClassMethodCall( c: Class[Any], m: List[Method] )
-	case class ObjectMethodCall( o: Any, m: List[Method] )
+	case class NativeMethod( o: Any, m: List[Method] )
 	
 	class Record( val datatype: Symbol, val name: Symbol, val fields: List[Symbol], val args: List[Any] )
 	{
@@ -561,40 +560,34 @@ class Evaluator
 						if (fields.length != argList.length) sys.error( "argument list length does not match data declaration" )
 
 						push( new Record(t, n, fields, argList) )
-// 						m.find( _.getParameterTypes.length == argList.length ) match
-// 						{
-// 							case None => sys.error( "wrong number of arguments: " + argList )
-// 							case Some( cm ) => push( cm.invoke( null, argList.asInstanceOf[List[Object]]: _* ) )
-// 						}
-					case ClassMethodCall( c, m ) =>
-						m.filter( _.getParameterTypes.length == argList.length ).find
-						{ cm =>
-							for ((a, t) <- argList zip cm.getParameterTypes)
-								if (!t.isAssignableFrom( a.getClass ))
-									return false
+					case NativeMethod( o, m ) =>
+						m.filter( _.getParameterTypes.length == argList.length ).
+							find( cm => (argList zip cm.getParameterTypes).forall(
+								{case (a, t) =>
+									val cls = a.getClass
 
-							println( 123 )
-							true
-						} match
-						{
-							case None => sys.error( "no class methods with matching signatures: " + argList )
-							case Some( cm ) => push( cm.invoke( null, argList.asInstanceOf[List[Object]]: _* ) )
-						}
-					case ObjectMethodCall( o, m ) =>
-						m.find( _.getParameterTypes.length == argList.length ) match
-						{
-							case None => sys.error( "wrong number of arguments: " + argList )
-							case Some( om ) => push( om.invoke( o, argList.asInstanceOf[List[Object]]: _* ) )
-						}
+									t.getName == "int" && cls.getName == "java.lang.Integer" ||
+										t.getName == "double" && cls.getName == "java.lang.Double" ||
+										t.isAssignableFrom( cls )
+								}) ) match
+							{
+								case None => sys.error( "no class methods with matching signatures for: " + argList )
+								case Some( cm ) => push( cm.invoke( o, argList.asInstanceOf[List[Object]]: _* ) )
+							}
 					case c: Class[Any] =>
-						c.getConstructors.toList.filter( _.getParameterTypes.length == argList.length ) match
-						{
-							case List( con ) =>
-								push( con.newInstance( argList.asInstanceOf[List[Object]]: _* ) )
-							case Nil => sys.error( "no constructor for: " + argList )
-							case con :: _ => push( con.newInstance( argList.asInstanceOf[List[Object]]: _* ) )
-							case _ => sys.error( "multiple constructors for: " + argList )
-						}
+						c.getConstructors.toList.filter( _.getParameterTypes.length == argList.length ).
+							find( cm => (argList zip cm.getParameterTypes).forall(
+								{case (a, t) =>
+									val cls = a.getClass
+
+									t.getName == "int" && cls.getName == "java.lang.Integer" ||
+										t.getName == "double" && cls.getName == "java.lang.Double" ||
+										t.isAssignableFrom( cls )
+								}) ) match
+							{
+								case None => sys.error( "no constructor with matching signatures for: " + argList )
+								case Some( cm ) => push( cm.newInstance( argList.asInstanceOf[List[Object]]: _* ) )
+							}
 					case o => sys.error( "not a function: " + o )
 				}
 			case UnaryExprAST( op, exp ) =>
@@ -906,7 +899,7 @@ class Evaluator
 							}
 						}
 						else
-							push( ClassMethodCall(c, methods) )
+							push( NativeMethod(null, methods) )
 					case m: Module =>
 						m.symbols.get( f ) match
 						{
@@ -920,7 +913,7 @@ class Evaluator
 						if (methods isEmpty)
 							sys.error( "object method '" + f.name + "' not found in:" + o )
 
-						push( ObjectMethodCall(o, methods) )
+						push( NativeMethod(o, methods) )
 				}
 		}
 	}
