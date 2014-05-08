@@ -561,10 +561,23 @@ class Evaluator
 						if (fields.length != argList.length) sys.error( "argument list length does not match data declaration" )
 
 						push( new Record(t, n, fields, argList) )
+// 						m.find( _.getParameterTypes.length == argList.length ) match
+// 						{
+// 							case None => sys.error( "wrong number of arguments: " + argList )
+// 							case Some( cm ) => push( cm.invoke( null, argList.asInstanceOf[List[Object]]: _* ) )
+// 						}
 					case ClassMethodCall( c, m ) =>
-						m.find( _.getParameterTypes.length == argList.length ) match
+						m.filter( _.getParameterTypes.length == argList.length ).find
+						{ cm =>
+							for ((a, t) <- argList zip cm.getParameterTypes)
+								if (!t.isAssignableFrom( a.getClass ))
+									return false
+
+							println( 123 )
+							true
+						} match
 						{
-							case None => sys.error( "wrong number of arguments: " + argList )
+							case None => sys.error( "no class methods with matching signatures: " + argList )
 							case Some( cm ) => push( cm.invoke( null, argList.asInstanceOf[List[Object]]: _* ) )
 						}
 					case ObjectMethodCall( o, m ) =>
@@ -902,7 +915,6 @@ class Evaluator
 						}
 					case o =>
 						val c = o.getClass
-
 						val methods = c.getMethods.toList.filter( m => m.getName == f.name && (m.getModifiers&Modifier.STATIC) != Modifier.STATIC )
 						
 						if (methods isEmpty)
