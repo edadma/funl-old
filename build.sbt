@@ -42,18 +42,18 @@ libraryDependencies ++= Seq(
 	)
 
 mainClass in (Compile, run) := Some( "funl.interp.ParserTestMain" )
-//mainClass in (Compile, run) := Some( "funl.InterpreterMain" )
+//mainClass in (Compile, run) := Some( "funl.Main" )
 
 proguardSettings
 
 ProguardKeys.options in Proguard ++= Seq( "-dontnote", "-dontwarn", "-ignorewarnings", "-optimizations !class/merging/*" )
 
-ProguardKeys.options in Proguard += ProguardOptions.keepMain( "funl.InterpreterMain" )
+ProguardKeys.options in Proguard += ProguardOptions.keepMain( "funl.Main" )
 
 
 assemblySettings
 
-mainClass in assembly := Some("funl.InterpreterMain")
+mainClass in assembly := Some("funl.Main")
 
 jarName in assembly := "funl.jar"
 

@@ -1,21 +1,26 @@
 package funl.interp
 
+import java.io.InputStream
 
-object TailRecursion
+import util.parsing.input.CharSequenceReader
+import io.Source
+
+
+object Interpreter
 {
-	def apply( s: ModuleAST )
+	def markTailRecursion( s: ModuleAST )
 	{
 		for (c <- s.components)
 			c match
 			{
 				case DefAST( _, name, func ) =>
 					for (p <- func.parts)
-						expr( name, p.body )
+						markTailRecursion( name, p.body )
 				case _ =>
 			}
 	}
-	
-	def expr( n: Symbol, e: ExprAST )
+
+	def markTailRecursion( n: Symbol, e: ExprAST )
 	{
 		e match
 		{
@@ -48,5 +53,15 @@ object TailRecursion
 				expr( n, right )
 			case _ =>
 		}
+	}
+
+	def parse( module: Symbol, input: InputStream ) =
+	{
+
+	}
+
+	def parse( file: String ) =
+	{
+		
 	}
 }

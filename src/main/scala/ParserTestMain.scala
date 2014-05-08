@@ -60,7 +60,7 @@ main
 			val eval = new Evaluator()
 
 //		println( l )
-			TailRecursion( l )
+			Interpreter.markTailRecursion( l )
 //		println( l )
 			eval( l )
 		case parser.Failure( m, r ) =>

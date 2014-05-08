@@ -305,6 +305,8 @@ class Evaluator
 				function( m, 'require, a => require(a.head.asInstanceOf[Boolean], a.last.toString) )
 				function( m, 'symbol, a => Symbol(String.valueOf(a.head)) )
 				apply( cs )
+			case ImportAST( m, name ) =>
+				
 			case NativeAST( m, pkg, names ) =>
 				for ((n, a) <- names)
 					assign( m, if (a == None) Symbol(n) else a.get, Class.forName( pkg + '.' + n ) )

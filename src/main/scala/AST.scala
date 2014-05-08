@@ -6,6 +6,7 @@ trait AST
 case class ModuleAST( module: Symbol, components: List[ComponentAST] ) extends AST
 
 trait ComponentAST extends AST
+case class ImportAST( module: Symbol, name: Symbol ) extends ComponentAST
 case class NativeAST( module: Symbol, pkg: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
 case class ConstAST( module: Symbol, name: Symbol, const: ExprAST ) extends ComponentAST
 case class VarAST( module: Symbol, name: Symbol, init: Option[ExprAST] ) extends ComponentAST

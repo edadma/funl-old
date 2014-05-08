@@ -1,7 +1,7 @@
 package funl.interp
 
-import scala.util.parsing.combinator.PackratParsers
-import scala.util.parsing.combinator.syntactical.StandardTokenParsers
+import util.parsing.combinator.PackratParsers
+import util.parsing.combinator.syntactical.StandardTokenParsers
 import util.parsing.input.Reader
 
 import funl.indentation._
@@ -92,7 +92,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline
 
 	lazy val constant =
-		(symbol <~ "=") ~ expr <~ lexical.Newline ^^
+		(symbol <~ "=") ~ expr <~ Newline ^^
 			{case n ~ c => ConstAST( module, n, c )}
 
 	lazy val variables =
@@ -100,7 +100,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline
 
 	lazy val variable =
-		symbol ~ opt("=" ~> expr) <~ lexical.Newline ^^
+		symbol ~ opt("=" ~> expr) <~ Newline ^^
 			{case n ~ v => VarAST( module, n, v )}
 
 	lazy val data =
@@ -108,9 +108,9 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline
 
 	lazy val datatype =
-		(symbol <~ "=") ~ rep1sep(constructor, "|") <~ lexical.Newline ^^
+		(symbol <~ "=") ~ rep1sep(constructor, "|") <~ Newline ^^
 			{case typename ~ constructors => DataAST( module, typename, constructors )} |
-		constructor <~ lexical.Newline ^^
+		constructor <~ Newline ^^
 			{case c => DataAST( module, c._1, List(c) )}
 
 	lazy val constructor =
@@ -129,15 +129,15 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 
 	lazy val locals = opt("local" ~> rep1sep(symbol, ","))
 	
-	lazy val part = opt("|" ~> expr10) ~ locals ~ ("=" ~> expr) <~ lexical.Newline ^^
+	lazy val part = opt("|" ~> expr10) ~ locals ~ ("=" ~> expr) <~ Newline ^^
 		{case g ~ l ~ b => List(FunctionPartExprAST(g, l, b))}
 
 	lazy val subpart =
-		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ locals ~ ("=" ~> expr) <~ lexical.Newline ^^
+		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ locals ~ ("=" ~> expr) <~ Newline ^^
 			{case g ~ l ~ b => FunctionPartExprAST(g, l, b)}
 
 	lazy val parts =
-		lexical.Indent ~> rep1(subpart) <~ lexical.Dedent <~ lexical.Newline
+		Indent ~> rep1(subpart) <~ Dedent <~ Newline
 
 	lazy val main =
 		"main" ~> statement ^^ (s => List(MainAST( module, s )))
@@ -145,7 +145,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 	lazy val statements =
 		rep1(statement)
 
-	lazy val onl = opt(lexical.Newline)
+	lazy val onl = opt(Newline)
 	
 	lazy val statement: PackratParser[StatementAST] =
 // 		ident ~ rep1sep( expr, "," ) <~ Newline ^^
@@ -154,7 +154,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 // 					ExpressionStatementAST( ApplyExprAST(VariableExprAST(Symbol(f)), Nil, false) )
 // 				else
 // 					ExpressionStatementAST( ApplyExprAST(VariableExprAST(Symbol(f)), args, false) )} |
-		statementExpr <~ lexical.Newline
+		statementExpr <~ Newline
 	
 	lazy val statementExpr: PackratParser[StatementAST] =
 		("val" ~> pattern <~ "=") ~ expr5 ^^
@@ -174,7 +174,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 
 	lazy val functionExpr =
 		functionCase |
-		lexical.Indent ~> rep1(functionCase <~ lexical.Newline) <~ lexical.Dedent ^^
+		Indent ~> rep1(functionCase <~ Newline) <~ Dedent ^^
 			{case c => CaseFunctionExprAST( module, c )}
 
 	lazy val expr5 =
@@ -298,7 +298,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 			(SetExprAST( _ )) |
 		"{" ~> repsep(entry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
-		lexical.Indent ~> statements <~ lexical.Dedent ^^
+		Indent ~> statements <~ Dedent ^^
 			(BlockExprAST( _ ))
 
 	lazy val pattern =

@@ -7,10 +7,11 @@ import io.Source
 // import pickling._
 // import binary._
 
-import funl.interp.{FunLParser, Evaluator, TailRecursion}
+import funl.interp.Evaluator
+import funl.interp.Interpreter._
 
 
-object InterpreterMain extends App
+object Main extends App
 {
 	val opts =
 		Options( args )
@@ -31,7 +32,7 @@ object InterpreterMain extends App
 		parser.parseSource( r ) match
 		{
 			case parser.Success( l, _ ) =>
-				TailRecursion( l )
+				markTailRecursion( l )
 				
 				if (opts contains 'b)
 				{
