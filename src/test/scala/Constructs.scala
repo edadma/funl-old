@@ -18,15 +18,11 @@ class Constructs extends FreeSpec with Matchers
 		statement( """
 			if false then
 				3	""" ) shouldBe ()
-// 		expr(
-// 			"""	if true then
-// 					begin
-// 						3
-// 					end
-// 					else
-// 					begin
-// 						4
-// 					end	""" ) shouldBe 3
+		statement( """
+			if true then
+				3
+			else
+				4	""" ) shouldBe 3
 // 		expr(
 // 			"""	if false then
 // 					begin

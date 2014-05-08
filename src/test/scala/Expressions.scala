@@ -5,7 +5,7 @@ import prop.PropertyChecks
 
 import funl.interp.Interpreter._
 
-/*
+
 class Expressions extends FreeSpec with PropertyChecks with Matchers
 {
 	"arithmetic" in
@@ -23,4 +23,4 @@ class Expressions extends FreeSpec with PropertyChecks with Matchers
 		statement( "5 + (if true then 3) + 6" ) shouldBe 14
 		statement( """"5" + (if false then 3) + 6""" ) shouldBe "5()6"
 	}
-}*/
+}
