@@ -1,3 +1,10 @@
+/*     ______            __                                      *\
+**    / ____/_  __ ___  / /     FunL Programming Language        **
+**   / __/ / / / /  _ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
+** /_/    \____/_/ /_/____/                                      **
+\*                                                               */
+
 package funl.interp
 
 import java.lang.reflect.{Method, Modifier}
@@ -9,6 +16,8 @@ import math._
 import compat.Platform._
 
 import funl.lia.{Complex, Math}
+
+import Interpreter._
 
 
 class Evaluator
@@ -306,7 +315,10 @@ class Evaluator
 				function( m, 'symbol, a => Symbol(String.valueOf(a.head)) )
 				apply( cs )
 			case ImportAST( m, name ) =>
-				
+				val ast = parse( name )
+
+				apply( ast )
+				assign( m, name -> module(name) )
 			case NativeAST( m, pkg, names ) =>
 				for ((n, a) <- names)
 					assign( m, if (a == None) Symbol(n) else a.get, Class.forName( pkg + '.' + n ) )
@@ -882,13 +894,19 @@ class Evaluator
 						}
 						else
 							push( ClassMethodCall(c, methods) )
+					case m: Module =>
+						m.symbols.get( f ) match
+						{
+							case None => sys.error( "'" + f.name + "' not found in module '" + m.name + "'" )
+							case Some( elem ) => push( elem )
+						}
 					case o =>
 						val c = o.getClass
 
 						val methods = c.getMethods.toList.filter( m => m.getName == f.name && (m.getModifiers&Modifier.STATIC) != Modifier.STATIC )
 						
 						if (methods isEmpty)
-							sys.error( "object method not found: " + f.name )
+							sys.error( "object method '" + f.name + "' not found in:" + o )
 
 						push( ObjectMethodCall(o, methods) )
 				}

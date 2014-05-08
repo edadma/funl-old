@@ -1,6 +1,15 @@
+/*     ______            __                                      *\
+**    / ____/_  __ ___  / /     FunL Programming Language        **
+**   / __/ / / / /  _ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
+** /_/    \____/_/ /_/____/                                      **
+\*                                                               */
+
 package funl.interp
 
 import scala.util.parsing.input.CharSequenceReader
+
+import Interpreter._
 
 
 object ParserTestMain extends App
@@ -12,21 +21,11 @@ object ParserTestMain extends App
 // 
 	val r = new CharSequenceReader(
 """
-class java.lang.System
-class scala.io.Source
-class java.io.File
+import io
 
-def lines( file ) = Source.fromFile( File(file), 'UTF-8', 1000 ).getLines()
-
-def fib( n ) =
-	a, b = 0, 1
-	
-	while a < n do
-		print( a + (if b < n then ", " else "\n") )
-		a, b = b, a+b
-	
 main
-	fib(1000)
+	for line <- io.lines( 'io.funl' ) do
+		println( line )
 """ )
 	
 //class javax.swing.JFrame
@@ -43,29 +42,5 @@ main
 // 
 // 	println time() - start
 
-	val parser = new FunLParser( 'main )
-	var s = parser.lexical.read(r)
-
-// 	while (!s.atEnd)
-// 	{
-// 		println( s.first )
-// 		s = s.rest
-// 	}
-
-	val p = parser.parseSource( r )
-
-	p match
-	{
-		case parser.Success( l, _ ) =>
-			val eval = new Evaluator()
-
-//		println( l )
-			Interpreter.markTailRecursion( l )
-//		println( l )
-			eval( l )
-		case parser.Failure( m, r ) =>
-			println( r.pos + ": " + m + '\n' + r.pos.longString )
-		case parser.Error( m, r ) =>
-			println( r.pos + ": " + m )
-	}
+	new Evaluator()( parse('main, r) )
 }

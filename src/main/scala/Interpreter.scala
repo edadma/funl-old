@@ -1,8 +1,17 @@
+/*     ______            __                                      *\
+**    / ____/_  __ ___  / /     FunL Programming Language        **
+**   / __/ / / / /  _ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
+** /_/    \____/_/ /_/____/                                      **
+\*                                                               */
+
 package funl.interp
 
-import java.io.InputStream
+import java.io.{InputStream, FileInputStream}
 
-import util.parsing.input.CharSequenceReader
+// import scala.util.parsing.input.PagedSeqReader
+// import scala.collection.immutable.PagedSeq
+import util.parsing.input.{Reader, CharSequenceReader}
 import io.Source
 
 
@@ -27,7 +36,7 @@ object Interpreter
 			case BlockExprAST( l ) =>
 				l.last match
 				{
-					case ExpressionStatementAST( e ) => expr( n, e )
+					case ExpressionStatementAST( e ) => markTailRecursion( n, e )
 					case _ =>
 				}
 			case a@ApplyExprAST( f, _, _ ) =>
@@ -38,30 +47,51 @@ object Interpreter
 							a.tailrecursive = true
 					case CaseFunctionExprAST( _, cases ) =>
 						for (c <- cases)
-							expr( n, c.parts.head.body )
+							markTailRecursion( n, c.parts.head.body )
 					case FunctionExprAST( _, _, parts ) =>
-						expr( n, parts.head.body )
+						markTailRecursion( n, parts.head.body )
 					case _ =>
 				}
 			case ConditionalExprAST( cond, no ) =>
 				for ((_, thenpart) <- cond)
-					expr( n, thenpart )
+					markTailRecursion( n, thenpart )
 
 				if (no != None)
-					expr( n, no.get )
+					markTailRecursion( n, no.get )
 			case BooleanConnectiveExprAST( _, _, right ) =>
-				expr( n, right )
+				markTailRecursion( n, right )
 			case _ =>
 		}
 	}
 
-	def parse( module: Symbol, input: InputStream ) =
+	def parse( module: Symbol, input: Reader[Char] ): AST =
 	{
+	val parser = new FunLParser( module )
 
+		parser.parseSource( input ) match
+		{
+			case parser.Success( l, _ ) =>
+				markTailRecursion( l )
+				l
+			case parser.Failure( m, r ) => sys.error( r.pos + ": " + m + '\n' + r.pos.longString )
+			case parser.Error( m, r ) => sys.error( r.pos + ": " + m )
+		}
 	}
 
-	def parse( file: String ) =
+	def parse( module: Symbol, input: InputStream ): AST =
 	{
-		
+	val lines = Source.fromInputStream( input ).getLines
+	val source = new StringBuilder
+
+			for (l <- lines)
+			{
+				source append l
+				source append '\n'
+			}
+
+		parse( module, new CharSequenceReader(source) )
 	}
+
+//		val r = new PagedSeqReader( PagedSeq fromFile (args.head + ".fun") )
+	def parse( module: Symbol ): AST = parse( module, new FileInputStream(module.name + ".funl") )
 }

@@ -1,9 +1,12 @@
+/*     ______            __                                      *\
+**    / ____/_  __ ___  / /     FunL Programming Language        **
+**   / __/ / / / /  _ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
+** /_/    \____/_/ /_/____/                                      **
+\*                                                               */
+
 package funl
 
-// import scala.util.parsing.input.PagedSeqReader
-// import scala.collection.immutable.PagedSeq
-import util.parsing.input.CharSequenceReader
-import io.Source
 // import pickling._
 // import binary._
 
@@ -25,39 +28,14 @@ object Main extends App
 		REPL.main( args )
 	else
 	{
-	val r = reader( opts('input) )
-	val m = Symbol(opts('input))
-	val parser = new FunLParser( m )
+	val m = Symbol( opts('input) )
+	val l = parse( m )
 	
-		parser.parseSource( r ) match
+		if (opts contains 'b)
 		{
-			case parser.Success( l, _ ) =>
-				markTailRecursion( l )
-				
-				if (opts contains 'b)
-				{
-					println( "binary" )
-				}
-				else
-					new Evaluator().assign( m, 'args -> args.toIndexedSeq )( l )
-			case parser.Failure( m, r ) => println( r.pos + ": " + m + '\n' + r.pos.longString )
-			case parser.Error( m, r ) => println( r.pos + ": " + m )
+			println( "binary" )
 		}
-	}
-
-	def reader( file: String ) =
-	{
-//		val r = new PagedSeqReader( PagedSeq fromFile (args.head + ".fun") )
-	val filename = file + (if (file endsWith ".funl") "" else ".funl")
-	val lines = Source.fromFile( filename ).getLines
-	val source = new StringBuilder
-
-			for (l <- lines)
-			{
-				source append l
-				source append '\n'
-			}
-
-		new CharSequenceReader( source )
+		else
+			new Evaluator().assign( m, 'args -> args.toIndexedSeq )( l )
 	}
 }

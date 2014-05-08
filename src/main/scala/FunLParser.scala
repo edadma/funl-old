@@ -1,3 +1,10 @@
+/*     ______            __                                      *\
+**    / ____/_  __ ___  / /     FunL Programming Language        **
+**   / __/ / / / /  _ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
+** /_/    \____/_/ /_/____/                                      **
+\*                                                               */
+
 package funl.interp
 
 import util.parsing.combinator.PackratParsers
@@ -69,8 +76,15 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 
 	lazy val source: PackratParser[ModuleAST] = rep(component) ^^ {case l => ModuleAST(module, l.flatten)}
 
-	lazy val component: PackratParser[List[ComponentAST]] = natives | constants | variables | data | definitions | main
+	lazy val component: PackratParser[List[ComponentAST]] = imports | natives | constants | variables | data | definitions | main
 
+	lazy val imports =
+		"import" ~> moduleImport ^^ (List(_)) |
+		"import" ~> Indent ~> rep1(moduleImport) <~ Dedent <~ Newline
+
+	lazy val moduleImport =
+		symbol <~ Newline ^^ (ImportAST( module, _ ))
+		
 	lazy val natives =
 		"class" ~> native ^^ (List(_)) |
 		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline
