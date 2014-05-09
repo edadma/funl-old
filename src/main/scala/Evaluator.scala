@@ -670,7 +670,7 @@ class Evaluator
 			case BlockExprAST( Nil ) => push( () )
 			case BlockExprAST( l ) =>
 				val it = l.iterator
-				var tro: Any = ()
+				var res: Any = ()
 				
 				enterScope
 				
@@ -681,13 +681,13 @@ class Evaluator
 					if (it.hasNext || !s.isInstanceOf[ExpressionStatementAST])
 						apply( s )
 					else
-						tro = apply( s.asInstanceOf[ExpressionStatementAST].e )
+						res = apply( s.asInstanceOf[ExpressionStatementAST].e )
 				}
 
 				exitScope
-				tro
+				res
 			case ConditionalExprAST( cond, no ) =>
-				cond find (i => beval(i._1)) match
+				cond find (i => beval( i._1 )) match
 				{
 					case Some( (_, t) ) => apply( t )
 					case None =>

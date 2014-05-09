@@ -12,5 +12,10 @@ import interp.Interpreter._
 
 object EmbeddedTestMain extends App
 {
-	println( statement("2 + 3") )
+	println( snippet(
+"""
+a = 2 + 3
+b = 4
+a + b
+""") )
 }

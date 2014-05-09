@@ -73,6 +73,11 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 
 	def parseStatement( r: Reader[Char] ) = phrase( statement )( lexical.read(r) )
 
+	def parseSnippet( r: Reader[Char] ) = phrase( snippet )( lexical.read(r) )
+
+	lazy val snippet: PackratParser[BlockExprAST] =
+		statements ^^ (BlockExprAST( _ ))
+		
 	lazy val source: PackratParser[ModuleAST] = rep(component) ^^ {case l => ModuleAST(module, l.flatten)}
 
 	lazy val component: PackratParser[List[ComponentAST]] = imports | symbolImports | natives | constants | variables | data | definitions | main
@@ -292,7 +297,11 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 
 	lazy val entry =
 		jsonExpr ~ (":" ~> expr) ^^ {case k ~ v => TupleExprAST( k, v )}
-		
+
+	lazy val block =
+		Indent ~> statements <~ Dedent ^^
+			(BlockExprAST( _ ))
+
 	lazy val expr40: PackratParser[ExprAST] =
 		numericLit ^^
 			(n =>
@@ -319,9 +328,8 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 			(SetExprAST( _ )) |
 		"{" ~> repsep(entry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
-		Indent ~> statements <~ Dedent ^^
-			(BlockExprAST( _ ))
-
+		block
+		
 	lazy val pattern =
 		(symbol <~ "@") ~ pattern5 ^^
 			{case alias ~ pat => AliasPatternAST( alias, pat )} |

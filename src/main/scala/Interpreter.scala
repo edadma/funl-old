@@ -147,7 +147,6 @@ object Interpreter
 		parser.parseStatement( new CharSequenceReader(s) ) match
 		{
 			case parser.Success( l, _ ) =>
-//				println( l )
 				eval.apply( l )
 				eval.last
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
@@ -156,4 +155,19 @@ object Interpreter
 	}
 
 	def statement( s: String ): Any = statement( 'module, s )
+
+	def snippet( s: String ) =
+	{
+	val eval = new Evaluator
+	val parser = new FunLParser( 'module )
+
+		parser.parseSnippet( new CharSequenceReader(s) ) match
+		{
+			case parser.Success( l, _ ) =>
+				eval.enterEnvironment( null, new Module('module) )
+				eval.eval( l )
+			case parser.Failure( m, r ) => PARSE_FAILURE( m )
+			case parser.Error( m, r ) => PARSE_FAILURE( m )
+		}
+	}
 }

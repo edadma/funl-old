@@ -23,7 +23,11 @@ object ParserTestMain extends App
 from fibo import fib
 
 main
-	fib( 1000 )
+	a =
+		b = 3
+		c = 4
+		b + c
+	println( a )
 """
 
 //class javax.swing.JFrame
