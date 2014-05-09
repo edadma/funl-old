@@ -19,15 +19,14 @@ object ParserTestMain extends App
 // 		eval.function( 'f, a => a.head.asInstanceOf[Int] + 2 )
 // 	}
 // 
-	val r = new CharSequenceReader(
+	val s =
 """
-from io import *
+from fibo import fib
 
 main
-	for line <- lines( 'io.funl' ) do
-		println( line )
-""" )
-	
+	fib( 1000 )
+"""
+
 //class javax.swing.JFrame
 // 	f = JFrame()
 // 	f.setSize( 200, 100 )
@@ -42,5 +41,5 @@ main
 // 
 // 	println time() - start
 
-	new Evaluator()( parse('main, r) )
+	new Evaluator()( parse('main, s) )
 }

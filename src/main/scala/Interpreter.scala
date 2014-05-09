@@ -7,7 +7,7 @@
 
 package funl.interp
 
-import java.io.{InputStream, FileInputStream}
+import java.io.{File, InputStream, FileInputStream}
 
 // import scala.util.parsing.input.PagedSeqReader
 // import scala.collection.immutable.PagedSeq
@@ -95,8 +95,26 @@ object Interpreter
 	}
 
 //		val r = new PagedSeqReader( PagedSeq fromFile (args.head + ".fun") )
-	def parse( module: Symbol ): AST = parse( module, new FileInputStream(module.name + ".funl") )
+	def parse( module: Symbol ): AST =
+	{
+	val filename = module.name + ".funl"
+	val resource = funl.Main.getClass.getResourceAsStream( filename )
+	val input =
+		if (resource eq null)
+		{
+		val file = new File( filename )
+
+			if (!file.exists || !file.isFile)
+				sys.error( "module '" + module.name + "' not found" )
+			else
+				new FileInputStream( file )
+		}
+		else
+			resource
 	
+		parse( module, input )
+	}
+
 	case class PARSE_FAILURE( message: String )
 
 // 	def expr( e: String, where: (Symbol, Any)* ) =
