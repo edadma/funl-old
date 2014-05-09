@@ -21,10 +21,10 @@ object ParserTestMain extends App
 // 
 	val r = new CharSequenceReader(
 """
-import io
+from io import *
 
 main
-	for line <- io.lines( 'io.funl' ) do
+	for line <- lines( 'io.funl' ) do
 		println( line )
 """ )
 	

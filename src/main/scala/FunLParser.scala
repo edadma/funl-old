@@ -16,7 +16,7 @@ import funl.indentation._
 
 class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratParsers
 {
-	override val lexical =
+	override val lexical: IndentationLexical =
 		new IndentationLexical( false, true, List("[", "(", "{"), List("]", ")", "}") )
 		{
 			override def token: Parser[Token] = decimalParser | super.token
@@ -59,9 +59,8 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 					case Some( exponent ) => exponent
 				}
 				
-			reserved += ("do", "if", "then", "for", "else", "by", "while", "var", "import", "break", "continue", "repeat", "until", "of",
-				"export", "class", "main", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case",
-				"of")
+			reserved += ("do", "if", "then", "for", "else", "by", "while", "var", "from", "import", "break", "continue", "repeat", "until", "of",
+				"export", "class", "main", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case")
 			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<",
 				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "^=", ":", "\\", "::", "@")
 		}
@@ -76,14 +75,20 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 
 	lazy val source: PackratParser[ModuleAST] = rep(component) ^^ {case l => ModuleAST(module, l.flatten)}
 
-	lazy val component: PackratParser[List[ComponentAST]] = imports | natives | constants | variables | data | definitions | main
+	lazy val component: PackratParser[List[ComponentAST]] = imports | symbolImports | natives | constants | variables | data | definitions | main
 
 	lazy val imports =
-		"import" ~> moduleImport ^^ (List(_)) |
-		"import" ~> Indent ~> rep1(moduleImport) <~ Dedent <~ Newline
+		"import" ~> importModule ^^ (List(_)) |
+		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline
 
-	lazy val moduleImport =
-		symbol <~ Newline ^^ (ImportAST( module, _ ))
+	lazy val symbolImports =
+		("from" ~> symbol <~ "import") ~ symbols <~ Newline ^^
+			{case m ~ s => List( ImportSymbolsAST(module, m, s) )} |
+		("from" ~> symbol <~ "import") <~ "*" <~ Newline ^^
+			{case m => List( ImportSymbolsAST(module, m, null) )}
+
+	lazy val importModule =
+		symbol <~ Newline ^^ (ImportModuleAST( module, _ ))
 		
 	lazy val natives =
 		"class" ~> native ^^ (List(_)) |
@@ -100,6 +105,8 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 			{case pkg ~ names => NativeAST( module, pkg.mkString( "." ), names )}
 
 	lazy val symbol = ident ^^ (Symbol( _ ))
+
+	lazy val symbols = rep1sep( symbol, "," )
 	
 	lazy val constants =
 		"val" ~> constant ^^ {case c => List( c )} |
@@ -128,7 +135,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 			{case c => DataAST( module, c._1, List(c) )}
 
 	lazy val constructor =
-		(symbol <~ "(") ~ (rep1sep(symbol, ",") <~ ")") ^^
+		(symbol <~ "(") ~ (symbols <~ ")") ^^
 			{case name ~ fields => (name, fields)} |
 		symbol ^^
 			{case name => (name, Nil)}

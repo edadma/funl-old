@@ -313,11 +313,25 @@ class Evaluator
 				function( m, 'require, a => require(a.head.asInstanceOf[Boolean], a.last.toString) )
 				function( m, 'symbol, a => Symbol(String.valueOf(a.head)) )
 				apply( cs )
-			case ImportAST( m, name ) =>
+			case ImportModuleAST( m, name ) =>
 				val ast = parse( name )
 
 				apply( ast )
 				assign( m, name -> module(name) )
+			case ImportSymbolsAST( into, from, symbols ) =>
+				val ast = parse( from )
+
+				apply( ast )
+
+				if (symbols eq null)
+					for ((k, v) <- module( from ).symbols)
+					{
+						if (!symbolExists( into, k ))
+							assign( into, k -> v )
+					}
+				else
+					for (s <- symbols)
+						assign( into, s -> symbol(from, s) )
 			case NativeAST( m, pkg, names ) =>
 				for ((n, a) <- names)
 					assign( m, if (a == None) Symbol(n) else a.get, Class.forName( pkg + '.' + n ) )
