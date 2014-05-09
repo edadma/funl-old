@@ -1,4 +1,4 @@
--injars			/home/ed/target/funl/scala-2.10/funl_2.10-0.1.jar
+-injars			/home/ed/target/funl/scala-2.10/funl.jar
 #-injars			/home/ed/target/lia/scala-2.10/lia_2.10-0.1-SNAPSHOT.jar
 #-injars			/home/ed/target/indentation-lexical/scala-2.10/indentation-lexical_2.10-0.1-SNAPSHOT.jar
 -libraryjars	<java.home>/lib/rt.jar
