@@ -5,11 +5,10 @@
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
 
-package funl.interp
+package funl
 
-import scala.util.parsing.input.CharSequenceReader
-
-import Interpreter._
+import interp.Interpreter._
+import interp.Evaluator
 
 
 object ParserTestMain extends App

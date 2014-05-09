@@ -41,7 +41,7 @@ libraryDependencies ++= Seq(
 	"org.funl-lang" %% "indentation-lexical" % "0.1"
 	)
 
-mainClass in (Compile, run) := Some( "funl.interp.ParserTestMain" )
+mainClass in (Compile, run) := Some( "funl.ParserTestMain" )
 //mainClass in (Compile, run) := Some( "funl.Main" )
 
 proguardSettings
