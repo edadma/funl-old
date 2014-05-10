@@ -13,9 +13,11 @@ import interp.Evaluator
 
 object ParserTestMain extends App
 {
+	def time( a: List[Any] ) = java.lang.System.currentTimeMillis
+	
 	val s =
 """
-method java.lang.System.currentTimeMillis => time
+function funl.ParserTestMain.time
 
 main
 	println( time() )

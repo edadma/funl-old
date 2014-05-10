@@ -18,6 +18,7 @@ case class ImportSymbolsAST( into: Symbol, from: Symbol, symbols: List[Symbol] )
 case class ClassAST( module: Symbol, pkg: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
 case class MethodAST( module: Symbol, cls: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
 case class FieldAST( module: Symbol, cls: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
+case class FunctionAST( module: Symbol, cls: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
 case class ConstAST( module: Symbol, name: Symbol, const: ExprAST ) extends ComponentAST
 case class VarAST( module: Symbol, name: Symbol, init: Option[ExprAST] ) extends ComponentAST
 case class DataAST( module: Symbol, name: Symbol, constructors: List[(Symbol, List[Symbol])] ) extends ComponentAST

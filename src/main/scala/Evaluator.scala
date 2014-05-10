@@ -342,6 +342,15 @@ class Evaluator
 
 					assign( m, a.getOrElse(Symbol(n)), NativeMethod(null, methods) )
 				}
+			case FunctionAST( m, cls, names ) =>
+				for ((n, a) <- names)
+				{
+				val method = Class.forName( cls ).getMethod( n, classOf[List[Any]] )
+
+					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) sys.error( "function method must be static" )
+
+					function( m, a.getOrElse(Symbol(n)), (a => method.invoke(null, a)) )
+				}
 			case ConstAST( m, name, expr ) =>
 				assign( m, name, eval(expr) )
 			case VarAST( m, n, v ) =>

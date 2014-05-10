@@ -61,7 +61,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 				
 			reserved += ("do", "if", "then", "for", "else", "by", "while", "var", "from", "import", "break", "continue", "repeat", "until", "of",
 				"export", "class", "main", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case",
-				"method", "field")
+				"method", "field", "function")
 			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<",
 				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "^=", ":", "\\", "::", "@")
 		}
@@ -103,7 +103,9 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 		"method" ~> native ^^ {case (cls, names) => List( MethodAST(module, cls, names) )} |
 		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => MethodAST( module, cls, names )}) |
 		"field" ~> native ^^ {case (cls, names) => List( FieldAST(module, cls, names) )} |
-		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FieldAST( module, cls, names )})
+		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FieldAST( module, cls, names )}) |
+		"function" ~> native ^^ {case (cls, names) => List( FunctionAST(module, cls, names) )} |
+		"function" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FunctionAST( module, cls, names )})
 
 	lazy val dottedName = rep1sep(ident, ".")
 
