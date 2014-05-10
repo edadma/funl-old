@@ -13,21 +13,12 @@ import interp.Evaluator
 
 object ParserTestMain extends App
 {
-// 	def plugin( eval: Evaluator )
-// 	{
-// 		eval.function( 'f, a => a.head.asInstanceOf[Int] + 2 )
-// 	}
-// 
 	val s =
 """
-from fibo import fib
+method java.lang.System.currentTimeMillis => time
 
 main
-	a =
-		b = 3
-		c = 4
-		b + c
-	println( a )
+	println( time() )
 """
 
 //class javax.swing.JFrame

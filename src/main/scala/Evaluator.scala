@@ -332,9 +332,16 @@ class Evaluator
 				else
 					for (s <- symbols)
 						assign( into, s -> symbol(from, s) )
-			case NativeAST( m, pkg, names ) =>
+			case ClassAST( m, pkg, names ) =>
 				for ((n, a) <- names)
-					assign( m, if (a == None) Symbol(n) else a.get, Class.forName( pkg + '.' + n ) )
+					assign( m, a.getOrElse(Symbol(n)), Class.forName(pkg + '.' + n) )
+			case MethodAST( m, cls, names ) =>
+				for ((n, a) <- names)
+				{
+				val methods = Class.forName( cls ).getMethods.toList.filter( m => m.getName == n && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
+
+					assign( m, a.getOrElse(Symbol(n)), NativeMethod(null, methods) )
+				}
 			case ConstAST( m, name, expr ) =>
 				assign( m, name, eval(expr) )
 			case VarAST( m, n, v ) =>

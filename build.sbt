@@ -37,8 +37,8 @@ libraryDependencies ++= Seq(
 	)
 
 libraryDependencies ++= Seq(
-	"org.funl-lang" %% "lia" % "0.1",
-	"org.funl-lang" %% "indentation-lexical" % "0.1"
+	"org.funl-lang" %% "lia" % "0.1-SNAPSHOT",
+	"org.funl-lang" %% "indentation-lexical" % "0.1-SNAPSHOT"
 	)
 
 mainClass in (Compile, run) := Some( "funl.ParserTestMain" )

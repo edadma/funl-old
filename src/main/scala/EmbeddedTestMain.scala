@@ -7,7 +7,7 @@
 
 package funl
 
-import interp.Interpreter._
+import funl.interp.Interpreter._
 
 
 object EmbeddedTestMain extends App

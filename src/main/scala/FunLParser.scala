@@ -60,7 +60,8 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 				}
 				
 			reserved += ("do", "if", "then", "for", "else", "by", "while", "var", "from", "import", "break", "continue", "repeat", "until", "of",
-				"export", "class", "main", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case")
+				"export", "class", "main", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case",
+				"method", "field")
 			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<",
 				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "^=", ":", "\\", "::", "@")
 		}
@@ -94,20 +95,25 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 
 	lazy val importModule =
 		symbol <~ Newline ^^ (ImportModuleAST( module, _ ))
-		
+
 	lazy val natives =
-		"class" ~> native ^^ (List(_)) |
-		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline
+		"class" ~> native ^^ {case (pkg, names) => List( ClassAST(module, pkg, names) )} |
+		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^
+			(cs => cs map {case (pkg, names) => ClassAST( module, pkg, names )}) |
+		"method" ~> native ^^ {case (cls, names) => List( MethodAST(module, cls, names) )} |
+		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => MethodAST( module, cls, names )}) |
+		"field" ~> native ^^ {case (cls, names) => List( FieldAST(module, cls, names) )} |
+		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FieldAST( module, cls, names )})
 
 	lazy val dottedName = rep1sep(ident, ".")
 
 	lazy val className = ident ~ opt("=>" ~> symbol) ^^ {case name ~ alias => (name, alias)}
 	
-	lazy val native =
+	lazy val native: PackratParser[(String, List[(String, Option[Symbol])])] =
 		dottedName ~ opt("=>" ~> symbol) <~ Newline ^^
-			{case name ~ alias => NativeAST( module, name.init.mkString( "." ), List((name.last, alias)) )} |
+			{case name ~ alias => (name.init.mkString( "." ), List((name.last, alias)))} |
 		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) ^^
-			{case pkg ~ names => NativeAST( module, pkg.mkString( "." ), names )}
+			{case pkg ~ names => (pkg.mkString( "." ), names)}
 
 	lazy val symbol = ident ^^ (Symbol( _ ))
 
