@@ -17,10 +17,8 @@ object ParserTestMain extends App
 	
 	val s =
 """
-function funl.ParserTestMain.time
-
 main
-	println( time() )
+	printf( '%4d\n', 123 )
 """
 
 //class javax.swing.JFrame

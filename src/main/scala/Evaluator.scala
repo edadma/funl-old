@@ -146,6 +146,16 @@ class Evaluator
 			case Some( res ) => res.asInstanceOf[Module]
 		}
 	}
+
+	def loaded( m: Symbol ) = symbols.contains( m ) && symbols(m).isInstanceOf[Module]
+
+	def load( m: Symbol ) =
+		if (!loaded( PREDEF ))
+		{
+		val ast = parse( PREDEF )
+
+			apply( ast )
+		}
 	
 	def symbol( m: Symbol, key: Symbol ) = module( m ).symbols(key)
 
@@ -168,23 +178,6 @@ class Evaluator
 
 		this
 	}
-
-	def _display( a: Any ): String =
-		a match
-		{
-			case l: List[_] => l.mkString( "[", ", ", "]" )
-			case s: Set[_] => s.mkString( "{", ", ", "}" )
-			case m: Map[_, _] => m.toList.map( e => _display(e._1) + ": " + _display(e._2) ).mkString( "{", ", ", "}" )
-			case t: Vector[_] => t.mkString( "(", ", ", ")" )
-			case s: String => "\"" + s + '"'
-			case _ => String.valueOf( a )
-		}
-
-	def display( a: Any ) =
-		if (a != null && a.isInstanceOf[String])
-			a.toString
-		else
-			_display( a )
 	
 	def function( m: Symbol, n: Symbol, f: Function ) = assign( m, n, f )
 
@@ -296,22 +289,27 @@ class Evaluator
 		t match
 		{
 			case ModuleAST( m, cs ) =>
-				assign( m,
-					'i -> Complex( 0, 1 ),
-					'sys -> this
-					)
-				function( m, 'println, a => println(a map (display(_)) mkString(", ")) )
-				function( m, 'print, a => print(a map (display(_)) mkString(", ")) )
-				function( m, 'Array, a => new HolderArray( a.head.asInstanceOf[Int]) )
-				function( m, 'Map, a =>
-					if (a isEmpty)
-						new HolderMap( null )
-					else
-						new HolderMap( a.head.asInstanceOf[collection.Map[Any, Any]] ) )
-				function( m, 'class, a => a.head.getClass )
-				function( m, 'error, a => {println(a.head.toString); sys.exit( 1 )} )
-				function( m, 'require, a => require(a.head.asInstanceOf[Boolean], a.last.toString) )
-				function( m, 'symbol, a => Symbol(String.valueOf(a.head)) )
+				if (m == PREDEF)
+				{
+					function( m, 'Array, a => new HolderArray( a.head.asInstanceOf[Int]) )
+					function( m, 'Map, a =>
+						if (a isEmpty)
+							new HolderMap( null )
+						else
+							new HolderMap( a.head.asInstanceOf[collection.Map[Any, Any]] ) )
+				}
+				else
+				{
+					load( PREDEF )
+					
+					for ((k, v) <- module( PREDEF ).symbols)
+						assign( m, k -> v )
+				}
+// 				assign( m,
+// 					'i -> Complex( 0, 1 ),
+// 					'sys -> this
+// 					)
+
 				apply( cs )
 			case ImportModuleAST( m, name ) =>
 				val ast = parse( name )

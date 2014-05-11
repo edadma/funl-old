@@ -59,7 +59,8 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 					case Some( exponent ) => exponent
 				}
 				
-			reserved += ("do", "if", "then", "for", "else", "by", "while", "var", "from", "import", "break", "continue", "repeat", "until", "of",
+			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "from", "import", "break", "continue", "repeat",
+									 "until", "of",
 				"export", "class", "main", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case",
 				"method", "field", "function")
 			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<",
@@ -217,7 +218,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 		expr7
 
 	lazy val elif =
-		(onl ~ "elif") ~> (booleanExpr <~ "then") ~ expr ^^ {case c ~ t => (c, t)}
+		(onl ~ "elsif") ~> (booleanExpr <~ "then") ~ expr ^^ {case c ~ t => (c, t)}
 
 	lazy val expr7 =
 		"if" ~> (booleanExpr <~ "then") ~ expr ~ rep(elif) ~ opt(onl ~> "else" ~> expr) ^^

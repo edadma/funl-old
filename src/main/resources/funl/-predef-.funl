@@ -1,0 +1,4 @@
+function funl.Predef.{
+	print, println, printf,
+	error
+	}
