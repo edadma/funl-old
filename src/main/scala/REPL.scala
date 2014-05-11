@@ -17,6 +17,8 @@ import funl.interp.Interpreter._
 
 object REPL extends App
 {
+	System.getProperties.setProperty( "jline.shutdownhook", "true" )
+
 	val reader = new ConsoleReader
 	val out = new PrintWriter( reader.getTerminal.wrapOutIfNeeded(System.out), true )
 	var line: String = null
@@ -26,7 +28,7 @@ object REPL extends App
 	reader.setBellEnabled( false )
 	reader.setPrompt( "FunL> " )
 
-	out.println( "Welcome to FunL version 0.1" )
+	out.println( "Welcome to FunL version 0.2" )
 	out.println( "Type in expressions to have them evaluated." )
 	out.println( "Type :help for more information." )
 	out.println
@@ -42,7 +44,6 @@ object REPL extends App
 				out.println( ":quit                      exit the interpreter" )
 				out.println
 			case ":quit" =>
-				out.close
 				sys.exit
 			case _ =>
 				try
