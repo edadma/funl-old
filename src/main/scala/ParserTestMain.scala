@@ -15,14 +15,14 @@ object ParserTestMain extends App
 {
 	def time( a: List[Any] ) = java.lang.System.currentTimeMillis
 
-	def pair( a: List[Any] ) = (a.head, a.last)
+//	def func1( )
 	
 	val s =
 """
-function funl.ParserTestMain.pair
-
 main
-		println( pair(1, 2)(2) )
+	val (1 | [1]) = [1]
+	
+	println( 123 )
 """
 
 //class javax.swing.JFrame

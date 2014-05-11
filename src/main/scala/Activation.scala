@@ -5,7 +5,14 @@
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
 
-function funl.Predef.{
-	print, println, printf,
-	error, require
-	}
+package funl.interp
+
+import collection.mutable.ArrayStack
+
+
+class Activation( val closure: Closure, val module: Module ) extends Types
+{
+	val scope = new ArrayStack[SymbolMap]
+
+	override def toString = "Activation( " + closure + ", " + scope + " )"
+}

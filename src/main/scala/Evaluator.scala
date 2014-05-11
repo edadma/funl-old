@@ -20,11 +20,14 @@ import funl.lia.{Complex, Math}
 import Interpreter._
 
 
-class Evaluator
+trait Types
 {
-	type Function = List[Any] => Any
 	type SymbolMap = HashMap[Symbol, Any]
-	
+	type Function = List[Any] => Any
+}
+
+class Evaluator extends Types
+{
 	class Datatype( name: String )
 	
 	case class Constructor( datatype: Symbol, name: Symbol, fields: List[Symbol] )
@@ -110,18 +113,6 @@ class Evaluator
 	}
 
 	class Holder( var v: Any )
-
-	class Activation( val closure: Closure, val module: Module )
-	{
-		val scope = new ArrayStack[SymbolMap]
-		
-		override def toString = "Activation( " + closure + ", " + scope + " )"
-	}
-	
-	class Closure( val calling: Activation, val module: Module, val func: List[FunctionExprAST] )
-	{
-		override def toString = "<closure>"
-	}
 
 	class BreakThrowable extends Throwable
 

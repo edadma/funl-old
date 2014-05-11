@@ -49,21 +49,20 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 					case Some( fraction ) => fraction
 				}
 
-			private def exponent = (chr( 'e' ) | chr( 'E' )) ~ optSign ~ rep1( digit ) ^^
+			private def exponent = (chr( 'e' ) | chr( 'E' )) ~ optSign ~ rep1(digit) ^^
 				{case e ~ optSign ~ exp => e :: optSign :: (exp mkString "") :: Nil mkString ""}
 
 			private def optExponent: Parser[String] =
-				opt( exponent ) ^^
+				opt(exponent) ^^
 				{
 					case None => ""
 					case Some( exponent ) => exponent
 				}
 				
-			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "from", "import", "break", "continue", "repeat",
-									 "until", "of",
+			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "from", "import", "break", "continue", "repeat", "until", "of",
 				"export", "class", "main", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case",
 				"method", "field", "function")
-			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<",
+			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<", "$",
 				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "^=", ":", "\\", "::", "@")
 		}
 
@@ -307,10 +306,6 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 	lazy val entry =
 		jsonExpr ~ (":" ~> expr) ^^ {case k ~ v => TupleExprAST( k, v )}
 
-	lazy val block =
-		Indent ~> statements <~ Dedent ^^
-			(BlockExprAST( _ ))
-
 	lazy val expr40: PackratParser[ExprAST] =
 		numericLit ^^
 			(n =>
@@ -337,7 +332,10 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 			(SetExprAST( _ )) |
 		"{" ~> repsep(entry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
-		block
+		Indent ~> statements <~ Dedent ^^
+			(BlockExprAST( _ )) |
+		"$" ~> ident ^^
+			(SysvarExprAST( _ ))
 		
 	lazy val pattern =
 		(symbol <~ "@") ~ pattern5 ^^
@@ -386,7 +384,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 		pattern20 |
 		("(" ~> pattern30 <~ ",") ~ (rep1sep(pattern30, ",") <~ ")") ^^
 			{case e ~ l => TuplePatternAST( e +: l )} |
-		("[" ~> repsep(pattern30, ",") <~ "]") ^^
+		"[" ~> repsep(pattern30, ",") <~ "]" ^^
 			{case l => ListPatternAST( l )} |
 		"(" ~> pattern30 <~ ")"
 }

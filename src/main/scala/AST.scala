@@ -30,6 +30,7 @@ case class ExpressionStatementAST( e: ExprAST ) extends StatementAST
 case class ValStatementAST( pat: PatternAST, exp: ExprAST ) extends StatementAST
 
 trait ExprAST extends AST
+case class SysvarExprAST( s: String ) extends ExprAST
 case object BreakExprAST extends ExprAST
 case object ContinueExprAST extends ExprAST
 case class IntegerLiteralExprAST( i: Int ) extends ExprAST

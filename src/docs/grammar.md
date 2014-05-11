@@ -1,15 +1,37 @@
 # Grammar
 
-Here is the actual grammar (without parser actions) used to parse FunL.  The grammar syntax is documented here: <http://www.scala-lang.org/api/2.10.4/index.html#scala.util.parsing.combinator.Parsers$Parser>
+Here is the actual grammar (without parser actions and other source code boilerplate) used to parse FunL.  The grammar syntax is documented here: <http://www.scala-lang.org/api/2.10.4/index.html#scala.util.parsing.combinator.Parsers$Parser>
 
+
+## Syntactic Grammar
+
+	snippet = statements
+	
 	source = rep(component)
 
-	component = natives | constants | variables | data | definitions | main
+	component = imports | symbolImports | natives | constants | variables | data | definitions | main
+
+	imports =
+		"import" ~> importModule |
+		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline
+
+	symbolImports =
+		("from" ~> symbol <~ "import") ~ symbols <~ Newline |
+		("from" ~> symbol <~ "import") <~ "*" <~ Newline
+
+	lazy val importModule =
+		symbol <~ Newline ^^ (ImportModuleAST( module, _ ))
 
 	natives =
 		"class" ~> native |
-		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline
-
+		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline |
+		"method" ~> native |
+		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline |
+		"field" ~> native |
+		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline |
+		"function" ~> native |
+		"function" ~> Indent ~> rep1(native) <~ Dedent <~ Newline
+		
 	dottedName = rep1sep(ident, ".")
 
 	className = ident ~ opt("=>" ~> symbol)
@@ -20,6 +42,8 @@ Here is the actual grammar (without parser actions) used to parse FunL.  The gra
 
 	symbol = ident
 
+	symbols = rep1sep( symbol, "," )
+	
 	constants =
 		"val" ~> constant |
 		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline
@@ -94,7 +118,7 @@ Here is the actual grammar (without parser actions) used to parse FunL.  The gra
 		expr7
 
 	elif =
-		(onl ~ "elif") ~> (booleanExpr <~ "then") ~ expr
+		(onl ~ "elsif") ~> (booleanExpr <~ "then") ~ expr
 
 	expr7 =
 		"if" ~> (booleanExpr <~ "then") ~ expr ~ rep(elif) ~ opt(onl ~> "else" ~> expr) |
@@ -102,8 +126,8 @@ Here is the actual grammar (without parser actions) used to parse FunL.  The gra
 		("while" ~> expr) ~ ("do" ~> expr) ~ opt(onl ~> "else" ~> expr) |
 		("do" ~> expr) ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> expr) |
 		("repeat" ~> expr) ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> expr) |
-		"break"^ BreakExprAST |
-		"continue"^ ContinueExprAST |
+		"break" |
+		"continue" |
 		("case" ~> expr) ~ ("of" ~> functionExpr) |
 		expr10
 
@@ -120,7 +144,7 @@ Here is the actual grammar (without parser actions) used to parse FunL.  The gra
 		expr22
 
 	expr22 =
-		expr26 ~ ("==" | "/=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in"^ "notin") ~ expr26 |
+		expr26 ~ ("==" | "/=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in") ~ expr26 |
 		expr26
 
 	expr26 =
@@ -179,8 +203,12 @@ Here is the actual grammar (without parser actions) used to parse FunL.  The gra
 		"{" ~> repsep(entry, ",") <~ "}" |
 		Indent ~> statements <~ Dedent
 
-	pattern: PackratParser[PatternAST] =
-		pattern10 ~ (":" ~> pattern) |
+	pattern =
+		(symbol <~ "@") ~ pattern5 |
+		pattern5
+
+	pattern5: PackratParser[PatternAST] =
+		pattern10 ~ (":" ~> pattern5) |
 		pattern10
 
 	pattern10: PackratParser[PatternAST] =
@@ -205,4 +233,30 @@ Here is the actual grammar (without parser actions) used to parse FunL.  The gra
 	pattern40 =
 		pattern20 |
 		("(" ~> pattern30 <~ ",") ~ (rep1sep(pattern30, ",") <~ ")") |
-		("[" ~> repsep(pattern30, ",") <~ "]")
+		"[" ~> repsep(pattern30, ",") <~ "]"
+
+		
+## Lexical Grammar
+
+The reserved words in the language are: `do`, `if`, `then`, `for`, `else`, `elsif`, `by`, `while`, `var`, `from`, `import`, `break`, `continue`, `repeat`,
+`until`, `of`,
+`export`, `class`, `main`, `data`, `def`, `true`, `false`, `val`, `null`, `not`, `and`, `or`, `xor`, `otherwise`, `in`, `case`, `method`, `field`, `function`.
+
+The special delimiters are: `+`, `*`, `-`, `/`, `^`, `(`, `)`, `[`, `]`, `|`, `{`, `}`, `,`, `=`, `==`, `/=`, `<`, `$`,
+`>`, `<-`, `<=`, `>=`, `--`, `++`, `.`, `..`, `<-`, `->`, `=>`, `+=`, `-=`, `*=`, `^=`, `:`, `\\`, `::`, `@`.
+
+	decimalParser =
+		rep1(digit) ~ optFraction ~ optExponent |
+		fraction ~ optExponent
+
+	sign = '+' | '-'
+
+	optSign = opt( sign )
+
+	fraction = '.' ~ rep1(digit)
+
+	optFraction = opt( fraction )
+
+	exponent = ('e' | 'E') ~ optSign ~ rep1(digit)
+
+	optExponent = opt(exponent)

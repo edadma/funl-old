@@ -5,7 +5,10 @@
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
 
-function funl.Predef.{
-	print, println, printf,
-	error, require
-	}
+package funl.interp
+
+
+class Closure( val calling: Activation, val module: Module, val func: List[FunctionExprAST] )
+{
+	override def toString = "<closure>"
+}
