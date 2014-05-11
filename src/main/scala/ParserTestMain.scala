@@ -14,11 +14,15 @@ import interp.Evaluator
 object ParserTestMain extends App
 {
 	def time( a: List[Any] ) = java.lang.System.currentTimeMillis
+
+	def pair( a: List[Any] ) = (a.head, a.last)
 	
 	val s =
 """
+function funl.ParserTestMain.pair
+
 main
-	printf( '%4d\n', 123 )
+		println( pair(1, 2)(2) )
 """
 
 //class javax.swing.JFrame

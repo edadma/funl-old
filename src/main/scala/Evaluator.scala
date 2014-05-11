@@ -616,6 +616,8 @@ class Evaluator
 								case None => sys.error( "no constructor with matching signatures for: " + argList )
 								case Some( cm ) => push( cm.newInstance( argList.asInstanceOf[List[Object]]: _* ) )
 							}
+					case p: Product =>
+						push( p.productElement(argList.head.asInstanceOf[Int]) )
 					case o => sys.error( "not a function: " + o )
 				}
 			case UnaryExprAST( op, exp ) =>
@@ -1021,7 +1023,8 @@ class Evaluator
 			case TuplePatternAST( t ) =>
 				a match
 				{
-					case v: Vector[Any] => v.length == t.length && (v zip t).forall( pair => unify(map, pair._1, pair._2) )
+					case v: Vector[Any] => v.length == t.length && (v zip t).forall( {case (ve, te) => unify(map, ve, te)} )
+					case p: Product => p.productArity == t.length && t.zipWithIndex.forall {case (te, i) => unify( map, p.productElement(i), te )}
 					case _ => false
 				}
 			case RecordPatternAST( n, l ) =>
