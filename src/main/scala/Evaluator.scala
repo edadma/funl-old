@@ -119,12 +119,21 @@ class Evaluator extends Types
 	class ContinueThrowable extends Throwable
 
 	val symbols = new SymbolMap
+	val sysvars = new SymbolMap
 	val datatypes = new HashSet[Symbol]
 	val stack = new StackArray[Any]
 	val activations = new ArrayStack[Activation]
 	
 	var last: Any = null
 
+	def sysvar( k: Symbol )( v: => Any )
+	{
+		sysvars(k) = new SystemReference( k.name )( v )
+	}
+
+	sysvar( 'time ) {compat.Platform.currentTime}
+	sysvar( 'date ) {new java.util.Date}
+	
 	def module( m: Symbol ) =
 	{
 		symbols.get(m) match
@@ -378,6 +387,13 @@ class Evaluator extends Types
 
 				if (!unify( activations.top.scope.top, last, p ))
 					sys.error( "unification failure" )
+			case SysvarExprAST( s ) =>
+				sysvars.get( s ) match
+				{
+					case None => sys.error( s + " not a system variable" )
+					case Some( v ) => push( v )
+					case _ => sys.error( "problem" )
+				}
 			case BreakExprAST =>
 				throw new BreakThrowable
 			case ContinueExprAST =>
@@ -1077,6 +1093,8 @@ class Evaluator extends Types
 	def deref( v: Any ) =
 		if (v.isInstanceOf[Holder])
 			v.asInstanceOf[Holder].v
+		else if (v.isInstanceOf[Reference])
+			v.asInstanceOf[Reference].get
 		else
 			v
 }

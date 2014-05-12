@@ -13,16 +13,10 @@ import interp.Evaluator
 
 object ParserTestMain extends App
 {
-	def time( a: List[Any] ) = java.lang.System.currentTimeMillis
-
-//	def func1( )
-	
 	val s =
 """
 main
-	val (1 | [1]) = [1]
-	
-	println( 123 )
+	println( $date )
 """
 
 //class javax.swing.JFrame

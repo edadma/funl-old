@@ -334,7 +334,7 @@ class FunLParser( module: Symbol ) extends StandardTokenParsers with PackratPars
 			(MapExprAST( _ )) |
 		Indent ~> statements <~ Dedent ^^
 			(BlockExprAST( _ )) |
-		"$" ~> ident ^^
+		"$" ~> symbol ^^
 			(SysvarExprAST( _ ))
 		
 	lazy val pattern =
