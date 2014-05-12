@@ -16,7 +16,9 @@ object ParserTestMain extends App
 	val s =
 """
 main
-	println( $date )
+	a = 5
+	b = a
+	println( b + 2 )
 """
 
 //class javax.swing.JFrame

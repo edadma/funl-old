@@ -201,7 +201,8 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		"null" |
 		"{" ~> repsep(jsonExpr, ",") <~ "}" |
 		"{" ~> repsep(entry, ",") <~ "}" |
-		Indent ~> statements <~ Dedent
+		Indent ~> statements <~ Dedent |
+		"$" ~> symbol
 
 	pattern =
 		(symbol <~ "@") ~ pattern5 |
@@ -235,7 +236,7 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		("(" ~> pattern30 <~ ",") ~ (rep1sep(pattern30, ",") <~ ")") |
 		"[" ~> repsep(pattern30, ",") <~ "]"
 
-		
+
 ## Lexical Grammar
 
 The reserved words in the language are: `do`, `if`, `then`, `for`, `else`, `elsif`, `by`, `while`, `var`, `from`, `import`, `break`, `continue`, `repeat`,
