@@ -10,7 +10,7 @@ package funl.interp
 import collection.mutable.HashMap
 
 
-class Module( val name: Symbol )
+class Module( val name: String ) extends Types
 {
-	val symbols = new HashMap[Symbol, Any]
+	val symbols = new SymbolMap
 }

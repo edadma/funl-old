@@ -33,7 +33,7 @@ object REPL extends App
 	out.println( "Type :help for more information." )
 	out.println
 
-	eval.enterEnvironment( null, new Module('REPL) )
+	eval.enterEnvironment( null, new Module("REPL") )
 
 	while ({line = reader.readLine; line != null})
 	{
@@ -48,12 +48,12 @@ object REPL extends App
 			case _ =>
 				try
 				{
-				val res = statement( 'REPL, line, eval )
+				val res = statement( "REPL", line, eval )
 				val name = "res" + count
 
 					out.println( name + ": " + res.getClass.getName + " = " + res )
 					out.println
-					eval.assign( 'REPL, Symbol(name) -> res )
+					eval.assign( "REPL", name -> res )
 					count += 1
 				}
 				catch

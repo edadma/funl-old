@@ -22,7 +22,7 @@ import Interpreter._
 
 trait Types
 {
-	type SymbolMap = HashMap[Symbol, Any]
+	type SymbolMap = HashMap[String, Any]
 	type Function = List[Any] => Any
 }
 
@@ -30,22 +30,22 @@ class Evaluator extends Types
 {
 	class Datatype( name: String )
 	
-	case class Constructor( datatype: Symbol, name: Symbol, fields: List[Symbol] )
+	case class Constructor( datatype: String, name: String, fields: List[String] )
 
 	case class NativeMethod( o: Any, m: List[Method] )
 	
-	class Record( val datatype: Symbol, val name: Symbol, val fields: List[Symbol], val args: List[Any] )
+	class Record( val datatype: String, val name: String, val fields: List[String], val args: List[Any] )
 	{
-		private val map = ListMap[Symbol, Any]( (fields zip args): _* )
+		private val map = ListMap[String, Any]( (fields zip args): _* )
 
-		def get( key: Symbol ) = map.get( key )
+		def get( key: String ) = map.get( key )
 
 		override def hashCode = datatype.hashCode ^ name.hashCode ^ fields.hashCode ^ args.hashCode
 
 		override def equals( o: Any ) =
 			o match
 			{
-				case r: Record => name == r.name && args == r.args
+				case r: Record => name == r && args == r.args
 				case _ => false
 			}
 			
@@ -58,21 +58,21 @@ class Evaluator extends Types
 
 	val symbols = new SymbolMap
 	val sysvars = new SymbolMap
-	val datatypes = new HashSet[Symbol]
+	val datatypes = new HashSet[String]
 	val stack = new StackArray[Any]
 	val activations = new ArrayStack[Activation]
 	
 	var last: Any = null
 
-	def sysvar( k: Symbol )( v: => Any )
+	def sysvar( k: String )( v: => Any )
 	{
-		sysvars(k) = new SystemReference( k.name )( v )
+		sysvars(k) = new SystemReference( k )( v )
 	}
 
-	sysvar( 'time ) {compat.Platform.currentTime}
-	sysvar( 'date ) {new java.util.Date}
+	sysvar( "time" ) {compat.Platform.currentTime}
+	sysvar( "date" ) {new java.util.Date}
 	
-	def module( m: Symbol ) =
+	def module( m: String ) =
 	{
 		symbols.get(m) match
 		{
@@ -85,9 +85,9 @@ class Evaluator extends Types
 		}
 	}
 
-	def loaded( m: Symbol ) = symbols.contains( m ) && symbols(m).isInstanceOf[Module]
+	def loaded( m: String ) = symbols.contains( m ) && symbols(m).isInstanceOf[Module]
 
-	def load( m: Symbol ) =
+	def load( m: String ) =
 		if (!loaded( PREDEF ))
 		{
 		val ast = parse( PREDEF )
@@ -95,11 +95,11 @@ class Evaluator extends Types
 			apply( ast )
 		}
 	
-	def symbol( m: Symbol, key: Symbol ) = module( m ).symbols(key)
+	def symbol( m: String, key: String ) = module( m ).symbols(key)
 
-	def symbolExists( m: Symbol, key: Symbol ) = module( m ).symbols contains key
+	def symbolExists( m: String, key: String ) = module( m ).symbols contains key
 	
-	def assign( m: Symbol, key: Symbol, value: Any )
+	def assign( m: String, key: String, value: Any )
 	{
 	val syms = module(m).symbols
 	
@@ -109,7 +109,7 @@ class Evaluator extends Types
 			syms(key) = value
 	}
 	
-	def assign( module: Symbol, vs: (Symbol, Any)* ): Evaluator =
+	def assign( module: String, vs: (String, Any)* ): Evaluator =
 	{
 		for ((k, v) <- vs)
 			assign( module, k, v )
@@ -117,7 +117,7 @@ class Evaluator extends Types
 		this
 	}
 	
-	def function( m: Symbol, n: Symbol, f: Function ) = assign( m, n, f )
+	def function( m: String, n: String, f: Function ) = assign( m, n, f )
 
 	def eval( t: AST ) =
 	{
@@ -193,7 +193,7 @@ class Evaluator extends Types
 
 	def apply( t: AST, creatvars: Boolean = false ): Any =
 	{
-		def vars( m: Symbol, name: Symbol ) =
+		def vars( m: String, name: String ) =
 		{
 			def vars( a: Activation ): Any =
 			{
@@ -215,7 +215,7 @@ class Evaluator extends Types
 			vars( activations.top )
 		}
 		
-		def newVar( name: Symbol ) =
+		def newVar( name: String ) =
 		{
 			val ref = new VariableReference
 			
@@ -261,13 +261,13 @@ class Evaluator extends Types
 						assign( into, s -> symbol(from, s) )
 			case ClassAST( m, pkg, names ) =>
 				for ((n, a) <- names)
-					assign( m, a.getOrElse(Symbol(n)), Class.forName(pkg + '.' + n) )
+					assign( m, a.getOrElse(n), Class.forName(pkg + '.' + n) )
 			case MethodAST( m, cls, names ) =>
 				for ((n, a) <- names)
 				{
 				val methods = Class.forName( cls ).getMethods.toList.filter( m => m.getName == n && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
 
-					assign( m, a.getOrElse(Symbol(n)), NativeMethod(null, methods) )
+					assign( m, a.getOrElse(n), NativeMethod(null, methods) )
 				}
 			case FunctionAST( m, cls, names ) =>
 				for ((n, a) <- names)
@@ -276,7 +276,7 @@ class Evaluator extends Types
 
 					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) sys.error( "function method must be static" )
 
-					function( m, a.getOrElse(Symbol(n)), (a => method.invoke(null, a)) )
+					function( m, a.getOrElse(n), (a => method.invoke(null, a)) )
 				}
 			case ConstAST( m, name, expr ) =>
 				assign( m, name, eval(expr) )
@@ -852,15 +852,15 @@ class Evaluator extends Types
 							case Some( v ) => push( v )
 						}
 					case m: Map[Any, Any] =>
-						push( m(f.name) )
+						push( m(f) )
 					case c: Class[Any] =>
-						val methods = c.getMethods.toList.filter( m => m.getName == f.name && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
+						val methods = c.getMethods.toList.filter( m => m.getName == f && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
 
 						if (methods isEmpty)
 						{
-							c.getFields.find( cf => cf.getName == f.name && (cf.getModifiers&Modifier.STATIC) == Modifier.STATIC ) match
+							c.getFields.find( cf => cf.getName == f && (cf.getModifiers&Modifier.STATIC) == Modifier.STATIC ) match
 							{
-								case None => sys.error( "static method or field not found: " + f.name )
+								case None => sys.error( "static method or field not found: " + f )
 								case Some( field ) => push( field.get(null) )
 							}
 						}
@@ -869,15 +869,15 @@ class Evaluator extends Types
 					case m: Module =>
 						m.symbols.get( f ) match
 						{
-							case None => sys.error( "'" + f.name + "' not found in module '" + m.name + "'" )
+							case None => sys.error( "'" + f + "' not found in module '" + m + "'" )
 							case Some( elem ) => push( elem )
 						}
 					case o =>
 						val c = o.getClass
-						val methods = c.getMethods.toList.filter( m => m.getName == f.name && (m.getModifiers&Modifier.STATIC) != Modifier.STATIC )
+						val methods = c.getMethods.toList.filter( m => m.getName == f && (m.getModifiers&Modifier.STATIC) != Modifier.STATIC )
 						
 						if (methods isEmpty)
-							sys.error( "object method '" + f.name + "' not found in:" + o )
+							sys.error( "object method '" + f + "' not found in:" + o )
 
 						push( NativeMethod(o, methods) )
 				}
@@ -909,13 +909,13 @@ class Evaluator extends Types
 		}
 	}
 
-	def typecheck( a: Any, t: Option[Symbol] ) =
+	def typecheck( a: Any, t: Option[String] ) =
 		t match
 		{
 			case None => true
-			case Some( 'String ) => a.isInstanceOf[String]
-			case Some( 'Int ) => a.isInstanceOf[Int]
-			case Some( 'List ) => a.isInstanceOf[List[_]]
+			case Some( "String" ) => a.isInstanceOf[String]
+			case Some( "Int" ) => a.isInstanceOf[Int]
+			case Some( "List" ) => a.isInstanceOf[List[_]]
 			case Some( datatype ) => datatypes.contains( datatype ) && a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == datatype
 			case _ => sys.error( "unknown type" )
 		}
@@ -942,7 +942,7 @@ class Evaluator extends Types
 					else
 						false
 				}
-			case VariablePatternAST( '_, t ) => typecheck( a, t )
+			case VariablePatternAST( "_", t ) => typecheck( a, t )
 			case VariablePatternAST( n, t ) =>
 				if (map contains n)
 					a == map(n)
@@ -966,7 +966,7 @@ class Evaluator extends Types
 			case RecordPatternAST( n, l ) =>
 				a match
 				{
-					case r: Record => r.name == n && r.args.length == l.length && (r.args zip l).forall( pair => unify(map, pair._1, pair._2) )
+					case r: Record => r == n && r.args.length == l.length && (r.args zip l).forall( pair => unify(map, pair._1, pair._2) )
 					case _ => false
 				}
 			case ListPatternAST( f ) =>

@@ -10,34 +10,34 @@ package funl.interp
 
 trait AST
 
-case class ModuleAST( module: Symbol, components: List[ComponentAST] ) extends AST
+case class ModuleAST( module: String, components: List[ComponentAST] ) extends AST
 
 trait ComponentAST extends AST
-case class ImportModuleAST( into: Symbol, toimport: Symbol ) extends ComponentAST
-case class ImportSymbolsAST( into: Symbol, from: Symbol, symbols: List[Symbol] ) extends ComponentAST
-case class ClassAST( module: Symbol, pkg: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
-case class MethodAST( module: Symbol, cls: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
-case class FieldAST( module: Symbol, cls: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
-case class FunctionAST( module: Symbol, cls: String, name: List[(String, Option[Symbol])] ) extends ComponentAST
-case class ConstAST( module: Symbol, name: Symbol, const: ExprAST ) extends ComponentAST
-case class VarAST( module: Symbol, name: Symbol, init: Option[ExprAST] ) extends ComponentAST
-case class DataAST( module: Symbol, name: Symbol, constructors: List[(Symbol, List[Symbol])] ) extends ComponentAST
-case class DefAST( module: Symbol, name: Symbol, func: FunctionExprAST ) extends ComponentAST
-case class MainAST( module: Symbol, s: StatementAST ) extends ComponentAST
+case class ImportModuleAST( into: String, toimport: String ) extends ComponentAST
+case class ImportSymbolsAST( into: String, from: String, symbols: List[String] ) extends ComponentAST
+case class ClassAST( module: String, pkg: String, name: List[(String, Option[String])] ) extends ComponentAST
+case class MethodAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
+case class FieldAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
+case class FunctionAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
+case class ConstAST( module: String, name: String, const: ExprAST ) extends ComponentAST
+case class VarAST( module: String, name: String, init: Option[ExprAST] ) extends ComponentAST
+case class DataAST( module: String, name: String, constructors: List[(String, List[String])] ) extends ComponentAST
+case class DefAST( module: String, name: String, func: FunctionExprAST ) extends ComponentAST
+case class MainAST( module: String, s: StatementAST ) extends ComponentAST
 
 trait StatementAST extends AST
 case class ExpressionStatementAST( e: ExprAST ) extends StatementAST
 case class ValStatementAST( pat: PatternAST, exp: ExprAST ) extends StatementAST
 
 trait ExprAST extends AST
-case class SysvarExprAST( s: Symbol ) extends ExprAST
+case class SysvarExprAST( s: String ) extends ExprAST
 case object BreakExprAST extends ExprAST
 case object ContinueExprAST extends ExprAST
 case class IntegerLiteralExprAST( i: Int ) extends ExprAST
 case class DoubleLiteralExprAST( d: Double ) extends ExprAST
 case class BooleanLiteralExprAST( b: Boolean ) extends ExprAST
 case class StringLiteralExprAST( s: String ) extends ExprAST
-case class VariableExprAST( module: Symbol, v: Symbol ) extends ExprAST
+case class VariableExprAST( module: String, v: String ) extends ExprAST
 case class ApplyExprAST( f: ExprAST, args: List[ExprAST], var tailrecursive: Boolean ) extends ExprAST
 case class BinaryExprAST( left: ExprAST, op: Symbol, right: ExprAST ) extends ExprAST
 case class UnaryExprAST( op: Symbol, exp: ExprAST ) extends ExprAST
@@ -57,20 +57,20 @@ case class WhileExprAST( cond: ExprAST, body: ExprAST, e: Option[ExprAST] ) exte
 case class DoWhileExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class RepeatExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class RangeExprAST( f: ExprAST, t: ExprAST, b: Option[ExprAST], inclusize: Boolean ) extends ExprAST
-case class CaseFunctionExprAST( module: Symbol, cases: List[FunctionExprAST] ) extends ExprAST
-case class FunctionExprAST( module: Symbol, parms: List[PatternAST], parts: List[FunctionPartExprAST] ) extends ExprAST
-case class FunctionPartExprAST( cond: Option[ExprAST], locals: Option[List[Symbol]], body: ExprAST ) extends ExprAST
-case class DotExprAST( e: ExprAST, f: Symbol ) extends ExprAST
+case class CaseFunctionExprAST( module: String, cases: List[FunctionExprAST] ) extends ExprAST
+case class FunctionExprAST( module: String, parms: List[PatternAST], parts: List[FunctionPartExprAST] ) extends ExprAST
+case class FunctionPartExprAST( cond: Option[ExprAST], locals: Option[List[String]], body: ExprAST ) extends ExprAST
+case class DotExprAST( e: ExprAST, f: String ) extends ExprAST
 case class BooleanConnectiveExprAST( left: ExprAST, op: Symbol, right: ExprAST ) extends ExprAST
 case class NotExprAST( exp: ExprAST ) extends ExprAST
 
 trait PatternAST extends AST
-case class AliasPatternAST( alias: Symbol, pat: PatternAST ) extends PatternAST
+case class AliasPatternAST( alias: String, pat: PatternAST ) extends PatternAST
 case class IntegerLiteralPatternAST( i: Int ) extends PatternAST
 case class DoubleLiteralPatternAST( d: Double ) extends PatternAST
 case class BooleanLiteralPatternAST( b: Boolean ) extends PatternAST
 case class StringLiteralPatternAST( s: String ) extends PatternAST
-case class VariablePatternAST( v: Symbol, t: Option[Symbol] ) extends PatternAST
+case class VariablePatternAST( v: String, t: Option[String] ) extends PatternAST
 case class TuplePatternAST( l: List[PatternAST] ) extends PatternAST
 case class AltPatternAST( l: List[PatternAST] ) extends PatternAST
 case class RecordPatternAST( n: String, l: List[PatternAST] ) extends PatternAST

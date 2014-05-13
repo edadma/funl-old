@@ -28,7 +28,7 @@ object Main extends App
 		REPL.main( args )
 	else
 	{
-	val m = Symbol( opts('input) )
+	val m = opts('input)
 	val l = parse( m )
 	
 		if (opts contains 'b)
@@ -36,6 +36,6 @@ object Main extends App
 			println( "binary" )
 		}
 		else
-			new Evaluator().assign( m, 'args -> args.toIndexedSeq )( l )
+			new Evaluator().assign( m, "args" -> args.toIndexedSeq )( l )
 	}
 }

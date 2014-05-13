@@ -34,5 +34,5 @@ main
 // 
 // 	println time() - start
 
-	new Evaluator()( parse('main, s) )
+	new Evaluator()( parse("main", s) )
 }

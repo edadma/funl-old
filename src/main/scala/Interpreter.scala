@@ -17,7 +17,7 @@ import io.Source
 
 object Interpreter
 {
-	val PREDEF = Symbol( "-predef-" )
+	val PREDEF = "-predef-"
 	
 	def markTailRecursion( s: ModuleAST )
 	{
@@ -31,7 +31,7 @@ object Interpreter
 			}
 	}
 
-	def markTailRecursion( n: Symbol, e: ExprAST )
+	def markTailRecursion( n: String, e: ExprAST )
 	{
 		e match
 		{
@@ -45,7 +45,7 @@ object Interpreter
 				f match
 				{
 					case VariableExprAST( _, v ) =>
-						if (v.name == n)
+						if (v == n)
 							a.tailrecursive = true
 					case CaseFunctionExprAST( _, cases ) =>
 						for (c <- cases)
@@ -83,9 +83,9 @@ object Interpreter
 		else
 			_display( a )
 
-	def parse( module: Symbol, input: String ): AST = parse( module, new CharSequenceReader(input) )
+	def parse( module: String, input: String ): AST = parse( module, new CharSequenceReader(input) )
 
-	def parse( module: Symbol, input: Reader[Char] ): AST =
+	def parse( module: String, input: Reader[Char] ): AST =
 	{
 	val parser = new FunLParser( module )
 
@@ -99,7 +99,7 @@ object Interpreter
 		}
 	}
 
-	def parse( module: Symbol, input: InputStream ): AST =
+	def parse( module: String, input: InputStream ): AST =
 	{
 	val lines = Source.fromInputStream( input ).getLines
 	val source = new StringBuilder
@@ -114,9 +114,9 @@ object Interpreter
 	}
 
 //		val r = new PagedSeqReader( PagedSeq fromFile (args.head + ".fun") )
-	def parse( module: Symbol ): AST =
+	def parse( module: String ): AST =
 	{
-	val filename = module.name + ".funl"
+	val filename = module + ".funl"
 	val resource = funl.Main.getClass.getResourceAsStream( filename )
 	val input =
 		if (resource eq null)
@@ -124,7 +124,7 @@ object Interpreter
 		val file = new File( filename )
 
 			if (!file.exists || !file.isFile)
-				sys.error( "module '" + module.name + "' not found" )
+				sys.error( "module '" + module + "' not found" )
 			else
 				new FileInputStream( file )
 		}
@@ -151,7 +151,7 @@ object Interpreter
 // 		}
 // 	}
 
-	def statement( m: Symbol, s: String ): Any =
+	def statement( m: String, s: String ): Any =
 	{
 	val eval = new Evaluator
 
@@ -159,7 +159,7 @@ object Interpreter
 		statement( m, s, eval )
 	}
 
-	def statement( m: Symbol, s: String, eval: Evaluator ) =
+	def statement( m: String, s: String, eval: Evaluator ) =
 	{
 	val parser = new FunLParser( m )
 
@@ -173,17 +173,17 @@ object Interpreter
 		}
 	}
 
-	def statement( s: String ): Any = statement( 'module, s )
+	def statement( s: String ): Any = statement( "module", s )
 
 	def snippet( s: String ) =
 	{
 	val eval = new Evaluator
-	val parser = new FunLParser( 'module )
+	val parser = new FunLParser( "module" )
 
 		parser.parseSnippet( new CharSequenceReader(s) ) match
 		{
 			case parser.Success( l, _ ) =>
-				eval.enterEnvironment( null, new Module('module) )
+				eval.enterEnvironment( null, new Module("module") )
 				eval.eval( l )
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
 			case parser.Error( m, r ) => PARSE_FAILURE( m )
