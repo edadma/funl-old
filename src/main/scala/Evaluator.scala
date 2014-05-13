@@ -52,68 +52,6 @@ class Evaluator extends Types
 		override def toString = name + (if (args isEmpty) "" else args.mkString("( ", ", ", " )"))
 	}
 
-	class HolderMap( init: collection.Map[Any, Any] ) extends collection.Map[Any, Holder]
-	{
-		private val map = new HashMap[Any, Holder]
-
-		if (init ne null)
-			for ((k, v) <- init)
-				map(k) = new Holder( v )
-
-		override def default( key: Any ) =
-		{
-		val value = new Holder( null )
-
-			map(key) = value
-			value
-		}
-
- 		def get( key: Any ) = map.get( key )
-
-		def iterator = map.iterator
-
-		override def size = map.size
-		
-		def + [B1 >: Holder]( kv: (Any, B1) ) =
-		{
-			map + kv
-			this
-		}
-
-		def -( key: Any ) =
-		{
-			map - key
-			this
-		}
-
-		override def empty = new HolderMap( null )
-
-		override def toString = map.toList.map( kv => _display(kv._1) + ": " + _display(deref(kv._2)) ).mkString( "{", ", ", "}" )
-	}
-
-	class HolderArray( dim: Int ) extends collection.Seq[Holder]
-	{
-		private val array = new Array[Holder]( dim )
-
-		for (i <- 0 until dim)
-			array(i) = new Holder( null )
-
-		def apply( index: Int ) = array( index )
-
-		def length = dim
-
-		def iterator = array.iterator
-
-		override def hashCode = array.hashCode
-
-		override def equals( that: Any ) = that.isInstanceOf[HolderArray] &&
-			((that.asInstanceOf[HolderArray] eq this) || that.asInstanceOf[HolderArray].array == array)
-
-		override def toString = array map (a => display(deref( a ))) mkString( "Array(", ", ", ")" )
-	}
-
-	class Holder( var v: Any )
-
 	class BreakThrowable extends Throwable
 
 	class ContinueThrowable extends Throwable
@@ -195,17 +133,17 @@ class Evaluator extends Types
 	
 	def beval( t: AST ) = eval( t ).asInstanceOf[Boolean]
 	
-	def heval( t: AST ) =
+	def reval( t: AST ) =
 	{
 		apply( t, true )
-		hpop
+		rpop
 	}
 	
 	def pop = deref( stack.pop )
 		
 	def push( v: Any ) = stack.push( if (v.isInstanceOf[Long]) BigInt(v.asInstanceOf[Long]) else v )
 	
-	def hpop = stack.pop.asInstanceOf[Holder]
+	def rpop = stack.pop.asInstanceOf[Reference]
 	
 	def dpop = pop.asInstanceOf[Double]
 	
@@ -241,11 +179,11 @@ class Evaluator extends Types
 
 	def exitScope = activations.top.scope pop
 	
-	def assignOperation( h: Holder, op: Symbol, n: Number ) =
+	def assignOperation( r: Reference, op: Symbol, n: Number ) =
 	{
-	val v = Math( op, h.v, n )
+	val v = Math( op, r.value, n )
 		
-		h.v = v
+		r.assign( v )
 		v
 	}
 	
@@ -279,26 +217,17 @@ class Evaluator extends Types
 		
 		def newVar( name: Symbol ) =
 		{
-			val holder = new Holder( null )
+			val ref = new VariableReference
 			
-			activations.top.scope.top(name) = holder
+			activations.top.scope.top(name) = ref
 			
-			holder
+			ref
 		}
 		
 		t match
 		{
 			case ModuleAST( m, cs ) =>
-				if (m == PREDEF)
-				{
-					function( m, 'Array, a => new HolderArray( a.head.asInstanceOf[Int]) )
-					function( m, 'Map, a =>
-						if (a isEmpty)
-							new HolderMap( null )
-						else
-							new HolderMap( a.head.asInstanceOf[collection.Map[Any, Any]] ) )
-				}
-				else
+				if (m != PREDEF)
 				{
 					load( PREDEF )
 					
@@ -355,7 +284,7 @@ class Evaluator extends Types
 				if (symbols contains n)
 					sys.error( "already declared: " + n )
 				else
-					symbols(n) = new Holder( if (v == None) null else eval(v.get) )
+					symbols(n) = new VariableReference( if (v == None) null else eval(v.get) )
 			case DataAST( m, n, cs ) =>
 				if (datatypes contains n) sys.error( "already declared: " + n )
 				
@@ -568,7 +497,7 @@ class Evaluator extends Types
 										case None =>
 										case Some( l ) =>
 											for (k <- l)
-												activations.top.scope.top(k) = new Holder( null )
+												activations.top.scope.top(k) = new VariableReference
 									}
 
 									apply( part.body ) match
@@ -634,20 +563,20 @@ class Evaluator extends Types
 				{
 					case '- => push( Math(op, pop) )
 					case Symbol( "pre--" ) =>
-						push( assignOperation(hpop, '-, 1) )
+						push( assignOperation(rpop, '-, 1) )
 					case Symbol( "pre++" ) =>
-						push( assignOperation(hpop, '+, 1) )
+						push( assignOperation(rpop, '+, 1) )
 					case Symbol( "post--" ) =>
-						val h = hpop
-						val v = h.v
+						val h = rpop
+						val v = h.value
 						
-						h.v = Math( '-, h.v, 1 )
+						h.assign( Math('-, h.value, 1) )
 						push( v )
 					case Symbol( "post++" ) =>
-						val h = hpop
-						val v = h.v
+						val h = rpop
+						val v = h.value
 						
-						h.v = Math( '+, h.v, 1 )
+						h.assign( Math('+, h.value, 1) )
 						push( v )
 				}
 			case AssignmentExprAST( lhs, op, rhs ) =>
@@ -656,11 +585,11 @@ class Evaluator extends Types
 
 				var result: Any = null
 				
-				for ((l, r) <- (lhs map (heval)) zip (rhs map (eval)))
+				for ((l, r) <- (lhs map (reval)) zip (rhs map (eval)))
 				{
 					if (op == '=)
 					{
-						l.v = r
+						l.assign( r )
 						result = r
 					}
 					else
@@ -1091,10 +1020,8 @@ class Evaluator extends Types
 	}
 
 	def deref( v: Any ) =
-		if (v.isInstanceOf[Holder])
-			v.asInstanceOf[Holder].v
-		else if (v.isInstanceOf[Reference])
-			v.asInstanceOf[Reference].get
+		if (v.isInstanceOf[Reference])
+			v.asInstanceOf[Reference].value
 		else
 			v
 }

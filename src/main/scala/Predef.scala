@@ -7,6 +7,8 @@
 
 package funl
 
+import collection.mutable.HashMap
+
 import interp.Interpreter._
 
 
@@ -29,4 +31,12 @@ object Predef
 	def require( a: List[Any] ) =
 		if (!a.head.asInstanceOf[Boolean])
 			error( a.last.toString )
+			
+	def Array( a: List[Any] ) = new scala.Array[Any]( a.head.asInstanceOf[Int] )
+	
+	def Map( a: List[Any] ) = 
+		if (a isEmpty)
+			new HashMap[Any, Any]
+		else
+			HashMap( a.head.asInstanceOf[collection.Map[Any, Any]].toArray: _* )
 }
