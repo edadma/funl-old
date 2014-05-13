@@ -16,8 +16,10 @@ object ParserTestMain extends App
 	val s =
 """
 main
-	for i <- 1..3 do
-		println( i )
+	a = Set( 1 )
+	println( a )
+	a.add( 2 )
+	println( a )
 """
 
 //class javax.swing.JFrame

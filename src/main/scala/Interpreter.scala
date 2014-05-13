@@ -66,22 +66,16 @@ object Interpreter
 		}
 	}
 
-	def _display( a: Any ): String =
+	def display( a: Any ): String =
 		a match
 		{
 			case l: List[_] => l.mkString( "[", ", ", "]" )
-			case s: Set[_] => s.mkString( "{", ", ", "}" )
-			case m: Map[_, _] => m.toList.map( e => _display(e._1) + ": " + _display(e._2) ).mkString( "{", ", ", "}" )
+			case s: collection.Set[_] => s.mkString( "{", ", ", "}" )
+			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => display(k) + ": " + display(v)} ).mkString( "{", ", ", "}" )
 			case t: Vector[_] => t.mkString( "(", ", ", ")" )
-			case s: String => "\"" + s + '"'
+			case s: String => "'" + s + "'"
 			case _ => String.valueOf( a )
 		}
-
-	def display( a: Any ) =
-		if (a != null && a.isInstanceOf[String])
-			a.toString
-		else
-			_display( a )
 
 	def parse( module: String, input: String ): AST = parse( module, new CharSequenceReader(input) )
 

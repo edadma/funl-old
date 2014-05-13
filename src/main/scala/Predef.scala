@@ -7,7 +7,7 @@
 
 package funl
 
-import collection.mutable.HashMap
+import collection.mutable.{HashSet, HashMap}
 
 import interp.Interpreter._
 
@@ -33,6 +33,14 @@ object Predef
 			error( a.last.toString )
 			
 	def Array( a: List[Any] ) = new scala.Array[Any]( a.head.asInstanceOf[Int] )
+
+	def Set( a: List[Any] ) =
+		if (a isEmpty)
+			new HashSet[Any]
+		else if (a.head.isInstanceOf[collection.Set[Any]])
+			HashSet( a.head.asInstanceOf[collection.Set[Any]].toArray: _* )
+		else
+			HashSet( a: _* )
 	
 	def Map( a: List[Any] ) = 
 		if (a isEmpty)

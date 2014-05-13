@@ -73,7 +73,6 @@ class Evaluator extends Types
 	sysvar( "date" ) {new java.util.Date}
 	
 	def module( m: String ) =
-	{
 		symbols.get(m) match
 		{
 			case None =>
@@ -83,7 +82,6 @@ class Evaluator extends Types
 				res
 			case Some( res ) => res.asInstanceOf[Module]
 		}
-	}
 
 	def loaded( m: String ) = symbols.contains( m ) && symbols(m).isInstanceOf[Module]
 
@@ -616,7 +614,7 @@ class Evaluator extends Types
 				push( list(l.length).toSet )
 			case MapExprAST( l ) =>
 				apply( l )
-				push( list(l.length).asInstanceOf[List[(_, _)]].toMap )//new HolderMap(list(l.length).asInstanceOf[List[(_, _)]]) )
+				push( list(l.length).asInstanceOf[List[(_, _)]].toMap )
 			case UnitExprAST => push( () )
 			case NullExprAST => push( null )
 			case BlockExprAST( Nil ) => push( () )
