@@ -28,7 +28,7 @@ object REPL extends App
 	reader.setBellEnabled( false )
 	reader.setPrompt( "FunL> " )
 
-	out.println( "Welcome to FunL version 0.2" )
+	out.println( "Welcome to FunL version " + VERSION )
 	out.println( "Type in expressions to have them evaluated." )
 	out.println( "Type :help for more information." )
 	out.println

@@ -5,7 +5,7 @@ import LaikaKeys._
 
 name := "FunL"
 
-version := "0.2"
+version := "0.2-SNAPSHOT"
 
 scalaVersion := "2.10.4"
 
@@ -61,3 +61,35 @@ jarName in assembly := "funl.jar"
 LaikaPlugin.defaults
 
 templateDirectives in Laika += LaikaExtension.bootstrapToc
+
+
+publishMavenStyle := true
+
+publishTo := {
+  val nexus = "https://oss.sonatype.org/"
+  if (isSnapshot.value)
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+}
+
+publishArtifact in Test := false
+
+pomIncludeRepository := { _ => false }
+
+licenses := Seq("GPL" -> url("http://opensource.org/licenses/GPL-3.0"))
+
+homepage := Some(url("https://github.com/FunL/funl"))
+
+pomExtra := (
+  <scm>
+    <url>git@github.com:FunL/funl.git</url>
+    <connection>scm:git:git@github.com:FunL/funl.git</connection>
+  </scm>
+  <developers>
+    <developer>
+      <id>edadma</id>
+      <name>Edward A. Maxedon, Sr.</name>
+      <url>http://funl-lang.org</url>
+    </developer>
+  </developers>)
