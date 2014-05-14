@@ -13,8 +13,6 @@ scalacOptions ++= Seq( "-deprecation", "-feature", "-language:postfixOps", "-lan
 
 organization := "org.funl-lang"
 
-target := file( "/home/ed/target/" + moduleName.value )
-
 resolvers += Resolver.sonatypeRepo( "snapshots" )
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.0" % "test"
