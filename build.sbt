@@ -21,7 +21,9 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test"
 
-libraryDependencies += ("org.scala-lang" % "jline" % "2.11.0-M3"/*scalaVersion.value*/).exclude("org.fusesource.jansi", "jansi")
+libraryDependencies += "jline" % "jline" % "2.11"
+
+//libraryDependencies += ("org.scala-lang" % "jline" % "2.11.0-M3"/*scalaVersion.value*/).exclude("org.fusesource.jansi", "jansi")
 
 //libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT"
 

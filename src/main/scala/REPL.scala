@@ -9,7 +9,8 @@ package funl
 
 import java.io.PrintWriter
 
-import scala.tools.jline.console.ConsoleReader
+//import scala.tools.jline.console.ConsoleReader
+import jline.console.ConsoleReader
 
 import funl.interp.{Evaluator, Module}
 import funl.interp.Interpreter._
