@@ -7,19 +7,21 @@ name := "FunL"
 
 version := "0.3-SNAPSHOT"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.0"
 
 scalacOptions ++= Seq( "-deprecation", "-feature", "-language:postfixOps", "-language:implicitConversions" )
+
+incOptions := incOptions.value.withNameHashing( true )
 
 organization := "org.funl-lang"
 
 resolvers += Resolver.sonatypeRepo( "snapshots" )
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.0" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test"
 
-libraryDependencies += ("org.scala-lang" % "jline" % scalaVersion.value).exclude("org.fusesource.jansi", "jansi")
+libraryDependencies += ("org.scala-lang" % "jline" % "2.11.0-M3"/*scalaVersion.value*/).exclude("org.fusesource.jansi", "jansi")
 
 //libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT"
 
