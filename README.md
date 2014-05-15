@@ -5,7 +5,7 @@
 
 ## License
 
-FunL is distributed under the ![alt text](lgplv3-88x31.png) License, meaning that you are free to use it in your free or proprietary software.
+FunL is distributed under the LGPL License, meaning that you are free to use it in your free or proprietary software.
 
 
 ## Documentation
