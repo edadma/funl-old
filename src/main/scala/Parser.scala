@@ -156,8 +156,9 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"def" ~> (Indent ~> rep1(definition) <~ (Dedent ~ Newline))
 
 	lazy val definition =
-		(ident <~ "(") ~ (repsep(pattern, ",") <~ ")") ~ (part | parts) ^^
-			{case n ~ p ~ gs => DefAST( module, n, FunctionExprAST(module, p, gs) )}
+		ident ~ opt("(" ~> repsep(pattern, ",") <~ ")") ~ (part | parts) ^^
+			{	case n ~ None ~ gs => DefAST( module, n, FunctionExprAST(module, Nil, gs) )
+				case n ~ Some(p) ~ gs => DefAST( module, n, FunctionExprAST(module, p, gs) )}
 
 	lazy val locals = opt("local" ~> idents)
 	

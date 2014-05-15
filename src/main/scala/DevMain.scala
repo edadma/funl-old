@@ -15,12 +15,10 @@ object DevMain extends App
 {
 	val s =
 """
-def
-	f( 0 ) = 1
-	f( a ) = a + 2
+def f = 123
 
 main
-	println( f(0) )
+	println( f() )
 """
 
 //class javax.swing.JFrame
