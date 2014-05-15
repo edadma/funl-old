@@ -13,6 +13,47 @@ FunL is distributed under the LGPL License, meaning that you are free to use it 
 The project's website is <http://funl-lang.org> where you will find documentation and download instructions so that you can get a binary executable of the interpreter.
 
 
+## Usage
+
+Use the following definition to use FunL in your Maven project:
+
+	<dependency>
+		<groupId>org.funl-lang</groupId>
+		<artifactId>funl</artifactId>
+		<version>0.3-SNAPSHOT</version>
+	</dependency>
+
+Add the following dependency to use FunL in your SBT project:
+
+	resolvers += Resolver.sonatypeRepo( "snapshots" )
+
+	libraryDependencies ++= "org.funl-lang" %% "funl" % "0.3-SNAPSHOT"
+
+
+## Building
+
+### Requirements
+
+- SBT 13.2+
+- Java 6+
+
+Clone and build:
+
+	git clone git://github.com/FunL/funl.git
+	cd funl
+	sbt assembly
+
+This will build an executable requiring only that Java be installed.  You can now also type
+
+	sbt run
+
+to start the REPL, or
+
+	sbt "run <FunL script file>"
+
+to execute a script.  Note that the double quotes are required.
+
+
 ## Installing
 
 If you haven't yet done so, please go to <http://funl-lang.org> and download the software by clicking on the *Download* link at the top.  If you are on Windows, then it's probably best to just download it to your Desktop.  Their is no special installation procedure for the software itself, other than the fact that it runs on a platform known as the JVM (Java Virtual Machine), which you can get for free at <http://java.com>.  Just click on *Free Java Download* and follow their installation instructions.  Once the JVM is installed, you will be able to run the FunL REPL (repeat evaluate print loop) by starting a command line window (however you do that in the operating system you are using), changing to the directory where you downloaded the program, and typing
