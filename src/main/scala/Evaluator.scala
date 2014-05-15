@@ -488,7 +488,7 @@ class Evaluator extends Types
 
 							findPart match
 							{
-								case None => sys.error( "function match failure: " + c.func + " applied to " + argList )
+								case None => sys.error( "function application failure: " + c.func + " applied to " + argList )
 								case Some( part ) =>
 									part.locals match
 									{

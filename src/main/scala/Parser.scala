@@ -198,31 +198,30 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case lhs ~ op ~ rhs => AssignmentExprAST( lhs, Symbol(op), rhs )} |
 		expr5
 
- 	lazy val functionCase =
+ 	lazy val mapping =
  	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> expr10) ~ ("->" ~> expr) ^^
 		{case p ~ g ~ b => FunctionExprAST( module, p, List(FunctionPartExprAST(g, None, b)) )}
-// 		"case" ~> pattern ~ opt("if" ~> booleanExpr) ~ ("->" ~> expr <~ Newline) ^^
-// 			{case p ~ g ~ b => FunctionExprAST(List(p), List(FunctionPartExprAST(g, None, b)))}
 
-	lazy val functionExpr =
-		functionCase |
-		Indent ~> rep1(functionCase <~ Newline) <~ Dedent ^^
+	lazy val caseFunctionExpr =
+		Indent ~> rep1(mapping <~ Newline) <~ Dedent ^^
 			{case c => CaseFunctionExprAST( module, c )}
+			
+	lazy val functionExpr =
+		mapping | caseFunctionExpr
 
 	lazy val expr5 =
-// 		("\\" ~> rep1sep(pattern, ",") <~ "->") ~ expr ^^
 		functionExpr |
 		expr7
 
 	lazy val elif =
-		(onl ~ "elsif") ~> (booleanExpr <~ "then") ~ expr ^^ {case c ~ t => (c, t)}
+		(onl ~ "elsif") ~> booleanExpr ~ ("then" ~> expr | block) ^^ {case c ~ t => (c, t)}
 
 	lazy val expr7 =
-		"if" ~> (booleanExpr <~ "then") ~ expr ~ rep(elif) ~ opt(onl ~> "else" ~> expr) ^^
+		("if" ~> booleanExpr) ~ ("then" ~> expr | block) ~ rep(elif) ~ opt(onl ~> "else" ~> expr) ^^
 			{case c ~ t ~ ei ~ e => ConditionalExprAST( (c, t) +: ei, e )} |
-		("for" ~> pattern <~ "<-") ~ (expr <~ "do") ~ expr ~ opt(onl ~> "else" ~> expr) ^^
+		("for" ~> pattern <~ "<-") ~ expr ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) ^^
 			{case v ~ r ~ b ~ e => ForExprAST( v, r, b, e )} |
-		("while" ~> expr) ~ ("do" ~> expr) ~ opt(onl ~> "else" ~> expr) ^^
+		("while" ~> expr) ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) ^^
 			{case c ~ b ~ e => WhileExprAST( c, b, e )} |
 		("do" ~> expr) ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> expr) ^^
 			{case b ~ c ~ e => DoWhileExprAST( b, c, e )} |
@@ -230,7 +229,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case b ~ c ~ e => RepeatExprAST( b, c, e )} |
 		"break" ^^^ BreakExprAST |
 		"continue" ^^^ ContinueExprAST |
-		("case" ~> expr) ~ ("of" ~> functionExpr) ^^
+		("case" ~> expr) ~ ("of" ~> functionExpr | caseFunctionExpr) ^^
 			{case e ~ f => ApplyExprAST( f, List(e), false )} |
 		expr10
 
@@ -287,10 +286,15 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		expr34
 
 	lazy val expr34: PackratParser[ExprAST] =
-		("++" | "--") ~ expr35 ^^
+		("++" | "--") ~ block ^^
 			{case o ~ e => UnaryExprAST( Symbol("pre" + o), e )} |
-		expr35 ~ ("++" | "--") ^^
+		block ~ ("++" | "--") ^^
 			{case e ~ o => UnaryExprAST( Symbol("post" + o), e )} |
+		block
+
+	lazy val block =
+		Indent ~> statements <~ Dedent ^^
+			(BlockExprAST( _ )) |
 		expr35
 
 	lazy val leftExpr = expr35
@@ -330,11 +334,9 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			(SetExprAST( _ )) |
 		"{" ~> repsep(entry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
-		Indent ~> statements <~ Dedent ^^
-			(BlockExprAST( _ )) |
 		"$" ~> ident ^^
 			(SysvarExprAST( _ ))
-		
+			
 	lazy val pattern =
 		(ident <~ "@") ~ pattern5 ^^
 			{case alias ~ pat => AliasPatternAST( alias, pat )} |
