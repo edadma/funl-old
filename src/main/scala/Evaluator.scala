@@ -297,7 +297,7 @@ class Evaluator extends Types
 				if (module(m).symbols contains name)
 				{
 					if (symbol(m, name).isInstanceOf[Closure])
-						module(m).symbols(name) = new Closure( null, module(m), symbols(name).asInstanceOf[Closure].func :+ func )
+						module(m).symbols(name) = new Closure( null, module(m), module(m).symbols(name).asInstanceOf[Closure].func :+ func )
 					else
 						sys.error( "already declared: " + name )
 				}
