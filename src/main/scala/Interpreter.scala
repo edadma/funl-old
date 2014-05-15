@@ -82,7 +82,7 @@ object Interpreter
 
 	def parse( module: String, input: Reader[Char] ): AST =
 	{
-	val parser = new FunLParser( module )
+	val parser = new Parser( module )
 
 		parser.parseSource( input ) match
 		{
@@ -156,7 +156,7 @@ object Interpreter
 
 	def statement( m: String, s: String, eval: Evaluator ) =
 	{
-	val parser = new FunLParser( m )
+	val parser = new Parser( m )
 
 		parser.parseStatement( new CharSequenceReader(s) ) match
 		{
@@ -173,7 +173,7 @@ object Interpreter
 	def snippet( s: String ) =
 	{
 	val eval = new Evaluator
-	val parser = new FunLParser( "module" )
+	val parser = new Parser( "module" )
 
 		parser.parseSnippet( new CharSequenceReader(s) ) match
 		{

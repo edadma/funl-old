@@ -14,7 +14,7 @@ import util.parsing.input.Reader
 import funl.indentation._
 
 
-class FunLParser( module: String ) extends StandardTokenParsers with PackratParsers
+class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 {
 	override val lexical: IndentationLexical =
 		new IndentationLexical( false, true, List("[", "(", "{"), List("]", ")", "}") )
