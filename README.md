@@ -1,4 +1,4 @@
-# Introduction
+# FunL Programming Language
 
 *FunL* (pronounced "funnel") is a functional dynamically typed scripting language. The name FunL stands for "fun language", but it can also stand for "functional language".
 
