@@ -23,8 +23,6 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test"
 
 libraryDependencies += "jline" % "jline" % "2.11"
 
-//libraryDependencies += ("org.scala-lang" % "jline" % "2.11.0-M3"/*scalaVersion.value*/).exclude("org.fusesource.jansi", "jansi")
-
 //libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT"
 
 //libraryDependencies += "org.scala-lang" % "scala-swing" % scalaVersion.value
@@ -43,8 +41,7 @@ libraryDependencies ++= Seq(
 	"org.funl-lang" %% "indentation-lexical" % "0.1-SNAPSHOT"
 	)
 
-mainClass in (Compile, run) := Some( "funl.ParserTestMain" )
-//mainClass in (Compile, run) := Some( "funl.Main" )
+mainClass in (Compile, run) := Some( "funl.Main" )
 
 proguardSettings
 
@@ -55,7 +52,7 @@ ProguardKeys.options in Proguard += ProguardOptions.keepMain( "funl.Main" )
 
 assemblySettings
 
-mainClass in assembly := Some("funl.Main")
+mainClass in assembly := Some( "funl.Main" )
 
 jarName in assembly := "funl.jar"
 

@@ -11,13 +11,16 @@ import interp.Interpreter._
 import interp.Evaluator
 
 
-object ParserTestMain extends App
+object DevMain extends App
 {
 	val s =
 """
+def
+	f( 0 ) = 1
+	f( a ) = a + 2
+
 main
-	case 1 of
-		1 -> println( 1 )
+	println( f(0) )
 """
 
 //class javax.swing.JFrame
