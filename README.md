@@ -2,6 +2,22 @@
 
 *FunL* (pronounced "funnel") is a functional dynamically typed scripting language. The name FunL stands for "fun language", but it can also stand for "functional language".
 
+Here is an example program in FunL
+
+	def
+			qsort( [] )             = []
+			qsort( p:xs )           =
+				def
+					filter( p, [] )     = []
+					filter( p, x:xs )
+						| p( x )          = x : filter( p, xs )
+						| otherwise       = filter( p, xs )
+
+				qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
+
+	println( qsort([4, 2, 1, 3, 0, 2]) )
+	println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )
+
 
 ## License
 

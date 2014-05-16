@@ -208,8 +208,8 @@ class Evaluator extends Types
 				a.scope find (_ contains name) match
 				{
 					case None =>
-						if (a.closure != null && a.closure.calling != null)
-							vars( a.closure.calling )
+						if (a.closure != null && a.closure.referencing != null)
+							vars( a.closure.referencing )
 						else if (symbolExists( m, name ))
 							symbol( m, name )
 						else if (creatvars)
@@ -308,8 +308,8 @@ class Evaluator extends Types
 			case DefAST( name, func ) =>
 				declarationMap.get(name) match
 				{
-					case None => declarationMap(name) = new Closure( null, module(func.module), List(func) )
-					case Some( c: Closure ) => declarationMap(name) = new Closure( null, module(func.module), c.funcs :+ func )
+					case None => declarationMap(name) = new Closure( if (mainScope) null else activations.top, module(func.module), List(func) )
+					case Some( c: Closure ) => declarationMap(name) = new Closure( if (mainScope) null else activations.top, module(func.module), c.funcs :+ func )
 					case _ => sys.error( "already declared: " + name )
 				}
 // 			case MainAST( m, l ) =>
@@ -459,8 +459,8 @@ class Evaluator extends Types
 				}
 			case NotExprAST( e ) => push( !beval(e) )
 			case VariableExprAST( m, v ) => push( vars(m, v) )
-			case CaseFunctionExprAST( m, cases ) => push( new Closure(if (activations isEmpty) null else activations.top, module(m), cases) )
-			case f@FunctionExprAST( m, _, _ ) => push( new Closure(if (activations isEmpty) null else activations.top, module(m), List(f)) )
+			case CaseFunctionExprAST( m, cases ) => push( new Closure(activations.top, module(m), cases) )
+			case f@FunctionExprAST( m, _, _ ) => push( new Closure(activations.top, module(m), List(f)) )
 			case ApplyExprAST( f, args, tailrecursive ) =>
 				apply( f )
 				apply( args )
