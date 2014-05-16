@@ -15,7 +15,10 @@ object DevMain extends App
 {
 	val s =
 """
-def f = 5
+def f =
+	def g = 5
+
+	g()
 
 println( f() )
 """

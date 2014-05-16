@@ -499,13 +499,13 @@ class Evaluator extends Types
 							{
 								case None => sys.error( "function application failure: " + c.funcs + " applied to " + argList )
 								case Some( part ) =>
-									part.locals match
-									{
-										case None =>
-										case Some( l ) =>
-											for (k <- l)
-												localScope(k) = new VariableReference
-									}
+// 									part.locals match
+// 									{
+// 										case None =>
+// 										case Some( l ) =>
+// 											for (k <- l)
+// 												localScope(k) = new VariableReference
+// 									}
 
 									apply( part.body ) match
 									{

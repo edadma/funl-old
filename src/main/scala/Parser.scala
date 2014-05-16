@@ -160,14 +160,12 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{	case n ~ None ~ gs => DefAST( n, FunctionExprAST(module, Nil, gs) )
 				case n ~ Some(p) ~ gs => DefAST( n, FunctionExprAST(module, p, gs) )}
 
-	lazy val locals = opt("local" ~> idents)
-
-	lazy val part = opt("|" ~> expr10) ~ locals ~ ("=" ~> expr) <~ Newline ^^
-		{case g ~ l ~ b => List(FunctionPartExprAST(g, l, b))}
+	lazy val part = opt("|" ~> expr10) ~ ("=" ~> expr) <~ Newline ^^
+		{case g ~ b => List(FunctionPartExprAST(g, b))}
 
 	lazy val subpart =
-		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ locals ~ ("=" ~> expr) <~ Newline ^^
-			{case g ~ l ~ b => FunctionPartExprAST(g, l, b)}
+		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ ("=" ~> expr) <~ Newline ^^
+			{case g ~ b => FunctionPartExprAST(g, b)}
 
 	lazy val parts =
 		Indent ~> rep1(subpart) <~ Dedent <~ Newline
@@ -202,7 +200,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 
  	lazy val mapping =
  	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> expr10) ~ ("->" ~> expr) ^^
-		{case p ~ g ~ b => FunctionExprAST( module, p, List(FunctionPartExprAST(g, None, b)) )}
+		{case p ~ g ~ b => FunctionExprAST( module, p, List(FunctionPartExprAST(g, b)) )}
 
 	lazy val caseFunctionExpr =
 		Indent ~> rep1(mapping <~ Newline) <~ Dedent ^^

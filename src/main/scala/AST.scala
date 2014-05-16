@@ -62,7 +62,7 @@ case class RepeatExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) ext
 case class RangeExprAST( f: ExprAST, t: ExprAST, b: Option[ExprAST], inclusize: Boolean ) extends ExprAST
 case class CaseFunctionExprAST( module: String, cases: List[FunctionExprAST] ) extends ExprAST
 case class FunctionExprAST( module: String, parms: List[PatternAST], parts: List[FunctionPartExprAST] ) extends ExprAST
-case class FunctionPartExprAST( cond: Option[ExprAST], locals: Option[List[String]], body: ExprAST ) extends ExprAST
+case class FunctionPartExprAST( cond: Option[ExprAST], body: ExprAST ) extends ExprAST
 case class DotExprAST( e: ExprAST, f: String ) extends ExprAST
 case class BooleanConnectiveExprAST( left: ExprAST, op: Symbol, right: ExprAST ) extends ExprAST
 case class NotExprAST( exp: ExprAST ) extends ExprAST
