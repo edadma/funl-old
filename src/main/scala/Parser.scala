@@ -81,8 +81,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		
 	lazy val source: PackratParser[ModuleAST] = rep(statement) ^^ {case l => ModuleAST(module, l)}
 
-// 	lazy val component: PackratParser[List[ComponentAST]] = imports | symbolImports | natives | constants | variables | data | definitions | main
-// 
+	lazy val declaration: PackratParser[DeclStatementAST] = /*imports | symbolImports |*/ natives /*| constants | variables | data | definitions*/
+
 // 	lazy val imports =
 // 		"import" ~> importModule ^^ (List(_)) |
 // 		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline
@@ -95,8 +95,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 // 
 // 	lazy val importModule =
 // 		ident <~ Newline ^^ (ImportModuleAST( module, _ ))
-// 
-// 	lazy val natives =
+
+	lazy val natives =
 // 		"class" ~> native ^^ {case (pkg, names) => List( ClassAST(module, pkg, names) )} |
 // 		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^
 // 			(cs => cs map {case (pkg, names) => ClassAST( module, pkg, names )}) |
@@ -104,19 +104,19 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 // 		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => MethodAST( module, cls, names )}) |
 // 		"field" ~> native ^^ {case (cls, names) => List( FieldAST(module, cls, names) )} |
 // 		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FieldAST( module, cls, names )}) |
-// 		"function" ~> native ^^ {case (cls, names) => List( FunctionAST(module, cls, names) )} |
-// 		"function" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FunctionAST( module, cls, names )})
-// 
-// 	lazy val dottedName = rep1sep(ident, ".")
-// 
-// 	lazy val className = ident ~ opt("=>" ~> ident) ^^ {case name ~ alias => (name, alias)}
-// 	
-// 	lazy val native: PackratParser[(String, List[(String, Option[String])])] =
-// 		dottedName ~ opt("=>" ~> ident) <~ Newline ^^
-// 			{case name ~ alias => (name.init.mkString( "." ), List((name.last, alias)))} |
-// 		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) ^^
-// 			{case pkg ~ names => (pkg.mkString( "." ), names)}
-// 
+		"function" ~> native ^^ {case (cls, names) => DeclStatementAST(List( FunctionAST(cls, names) ))} |
+		"function" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST(cs map {case (cls, names) => FunctionAST( cls, names )}))
+
+	lazy val dottedName = rep1sep(ident, ".")
+
+	lazy val className = ident ~ opt("=>" ~> ident) ^^ {case name ~ alias => (name, alias)}
+
+	lazy val native: PackratParser[(String, List[(String, Option[String])])] =
+		dottedName ~ opt("=>" ~> ident) <~ Newline ^^
+			{case name ~ alias => (name.init.mkString( "." ), List((name.last, alias)))} |
+		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) ^^
+			{case pkg ~ names => (pkg.mkString( "." ), names)}
+
 // 	lazy val idents = rep1sep( ident, "," )
 // 	
 // 	lazy val constants =
@@ -187,12 +187,13 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 // 					ExpressionStatementAST( ApplyExprAST(VariableExprAST(Symbol(f)), Nil, false) )
 // 				else
 // 					ExpressionStatementAST( ApplyExprAST(VariableExprAST(Symbol(f)), args, false) )} |
-		statementExpr <~ Newline
+		expr <~ Newline ^^ (ExpressionStatementAST( _ )) |
+		declaration
 	
-	lazy val statementExpr: PackratParser[StatementAST] =
-		("val" ~> pattern <~ "=") ~ expr5 ^^
-			{case pat ~ exp => ValStatementAST( pat, exp )} |
-		expr ^^ (ExpressionStatementAST( _ ))
+//	lazy val statementExpr: PackratParser[StatementAST] =
+// 		("val" ~> pattern <~ "=") ~ expr5 ^^
+// 			{case pat ~ exp => ValStatementAST( pat, exp )} |
+//		expr ^^ (ExpressionStatementAST( _ ))
 
 	lazy val expr: PackratParser[ExprAST] =
 		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "^=") ~ rep1sep(expr5, ",") ^^

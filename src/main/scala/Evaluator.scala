@@ -96,7 +96,13 @@ class Evaluator extends Types
 	def symbol( m: String, key: String ) = module( m ).symbols(key)
 
 	def symbolExists( m: String, key: String ) = module( m ).symbols contains key
-	
+
+	def declare( syms: SymbolMap, key: String, value: Any ) =
+		if (syms contains key)
+			sys.error( "already declared: " + key )
+		else
+			syms(key) = value
+
 	def assign( m: String, key: String, value: Any )
 	{
 	val syms = module(m).symbols
@@ -169,7 +175,17 @@ class Evaluator extends Types
 	
 	def enterScope = activations.top.scope push new SymbolMap
 
+	def localScope = activations.top.scope.top
+	
 	def exitScope = activations.top.scope pop
+
+	def mainScope = activations.top.scope.length ==1 && activations.top.closure == null
+
+	def declarationMap =
+		if (mainScope)
+			activations.top.module.symbols
+		else
+			localScope
 	
 	def assignOperation( r: Reference, op: Symbol, n: Number ) =
 	{
@@ -211,7 +227,7 @@ class Evaluator extends Types
 		{
 			val ref = new VariableReference
 			
-			activations.top.scope.top(name) = ref
+			localScope(name) = ref
 			
 			ref
 		}
@@ -219,19 +235,20 @@ class Evaluator extends Types
 		t match
 		{
 			case ModuleAST( m, s ) =>
-// 				if (m != PREDEF)
-// 				{
-// 					load( PREDEF )
-// 					
-// 					for ((k, v) <- module( PREDEF ).symbols)
-// 						assign( m, k -> v )
-// 				}
+				if (m != PREDEF)
+				{
+					load( PREDEF )
+
+					for ((k, v) <- module( PREDEF ).symbols)
+						assign( m, k -> v )
+				}
 // 				assign( m,
 // 					'i -> Complex( 0, 1 ),
 // 					'sys -> this
 // 					)
-				function( m, "println", a => println(a.head) )
 				enterEnvironment( null, module(m) )
+				apply( s )
+			case DeclStatementAST( s ) =>
 				apply( s )
 // 			case ImportModuleAST( m, name ) =>
 // 				val ast = parse( name )
@@ -262,15 +279,15 @@ class Evaluator extends Types
 // 
 // 					assign( m, a.getOrElse(n), NativeMethod(null, methods) )
 // 				}
-// 			case FunctionAST( m, cls, names ) =>
-// 				for ((n, a) <- names)
-// 				{
-// 				val method = Class.forName( cls ).getMethod( n, classOf[List[Any]] )
-// 
-// 					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) sys.error( "function method must be static" )
-// 
-// 					function( m, a.getOrElse(n), (a => method.invoke(null, a)) )
-// 				}
+			case FunctionAST( cls, names ) =>
+				for ((n, a) <- names)
+				{
+				val method = Class.forName( cls ).getMethod( n, classOf[List[Any]] )
+
+					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) sys.error( "function method must be static" )
+
+					declare( declarationMap, a.getOrElse(n), (a => method.invoke(null, a)): Function )
+				}
 // 			case ConstAST( m, name, expr ) =>
 // 				assign( m, name, eval(expr) )
 // 			case VarAST( m, n, v ) =>
@@ -305,9 +322,9 @@ class Evaluator extends Types
 				last = eval( e )
 			case ValStatementAST( p, e ) =>
 				last = eval( e )
-				clear( activations.top.scope.top, p )
+				clear( localScope, p )
 
-				if (!unify( activations.top.scope.top, last, p ))
+				if (!unify( localScope, last, p ))
 					sys.error( "unification failure" )
 			case SysvarExprAST( s ) =>
 				sysvars.get( s ) match
@@ -464,7 +481,7 @@ class Evaluator extends Types
 							def findPart: Option[FunctionPartExprAST] =
 							{
 								for (alt <- c.func)
-									if (pattern( activations.top.scope.top, argList, alt.parms ))
+									if (pattern( localScope, argList, alt.parms ))
 									{
 										for (part <- alt.parts)
 											part.cond match
@@ -475,7 +492,7 @@ class Evaluator extends Types
 														return Some( part )
 											}
 
-										activations.top.scope.top.clear
+										localScope.clear
 									}
 
 								None
@@ -490,13 +507,13 @@ class Evaluator extends Types
 										case None =>
 										case Some( l ) =>
 											for (k <- l)
-												activations.top.scope.top(k) = new VariableReference
+												localScope(k) = new VariableReference
 									}
 
 									apply( part.body ) match
 									{
 										case a: List[Any] =>
-											activations.top.scope.top.clear
+											localScope.clear
 											occur( a )
 										case _ =>
 									}
@@ -660,9 +677,9 @@ class Evaluator extends Types
 					{
 						o.asInstanceOf[TraversableOnce[Any]].foreach
 						{ elem =>
-							clear( activations.top.scope.top, p )
+							clear( localScope, p )
 
-							if (!unify( activations.top.scope.top, deref(elem), p ))
+							if (!unify( localScope, deref(elem), p ))
 								sys.error( "unification error in for loop" )
 
 							pop
