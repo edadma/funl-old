@@ -269,9 +269,9 @@ class Evaluator extends Types
 // 				else
 // 					for (s <- symbols)
 // 						assign( into, s -> symbol(from, s) )
-// 			case ClassAST( m, pkg, names ) =>
-// 				for ((n, a) <- names)
-// 					assign( m, a.getOrElse(n), Class.forName(pkg + '.' + n) )
+			case ClassAST( pkg, names ) =>
+				for ((n, a) <- names)
+					declare( declarationMap, a.getOrElse(n), Class.forName(pkg + '.' + n) )
 // 			case MethodAST( m, cls, names ) =>
 // 				for ((n, a) <- names)
 // 				{

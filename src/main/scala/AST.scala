@@ -19,7 +19,7 @@ case class DeclStatementAST( decls: List[StatementAST] ) extends StatementAST
 // trait ComponentAST extends AST
 // case class ImportModuleAST( into: String, toimport: String ) extends ComponentAST
 // case class ImportSymbolsAST( into: String, from: String, symbols: List[String] ) extends ComponentAST
-// case class ClassAST( module: String, pkg: String, name: List[(String, Option[String])] ) extends ComponentAST
+case class ClassAST( pkg: String, name: List[(String, Option[String])] ) extends StatementAST
 // case class MethodAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
 // case class FieldAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
  case class FunctionAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST

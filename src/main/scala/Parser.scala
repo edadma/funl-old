@@ -97,9 +97,9 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 // 		ident <~ Newline ^^ (ImportModuleAST( module, _ ))
 
 	lazy val natives =
-// 		"class" ~> native ^^ {case (pkg, names) => List( ClassAST(module, pkg, names) )} |
-// 		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^
-// 			(cs => cs map {case (pkg, names) => ClassAST( module, pkg, names )}) |
+		"class" ~> native ^^ {case (pkg, names) => DeclStatementAST( List(ClassAST(pkg, names)) )} |
+		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^
+			(cs => DeclStatementAST( cs map {case (pkg, names) => ClassAST( pkg, names )})) |
 // 		"method" ~> native ^^ {case (cls, names) => List( MethodAST(module, cls, names) )} |
 // 		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => MethodAST( module, cls, names )}) |
 // 		"field" ~> native ^^ {case (cls, names) => List( FieldAST(module, cls, names) )} |
@@ -169,9 +169,6 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 
 	lazy val parts =
 		Indent ~> rep1(subpart) <~ Dedent <~ Newline
-
-// 	lazy val main =
-// 		"main" ~> statement ^^ (s => List(MainAST( module, s )))
 
 	lazy val statements =
 		rep1(statement)

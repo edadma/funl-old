@@ -15,12 +15,9 @@ object DevMain extends App
 {
 	val s =
 """
-def f =
-	def g = 5
+class java.lang.System
 
-	g()
-
-println( f() )
+println( System.currentTimeMillis() )
 """
 
 //class javax.swing.JFrame
