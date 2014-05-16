@@ -79,101 +79,101 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val snippet: PackratParser[BlockExprAST] =
 		statements ^^ (BlockExprAST( _ ))
 		
-	lazy val source: PackratParser[ModuleAST] = rep(component) ^^ {case l => ModuleAST(module, l.flatten)}
+	lazy val source: PackratParser[ModuleAST] = rep(statement) ^^ {case l => ModuleAST(module, l)}
 
-	lazy val component: PackratParser[List[ComponentAST]] = imports | symbolImports | natives | constants | variables | data | definitions | main
-
-	lazy val imports =
-		"import" ~> importModule ^^ (List(_)) |
-		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline
-
-	lazy val symbolImports =
-		("from" ~> ident <~ "import") ~ idents <~ Newline ^^
-			{case m ~ s => List( ImportSymbolsAST(module, m, s) )} |
-		("from" ~> ident <~ "import") <~ "*" <~ Newline ^^
-			{case m => List( ImportSymbolsAST(module, m, null) )}
-
-	lazy val importModule =
-		ident <~ Newline ^^ (ImportModuleAST( module, _ ))
-
-	lazy val natives =
-		"class" ~> native ^^ {case (pkg, names) => List( ClassAST(module, pkg, names) )} |
-		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^
-			(cs => cs map {case (pkg, names) => ClassAST( module, pkg, names )}) |
-		"method" ~> native ^^ {case (cls, names) => List( MethodAST(module, cls, names) )} |
-		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => MethodAST( module, cls, names )}) |
-		"field" ~> native ^^ {case (cls, names) => List( FieldAST(module, cls, names) )} |
-		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FieldAST( module, cls, names )}) |
-		"function" ~> native ^^ {case (cls, names) => List( FunctionAST(module, cls, names) )} |
-		"function" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FunctionAST( module, cls, names )})
-
-	lazy val dottedName = rep1sep(ident, ".")
-
-	lazy val className = ident ~ opt("=>" ~> ident) ^^ {case name ~ alias => (name, alias)}
-	
-	lazy val native: PackratParser[(String, List[(String, Option[String])])] =
-		dottedName ~ opt("=>" ~> ident) <~ Newline ^^
-			{case name ~ alias => (name.init.mkString( "." ), List((name.last, alias)))} |
-		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) ^^
-			{case pkg ~ names => (pkg.mkString( "." ), names)}
-
-	lazy val idents = rep1sep( ident, "," )
-	
-	lazy val constants =
-		"val" ~> constant ^^ {case c => List( c )} |
-		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline
-
-	lazy val constant =
-		(ident <~ "=") ~ expr <~ Newline ^^
-			{case n ~ c => ConstAST( module, n, c )}
-
-	lazy val variables =
-		"var" ~> variable ^^ {case v => List( v )} |
-		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline
-
-	lazy val variable =
-		ident ~ opt("=" ~> expr) <~ Newline ^^
-			{case n ~ v => VarAST( module, n, v )}
-
-	lazy val data =
-		"data" ~> datatype ^^ {case v => List( v )} |
-		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline
-
-	lazy val datatype =
-		(ident <~ "=") ~ rep1sep(constructor, "|") <~ Newline ^^
-			{case typename ~ constructors => DataAST( module, typename, constructors )} |
-		constructor <~ Newline ^^
-			{case c => DataAST( module, c._1, List(c) )}
-
-	lazy val constructor =
-		(ident <~ "(") ~ (idents <~ ")") ^^
-			{case name ~ fields => (name, fields)} |
-		ident ^^
-			{case name => (name, Nil)}
-		
-	lazy val definitions =
-		"def" ~> definition ^^ {case d => List( d )} |
-		"def" ~> (Indent ~> rep1(definition) <~ (Dedent ~ Newline))
-
-	lazy val definition =
-		ident ~ opt("(" ~> repsep(pattern, ",") <~ ")") ~ (part | parts) ^^
-			{	case n ~ None ~ gs => DefAST( module, n, FunctionExprAST(module, Nil, gs) )
-				case n ~ Some(p) ~ gs => DefAST( module, n, FunctionExprAST(module, p, gs) )}
-
-	lazy val locals = opt("local" ~> idents)
-	
-	lazy val part = opt("|" ~> expr10) ~ locals ~ ("=" ~> expr) <~ Newline ^^
-		{case g ~ l ~ b => List(FunctionPartExprAST(g, l, b))}
-
-	lazy val subpart =
-		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ locals ~ ("=" ~> expr) <~ Newline ^^
-			{case g ~ l ~ b => FunctionPartExprAST(g, l, b)}
-
-	lazy val parts =
-		Indent ~> rep1(subpart) <~ Dedent <~ Newline
-
-	lazy val main =
-		"main" ~> statement ^^ (s => List(MainAST( module, s )))
+// 	lazy val component: PackratParser[List[ComponentAST]] = imports | symbolImports | natives | constants | variables | data | definitions | main
+// 
+// 	lazy val imports =
+// 		"import" ~> importModule ^^ (List(_)) |
+// 		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline
+// 
+// 	lazy val symbolImports =
+// 		("from" ~> ident <~ "import") ~ idents <~ Newline ^^
+// 			{case m ~ s => List( ImportSymbolsAST(module, m, s) )} |
+// 		("from" ~> ident <~ "import") <~ "*" <~ Newline ^^
+// 			{case m => List( ImportSymbolsAST(module, m, null) )}
+// 
+// 	lazy val importModule =
+// 		ident <~ Newline ^^ (ImportModuleAST( module, _ ))
+// 
+// 	lazy val natives =
+// 		"class" ~> native ^^ {case (pkg, names) => List( ClassAST(module, pkg, names) )} |
+// 		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^
+// 			(cs => cs map {case (pkg, names) => ClassAST( module, pkg, names )}) |
+// 		"method" ~> native ^^ {case (cls, names) => List( MethodAST(module, cls, names) )} |
+// 		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => MethodAST( module, cls, names )}) |
+// 		"field" ~> native ^^ {case (cls, names) => List( FieldAST(module, cls, names) )} |
+// 		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FieldAST( module, cls, names )}) |
+// 		"function" ~> native ^^ {case (cls, names) => List( FunctionAST(module, cls, names) )} |
+// 		"function" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FunctionAST( module, cls, names )})
+// 
+// 	lazy val dottedName = rep1sep(ident, ".")
+// 
+// 	lazy val className = ident ~ opt("=>" ~> ident) ^^ {case name ~ alias => (name, alias)}
+// 	
+// 	lazy val native: PackratParser[(String, List[(String, Option[String])])] =
+// 		dottedName ~ opt("=>" ~> ident) <~ Newline ^^
+// 			{case name ~ alias => (name.init.mkString( "." ), List((name.last, alias)))} |
+// 		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) ^^
+// 			{case pkg ~ names => (pkg.mkString( "." ), names)}
+// 
+// 	lazy val idents = rep1sep( ident, "," )
+// 	
+// 	lazy val constants =
+// 		"val" ~> constant ^^ {case c => List( c )} |
+// 		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline
+// 
+// 	lazy val constant =
+// 		(ident <~ "=") ~ expr <~ Newline ^^
+// 			{case n ~ c => ConstAST( module, n, c )}
+// 
+// 	lazy val variables =
+// 		"var" ~> variable ^^ {case v => List( v )} |
+// 		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline
+// 
+// 	lazy val variable =
+// 		ident ~ opt("=" ~> expr) <~ Newline ^^
+// 			{case n ~ v => VarAST( module, n, v )}
+// 
+// 	lazy val data =
+// 		"data" ~> datatype ^^ {case v => List( v )} |
+// 		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline
+// 
+// 	lazy val datatype =
+// 		(ident <~ "=") ~ rep1sep(constructor, "|") <~ Newline ^^
+// 			{case typename ~ constructors => DataAST( module, typename, constructors )} |
+// 		constructor <~ Newline ^^
+// 			{case c => DataAST( module, c._1, List(c) )}
+// 
+// 	lazy val constructor =
+// 		(ident <~ "(") ~ (idents <~ ")") ^^
+// 			{case name ~ fields => (name, fields)} |
+// 		ident ^^
+// 			{case name => (name, Nil)}
+// 		
+// 	lazy val definitions =
+// 		"def" ~> definition ^^ {case d => List( d )} |
+// 		"def" ~> (Indent ~> rep1(definition) <~ (Dedent ~ Newline))
+// 
+// 	lazy val definition =
+// 		ident ~ opt("(" ~> repsep(pattern, ",") <~ ")") ~ (part | parts) ^^
+// 			{	case n ~ None ~ gs => DefAST( module, n, FunctionExprAST(module, Nil, gs) )
+// 				case n ~ Some(p) ~ gs => DefAST( module, n, FunctionExprAST(module, p, gs) )}
+// 
+// 	lazy val locals = opt("local" ~> idents)
+// 	
+// 	lazy val part = opt("|" ~> expr10) ~ locals ~ ("=" ~> expr) <~ Newline ^^
+// 		{case g ~ l ~ b => List(FunctionPartExprAST(g, l, b))}
+// 
+// 	lazy val subpart =
+// 		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ locals ~ ("=" ~> expr) <~ Newline ^^
+// 			{case g ~ l ~ b => FunctionPartExprAST(g, l, b)}
+// 
+// 	lazy val parts =
+// 		Indent ~> rep1(subpart) <~ Dedent <~ Newline
+// 
+// 	lazy val main =
+// 		"main" ~> statement ^^ (s => List(MainAST( module, s )))
 
 	lazy val statements =
 		rep1(statement)

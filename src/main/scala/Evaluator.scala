@@ -169,12 +169,6 @@ class Evaluator extends Types
 	
 	def enterScope = activations.top.scope push new SymbolMap
 
-// 	def topScope
-// 	{
-// 		activations.top.scope.clear
-// 		enterScope
-// 	}
-
 	def exitScope = activations.top.scope pop
 	
 	def assignOperation( r: Reference, op: Symbol, n: Number ) =
@@ -224,88 +218,89 @@ class Evaluator extends Types
 		
 		t match
 		{
-			case ModuleAST( m, cs ) =>
-				if (m != PREDEF)
-				{
-					load( PREDEF )
-					
-					for ((k, v) <- module( PREDEF ).symbols)
-						assign( m, k -> v )
-				}
+			case ModuleAST( m, s ) =>
+// 				if (m != PREDEF)
+// 				{
+// 					load( PREDEF )
+// 					
+// 					for ((k, v) <- module( PREDEF ).symbols)
+// 						assign( m, k -> v )
+// 				}
 // 				assign( m,
 // 					'i -> Complex( 0, 1 ),
 // 					'sys -> this
 // 					)
-
-				apply( cs )
-			case ImportModuleAST( m, name ) =>
-				val ast = parse( name )
-
-				apply( ast )
-				assign( m, name -> module(name) )
-			case ImportSymbolsAST( into, from, symbols ) =>
-				val ast = parse( from )
-
-				apply( ast )
-
-				if (symbols eq null)
-					for ((k, v) <- module( from ).symbols)
-					{
-						if (!symbolExists( into, k ))
-							assign( into, k -> v )
-					}
-				else
-					for (s <- symbols)
-						assign( into, s -> symbol(from, s) )
-			case ClassAST( m, pkg, names ) =>
-				for ((n, a) <- names)
-					assign( m, a.getOrElse(n), Class.forName(pkg + '.' + n) )
-			case MethodAST( m, cls, names ) =>
-				for ((n, a) <- names)
-				{
-				val methods = Class.forName( cls ).getMethods.toList.filter( m => m.getName == n && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
-
-					assign( m, a.getOrElse(n), NativeMethod(null, methods) )
-				}
-			case FunctionAST( m, cls, names ) =>
-				for ((n, a) <- names)
-				{
-				val method = Class.forName( cls ).getMethod( n, classOf[List[Any]] )
-
-					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) sys.error( "function method must be static" )
-
-					function( m, a.getOrElse(n), (a => method.invoke(null, a)) )
-				}
-			case ConstAST( m, name, expr ) =>
-				assign( m, name, eval(expr) )
-			case VarAST( m, n, v ) =>
-				if (symbols contains n)
-					sys.error( "already declared: " + n )
-				else
-					symbols(n) = new VariableReference( if (v == None) null else eval(v.get) )
-			case DataAST( m, n, cs ) =>
-				if (datatypes contains n) sys.error( "already declared: " + n )
-				
-				datatypes.add( n )
-
-				for ((name, fields) <- cs)
-					if (fields isEmpty)
-						assign( m, name, new Record(n, name, Nil, Nil) )
-					else
-						assign( m, name, Constructor(n, name, fields) )
-			case DefAST( m, name, func ) =>
-				if (module(m).symbols contains name)
-				{
-					if (symbol(m, name).isInstanceOf[Closure])
-						module(m).symbols(name) = new Closure( null, module(m), module(m).symbols(name).asInstanceOf[Closure].func :+ func )
-					else
-						sys.error( "already declared: " + name )
-				}
-				else
-					module(m).symbols(name) = new Closure( null, module(m), List(func) )
-			case MainAST( m, l ) =>
+				function( m, "println", a => println(a.head) )
 				enterEnvironment( null, module(m) )
-				apply( l )
+				apply( s )
+// 			case ImportModuleAST( m, name ) =>
+// 				val ast = parse( name )
+// 
+// 				apply( ast )
+// 				assign( m, name -> module(name) )
+// 			case ImportSymbolsAST( into, from, symbols ) =>
+// 				val ast = parse( from )
+// 
+// 				apply( ast )
+// 
+// 				if (symbols eq null)
+// 					for ((k, v) <- module( from ).symbols)
+// 					{
+// 						if (!symbolExists( into, k ))
+// 							assign( into, k -> v )
+// 					}
+// 				else
+// 					for (s <- symbols)
+// 						assign( into, s -> symbol(from, s) )
+// 			case ClassAST( m, pkg, names ) =>
+// 				for ((n, a) <- names)
+// 					assign( m, a.getOrElse(n), Class.forName(pkg + '.' + n) )
+// 			case MethodAST( m, cls, names ) =>
+// 				for ((n, a) <- names)
+// 				{
+// 				val methods = Class.forName( cls ).getMethods.toList.filter( m => m.getName == n && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
+// 
+// 					assign( m, a.getOrElse(n), NativeMethod(null, methods) )
+// 				}
+// 			case FunctionAST( m, cls, names ) =>
+// 				for ((n, a) <- names)
+// 				{
+// 				val method = Class.forName( cls ).getMethod( n, classOf[List[Any]] )
+// 
+// 					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) sys.error( "function method must be static" )
+// 
+// 					function( m, a.getOrElse(n), (a => method.invoke(null, a)) )
+// 				}
+// 			case ConstAST( m, name, expr ) =>
+// 				assign( m, name, eval(expr) )
+// 			case VarAST( m, n, v ) =>
+// 				if (symbols contains n)
+// 					sys.error( "already declared: " + n )
+// 				else
+// 					symbols(n) = new VariableReference( if (v == None) null else eval(v.get) )
+// 			case DataAST( m, n, cs ) =>
+// 				if (datatypes contains n) sys.error( "already declared: " + n )
+// 				
+// 				datatypes.add( n )
+// 
+// 				for ((name, fields) <- cs)
+// 					if (fields isEmpty)
+// 						assign( m, name, new Record(n, name, Nil, Nil) )
+// 					else
+// 						assign( m, name, Constructor(n, name, fields) )
+// 			case DefAST( m, name, func ) =>
+// 				if (module(m).symbols contains name)
+// 				{
+// 					if (symbol(m, name).isInstanceOf[Closure])
+// 						module(m).symbols(name) = new Closure( null, module(m), module(m).symbols(name).asInstanceOf[Closure].func :+ func )
+// 					else
+// 						sys.error( "already declared: " + name )
+// 				}
+// 				else
+// 					module(m).symbols(name) = new Closure( null, module(m), List(func) )
+// 			case MainAST( m, l ) =>
+// 				enterEnvironment( null, module(m) )
+// 				apply( l )
 			case ExpressionStatementAST( e ) =>
 				last = eval( e )
 			case ValStatementAST( p, e ) =>

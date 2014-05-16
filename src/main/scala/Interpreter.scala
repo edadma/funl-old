@@ -22,12 +22,12 @@ object Interpreter
 	
 	def markTailRecursion( s: ModuleAST )
 	{
-		for (c <- s.components)
+		for (c <- s.statements)
 			c match
 			{
-				case DefAST( _, name, func ) =>
-					for (p <- func.parts)
-						markTailRecursion( name, p.body )
+// 				case DefAST( _, name, func ) =>
+// 					for (p <- func.parts)
+// 						markTailRecursion( name, p.body )
 				case _ =>
 			}
 	}

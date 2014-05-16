@@ -10,20 +10,20 @@ package funl.interp
 
 trait AST
 
-case class ModuleAST( module: String, components: List[ComponentAST] ) extends AST
+case class ModuleAST( module: String, statements: List[StatementAST] ) extends AST
 
-trait ComponentAST extends AST
-case class ImportModuleAST( into: String, toimport: String ) extends ComponentAST
-case class ImportSymbolsAST( into: String, from: String, symbols: List[String] ) extends ComponentAST
-case class ClassAST( module: String, pkg: String, name: List[(String, Option[String])] ) extends ComponentAST
-case class MethodAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
-case class FieldAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
-case class FunctionAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
-case class ConstAST( module: String, name: String, const: ExprAST ) extends ComponentAST
-case class VarAST( module: String, name: String, init: Option[ExprAST] ) extends ComponentAST
-case class DataAST( module: String, name: String, constructors: List[(String, List[String])] ) extends ComponentAST
-case class DefAST( module: String, name: String, func: FunctionExprAST ) extends ComponentAST
-case class MainAST( module: String, s: StatementAST ) extends ComponentAST
+// trait ComponentAST extends AST
+// case class ImportModuleAST( into: String, toimport: String ) extends ComponentAST
+// case class ImportSymbolsAST( into: String, from: String, symbols: List[String] ) extends ComponentAST
+// case class ClassAST( module: String, pkg: String, name: List[(String, Option[String])] ) extends ComponentAST
+// case class MethodAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
+// case class FieldAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
+// case class FunctionAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
+// case class ConstAST( module: String, name: String, const: ExprAST ) extends ComponentAST
+// case class VarAST( module: String, name: String, init: Option[ExprAST] ) extends ComponentAST
+// case class DataAST( module: String, name: String, constructors: List[(String, List[String])] ) extends ComponentAST
+// case class DefAST( module: String, name: String, func: FunctionExprAST ) extends ComponentAST
+// case class MainAST( module: String, s: StatementAST ) extends ComponentAST
 
 trait StatementAST extends AST
 case class ExpressionStatementAST( e: ExprAST ) extends StatementAST

@@ -15,10 +15,7 @@ object DevMain extends App
 {
 	val s =
 """
-def f = 123
-
-main
-	println( f() )
+println( 123 )
 """
 
 //class javax.swing.JFrame
