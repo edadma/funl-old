@@ -305,16 +305,13 @@ class Evaluator extends Types
 // 						assign( m, name, new Record(n, name, Nil, Nil) )
 // 					else
 // 						assign( m, name, Constructor(n, name, fields) )
-// 			case DefAST( m, name, func ) =>
-// 				if (module(m).symbols contains name)
-// 				{
-// 					if (symbol(m, name).isInstanceOf[Closure])
-// 						module(m).symbols(name) = new Closure( null, module(m), module(m).symbols(name).asInstanceOf[Closure].func :+ func )
-// 					else
-// 						sys.error( "already declared: " + name )
-// 				}
-// 				else
-// 					module(m).symbols(name) = new Closure( null, module(m), List(func) )
+			case DefAST( name, func ) =>
+				declarationMap.get(name) match
+				{
+					case None => declarationMap(name) = new Closure( null, module(func.module), List(func) )
+					case Some( c: Closure ) => declarationMap(name) = new Closure( null, module(func.module), c.funcs :+ func )
+					case _ => sys.error( "already declared: " + name )
+				}
 // 			case MainAST( m, l ) =>
 // 				enterEnvironment( null, module(m) )
 // 				apply( l )
@@ -480,7 +477,7 @@ class Evaluator extends Types
 						{
 							def findPart: Option[FunctionPartExprAST] =
 							{
-								for (alt <- c.func)
+								for (alt <- c.funcs)
 									if (pattern( localScope, argList, alt.parms ))
 									{
 										for (part <- alt.parts)
@@ -500,7 +497,7 @@ class Evaluator extends Types
 
 							findPart match
 							{
-								case None => sys.error( "function application failure: " + c.func + " applied to " + argList )
+								case None => sys.error( "function application failure: " + c.funcs + " applied to " + argList )
 								case Some( part ) =>
 									part.locals match
 									{

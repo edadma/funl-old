@@ -26,7 +26,7 @@ case class DeclStatementAST( decls: List[StatementAST] ) extends StatementAST
 // case class ConstAST( module: String, name: String, const: ExprAST ) extends ComponentAST
 // case class VarAST( module: String, name: String, init: Option[ExprAST] ) extends ComponentAST
 // case class DataAST( module: String, name: String, constructors: List[(String, List[String])] ) extends ComponentAST
-// case class DefAST( module: String, name: String, func: FunctionExprAST ) extends ComponentAST
+ case class DefAST( name: String, func: FunctionExprAST ) extends StatementAST
 // case class MainAST( module: String, s: StatementAST ) extends ComponentAST
 
 case class ExpressionStatementAST( e: ExprAST ) extends StatementAST

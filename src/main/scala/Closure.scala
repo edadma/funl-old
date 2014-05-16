@@ -8,7 +8,7 @@
 package funl.interp
 
 
-class Closure( val calling: Activation, val module: Module, val func: List[FunctionExprAST] )
+class Closure( val calling: Activation, val module: Module, val funcs: List[FunctionExprAST] )
 {
 	override def toString = "<closure>"
 }

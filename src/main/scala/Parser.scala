@@ -81,7 +81,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		
 	lazy val source: PackratParser[ModuleAST] = rep(statement) ^^ {case l => ModuleAST(module, l)}
 
-	lazy val declaration: PackratParser[DeclStatementAST] = /*imports | symbolImports |*/ natives /*| constants | variables | data | definitions*/
+	lazy val declaration: PackratParser[DeclStatementAST] = /*imports | symbolImports |*/ natives /*| constants | variables | data*/ | definitions
 
 // 	lazy val imports =
 // 		"import" ~> importModule ^^ (List(_)) |
@@ -117,8 +117,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) ^^
 			{case pkg ~ names => (pkg.mkString( "." ), names)}
 
-// 	lazy val idents = rep1sep( ident, "," )
-// 	
+	lazy val idents = rep1sep( ident, "," )
+
 // 	lazy val constants =
 // 		"val" ~> constant ^^ {case c => List( c )} |
 // 		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline
@@ -150,28 +150,28 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 // 			{case name ~ fields => (name, fields)} |
 // 		ident ^^
 // 			{case name => (name, Nil)}
-// 		
-// 	lazy val definitions =
-// 		"def" ~> definition ^^ {case d => List( d )} |
-// 		"def" ~> (Indent ~> rep1(definition) <~ (Dedent ~ Newline))
-// 
-// 	lazy val definition =
-// 		ident ~ opt("(" ~> repsep(pattern, ",") <~ ")") ~ (part | parts) ^^
-// 			{	case n ~ None ~ gs => DefAST( module, n, FunctionExprAST(module, Nil, gs) )
-// 				case n ~ Some(p) ~ gs => DefAST( module, n, FunctionExprAST(module, p, gs) )}
-// 
-// 	lazy val locals = opt("local" ~> idents)
-// 	
-// 	lazy val part = opt("|" ~> expr10) ~ locals ~ ("=" ~> expr) <~ Newline ^^
-// 		{case g ~ l ~ b => List(FunctionPartExprAST(g, l, b))}
-// 
-// 	lazy val subpart =
-// 		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ locals ~ ("=" ~> expr) <~ Newline ^^
-// 			{case g ~ l ~ b => FunctionPartExprAST(g, l, b)}
-// 
-// 	lazy val parts =
-// 		Indent ~> rep1(subpart) <~ Dedent <~ Newline
-// 
+
+	lazy val definitions =
+		"def" ~> definition ^^ {case d => DeclStatementAST(List( d ))} |
+		"def" ~> (Indent ~> rep1(definition) <~ (Dedent ~ Newline)) ^^ (DeclStatementAST( _ ))
+
+	lazy val definition =
+		ident ~ opt("(" ~> repsep(pattern, ",") <~ ")") ~ (part | parts) ^^
+			{	case n ~ None ~ gs => DefAST( n, FunctionExprAST(module, Nil, gs) )
+				case n ~ Some(p) ~ gs => DefAST( n, FunctionExprAST(module, p, gs) )}
+
+	lazy val locals = opt("local" ~> idents)
+
+	lazy val part = opt("|" ~> expr10) ~ locals ~ ("=" ~> expr) <~ Newline ^^
+		{case g ~ l ~ b => List(FunctionPartExprAST(g, l, b))}
+
+	lazy val subpart =
+		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ locals ~ ("=" ~> expr) <~ Newline ^^
+			{case g ~ l ~ b => FunctionPartExprAST(g, l, b)}
+
+	lazy val parts =
+		Indent ~> rep1(subpart) <~ Dedent <~ Newline
+
 // 	lazy val main =
 // 		"main" ~> statement ^^ (s => List(MainAST( module, s )))
 
