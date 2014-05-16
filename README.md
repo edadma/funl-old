@@ -4,19 +4,19 @@
 
 Here is an example program in FunL
 
-	def
-			qsort( [] )             = []
-			qsort( p:xs )           =
-				def
-					filter( p, [] )     = []
-					filter( p, x:xs )
-						| p( x )          = x : filter( p, xs )
-						| otherwise       = filter( p, xs )
+    def
+      qsort( [] )             = []
+      qsort( p:xs )           =
+        def
+          filter( p, [] )     = []
+          filter( p, x:xs )
+            | p( x )          = x : filter( p, xs )
+            | otherwise       = filter( p, xs )
 
-				qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
+        qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
 
-	println( qsort([4, 2, 1, 3, 0, 2]) )
-	println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )
+    println( qsort([4, 2, 1, 3, 0, 2]) )
+    println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )
 
 
 ## License
