@@ -81,20 +81,20 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		
 	lazy val source: PackratParser[ModuleAST] = rep(statement) ^^ {case l => ModuleAST(module, l)}
 
-	lazy val declaration: PackratParser[DeclStatementAST] = /*imports | symbolImports |*/ natives /*| constants | variables | data*/ | definitions
+	lazy val declaration: PackratParser[DeclStatementAST] = imports | /*symbolImports |*/ natives /*| constants | variables | data*/ | definitions
 
-// 	lazy val imports =
-// 		"import" ~> importModule ^^ (List(_)) |
-// 		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline
-// 
+	lazy val imports =
+		"import" ~> importModule ^^ {case m => DeclStatementAST( List(m) )} |
+		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline ^^ (DeclStatementAST( _ ))
+
+	lazy val importModule =
+		ident <~ Newline ^^ (ImportModuleAST( _ ))
+
 // 	lazy val symbolImports =
 // 		("from" ~> ident <~ "import") ~ idents <~ Newline ^^
-// 			{case m ~ s => List( ImportSymbolsAST(module, m, s) )} |
+// 			{case m ~ s => List( ImportSymbolsAST(m, s) )} |
 // 		("from" ~> ident <~ "import") <~ "*" <~ Newline ^^
-// 			{case m => List( ImportSymbolsAST(module, m, null) )}
-// 
-// 	lazy val importModule =
-// 		ident <~ Newline ^^ (ImportModuleAST( module, _ ))
+// 			{case m => List( ImportSymbolsAST(m, null) )}
 
 	lazy val natives =
 		"class" ~> native ^^ {case (pkg, names) => DeclStatementAST( List(ClassAST(pkg, names)) )} |

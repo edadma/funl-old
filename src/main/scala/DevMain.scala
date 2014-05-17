@@ -15,9 +15,9 @@ object DevMain extends App
 {
 	val s =
 """
-method java.lang.System.currentTimeMillis
+import fibo
 
-println( currentTimeMillis() )
+println( fibo.fib(10) )
 """
 
 //class javax.swing.JFrame

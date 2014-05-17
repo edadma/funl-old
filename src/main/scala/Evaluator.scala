@@ -250,11 +250,11 @@ class Evaluator extends Types
 				apply( s )
 			case DeclStatementAST( s ) =>
 				apply( s )
-// 			case ImportModuleAST( m, name ) =>
-// 				val ast = parse( name )
-// 
-// 				apply( ast )
-// 				assign( m, name -> module(name) )
+			case ImportModuleAST( name ) =>
+				val ast = parse( name )
+
+				apply( ast )
+				declare( declarationMap, name, module(name) )
 // 			case ImportSymbolsAST( into, from, symbols ) =>
 // 				val ast = parse( from )
 // 
