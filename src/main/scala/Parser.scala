@@ -60,7 +60,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				}
 				
 			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "from", "import", "break", "continue", "repeat", "until", "of",
-				"export", "class", "main", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case",
+				"export", "class", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case",
 				"method", "field", "function")
 			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<", "$",
 				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "^=", ":", "\\", "::", "@")
@@ -100,10 +100,10 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"class" ~> native ^^ {case (pkg, names) => DeclStatementAST( List(ClassAST(pkg, names)) )} |
 		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^
 			(cs => DeclStatementAST( cs map {case (pkg, names) => ClassAST( pkg, names )})) |
-// 		"method" ~> native ^^ {case (cls, names) => List( MethodAST(module, cls, names) )} |
-// 		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => MethodAST( module, cls, names )}) |
-// 		"field" ~> native ^^ {case (cls, names) => List( FieldAST(module, cls, names) )} |
-// 		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => cs map {case (cls, names) => FieldAST( module, cls, names )}) |
+ 		"method" ~> native ^^ {case (cls, names) => DeclStatementAST( List(MethodAST(cls, names)) )} |
+ 		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST(cs map {case (cls, names) => MethodAST( cls, names )})) |
+		"field" ~> native ^^ {case (cls, names) => DeclStatementAST( List(FieldAST(cls, names)) )} |
+		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST( cs map {case (cls, names) => FieldAST( cls, names )} )) |
 		"function" ~> native ^^ {case (cls, names) => DeclStatementAST(List( FunctionAST(cls, names) ))} |
 		"function" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST(cs map {case (cls, names) => FunctionAST( cls, names )}))
 

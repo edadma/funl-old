@@ -272,13 +272,13 @@ class Evaluator extends Types
 			case ClassAST( pkg, names ) =>
 				for ((n, a) <- names)
 					declare( declarationMap, a.getOrElse(n), Class.forName(pkg + '.' + n) )
-// 			case MethodAST( m, cls, names ) =>
-// 				for ((n, a) <- names)
-// 				{
-// 				val methods = Class.forName( cls ).getMethods.toList.filter( m => m.getName == n && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
-// 
-// 					assign( m, a.getOrElse(n), NativeMethod(null, methods) )
-// 				}
+			case MethodAST( cls, names ) =>
+				for ((n, a) <- names)
+				{
+				val methods = Class.forName( cls ).getMethods.toList.filter( m => m.getName == n && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
+
+					declare( declarationMap, a.getOrElse(n), NativeMethod(null, methods) )
+				}
 			case FunctionAST( cls, names ) =>
 				for ((n, a) <- names)
 				{

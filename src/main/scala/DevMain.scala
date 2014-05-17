@@ -15,9 +15,9 @@ object DevMain extends App
 {
 	val s =
 """
-class java.lang.System
+method java.lang.System.currentTimeMillis
 
-println( System.currentTimeMillis() )
+println( currentTimeMillis() )
 """
 
 //class javax.swing.JFrame

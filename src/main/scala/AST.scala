@@ -15,19 +15,16 @@ case class ModuleAST( module: String, statements: List[StatementAST] ) extends A
 trait StatementAST extends AST
 
 case class DeclStatementAST( decls: List[StatementAST] ) extends StatementAST
-
-// trait ComponentAST extends AST
 // case class ImportModuleAST( into: String, toimport: String ) extends ComponentAST
 // case class ImportSymbolsAST( into: String, from: String, symbols: List[String] ) extends ComponentAST
 case class ClassAST( pkg: String, name: List[(String, Option[String])] ) extends StatementAST
-// case class MethodAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
-// case class FieldAST( module: String, cls: String, name: List[(String, Option[String])] ) extends ComponentAST
- case class FunctionAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
+case class MethodAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
+case class FieldAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
+case class FunctionAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
 // case class ConstAST( module: String, name: String, const: ExprAST ) extends ComponentAST
 // case class VarAST( module: String, name: String, init: Option[ExprAST] ) extends ComponentAST
 // case class DataAST( module: String, name: String, constructors: List[(String, List[String])] ) extends ComponentAST
  case class DefAST( name: String, func: FunctionExprAST ) extends StatementAST
-// case class MainAST( module: String, s: StatementAST ) extends ComponentAST
 
 case class ExpressionStatementAST( e: ExprAST ) extends StatementAST
 case class ValStatementAST( pat: PatternAST, exp: ExprAST ) extends StatementAST
