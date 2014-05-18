@@ -15,9 +15,7 @@ object DevMain extends App
 {
 	val s =
 """
-import fibo.*
-
-fib(10)
+println( rnd(1..3) )
 """
 
 //class javax.swing.JFrame

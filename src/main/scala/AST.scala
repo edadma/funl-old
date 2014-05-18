@@ -22,7 +22,7 @@ case class MethodAST( cls: String, name: List[(String, Option[String])] ) extend
 case class FieldAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
 case class FunctionAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
 // case class ConstAST( module: String, name: String, const: ExprAST ) extends ComponentAST
-// case class VarAST( module: String, name: String, init: Option[ExprAST] ) extends ComponentAST
+ case class VarAST( name: String, init: Option[ExprAST] ) extends StatementAST
 // case class DataAST( module: String, name: String, constructors: List[(String, List[String])] ) extends ComponentAST
  case class DefAST( name: String, func: FunctionExprAST ) extends StatementAST
 

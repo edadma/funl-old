@@ -299,11 +299,8 @@ class Evaluator extends Types
 				}
 // 			case ConstAST( m, name, expr ) =>
 // 				assign( m, name, eval(expr) )
-// 			case VarAST( m, n, v ) =>
-// 				if (symbols contains n)
-// 					sys.error( "already declared: " + n )
-// 				else
-// 					symbols(n) = new VariableReference( if (v == None) null else eval(v.get) )
+			case VarAST( n, v ) =>
+				declare( n, new VariableReference(if (v == None) null else eval(v.get)) )
 // 			case DataAST( m, n, cs ) =>
 // 				if (datatypes contains n) sys.error( "already declared: " + n )
 // 				
@@ -323,9 +320,6 @@ class Evaluator extends Types
 				}
 
 				export( name )
-// 			case MainAST( m, l ) =>
-// 				enterEnvironment( null, module(m) )
-// 				apply( l )
 			case ExpressionStatementAST( e ) =>
 				last = eval( e )
 			case ValStatementAST( p, e ) =>

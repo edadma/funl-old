@@ -59,7 +59,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 					case Some( exponent ) => exponent
 				}
 				
-			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "from", "import", "break", "continue", "repeat", "until", "of",
+			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "import", "break", "continue", "repeat", "until", "of",
 				"export", "class", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case",
 				"method", "field", "function")
 			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<", "$",
@@ -89,12 +89,6 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 
 	lazy val importModule =
 		name ^^ {case (qual, names) => ImportAST( qual, names )}
-
-// 	lazy val symbolImports =
-// 		("from" ~> ident <~ "import") ~ idents <~ Newline ^^
-// 			{case m ~ s => List( ImportSymbolsAST(m, s) )} |
-// 		("from" ~> ident <~ "import") <~ "*" <~ Newline ^^
-// 			{case m => List( ImportSymbolsAST(m, null) )}
 
 	lazy val natives =
 		"class" ~> name ^^ {case (pkg, names) => DeclStatementAST( List(ClassAST(pkg, names)) )} |
@@ -128,15 +122,15 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 // 	lazy val constant =
 // 		(ident <~ "=") ~ expr <~ Newline ^^
 // 			{case n ~ c => ConstAST( module, n, c )}
-// 
-// 	lazy val variables =
-// 		"var" ~> variable ^^ {case v => List( v )} |
-// 		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline
-// 
-// 	lazy val variable =
-// 		ident ~ opt("=" ~> expr) <~ Newline ^^
-// 			{case n ~ v => VarAST( module, n, v )}
-// 
+
+	lazy val variables =
+		"var" ~> variable ^^ {case v => List( v )} |
+		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline
+
+	lazy val variable =
+		ident ~ opt("=" ~> expr) <~ Newline ^^
+			{case n ~ v => VarAST( n, v )}
+
 // 	lazy val data =
 // 		"data" ~> datatype ^^ {case v => List( v )} |
 // 		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline

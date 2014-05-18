@@ -8,6 +8,7 @@
 package funl
 
 import collection.mutable.{HashSet, HashMap}
+import util.Random.{nextInt, nextDouble}
 
 import interp.Interpreter._
 
@@ -47,4 +48,13 @@ object Predef
 			new HashMap[Any, Any]
 		else
 			HashMap( a.head.asInstanceOf[collection.Map[Any, Any]].toArray: _* )
+
+	def rnd( a: List[Any] ): Any =
+		a match
+		{
+			case Nil => nextDouble
+			case List( n: Int ) => nextInt( n )
+			case List( l: Int, u: Int ) if l <= u => nextInt( u - l ) + l
+			case List( r: collection.immutable.Range ) => nextInt( r.last + 1 - r.start ) + r.start
+		}
 }
