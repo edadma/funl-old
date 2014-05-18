@@ -15,7 +15,11 @@ object DevMain extends App
 {
 	val s =
 """
-println( rnd(1..3) )
+data Person( firstName, lastName )
+
+val Person( fn, ln ) = Person( 'Cool', 'Whip' )
+
+println( fn, ln )
 """
 
 //class javax.swing.JFrame

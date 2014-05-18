@@ -111,7 +111,7 @@ class Evaluator extends Types
 	}
 
 	def export( sym: String ) =
-		if (mainScope)
+		if (topLevel)
 			activations.top.module.exports.add( sym )
 
 	def assign( m: String, key: String, value: Any )
@@ -190,10 +190,10 @@ class Evaluator extends Types
 	
 	def exitScope = activations.top.scope pop
 
-	def mainScope = activations.top.scope.length ==1 && activations.top.closure == null
+	def topLevel = activations.top.scope.length ==1 && activations.top.closure == null
 
 	def declarationMap =
-		if (mainScope)
+		if (topLevel)
 			activations.top.module.symbols
 		else
 			localScope
@@ -301,32 +301,32 @@ class Evaluator extends Types
 // 				assign( m, name, eval(expr) )
 			case VarAST( n, v ) =>
 				declare( n, new VariableReference(if (v == None) null else eval(v.get)) )
-// 			case DataAST( m, n, cs ) =>
-// 				if (datatypes contains n) sys.error( "already declared: " + n )
-// 				
-// 				datatypes.add( n )
-// 
-// 				for ((name, fields) <- cs)
-// 					if (fields isEmpty)
-// 						assign( m, name, new Record(n, name, Nil, Nil) )
-// 					else
-// 						assign( m, name, Constructor(n, name, fields) )
+			case DataAST( n, cs ) =>
+				if (datatypes contains n) sys.error( "already declared: " + n )
+
+				datatypes.add( n )
+
+				for ((name, fields) <- cs)
+					if (fields isEmpty)
+						declare( name, new Record(n, name, Nil, Nil) )
+					else
+						declare( name, Constructor(n, name, fields) )
 			case DefAST( name, func ) =>
 				declarationMap.get(name) match
 				{
-					case None => declarationMap(name) = new Closure( if (mainScope) null else activations.top, module(func.module), List(func) )
-					case Some( c: Closure ) => declarationMap(name) = new Closure( if (mainScope) null else activations.top, module(func.module), c.funcs :+ func )
+					case None => declarationMap(name) = new Closure( if (topLevel) null else activations.top, module(func.module), List(func) )
+					case Some( c: Closure ) => declarationMap(name) = new Closure( if (topLevel) null else activations.top, module(func.module), c.funcs :+ func )
 					case _ => sys.error( "already declared: " + name )
 				}
 
 				export( name )
 			case ExpressionStatementAST( e ) =>
 				last = eval( e )
-			case ValStatementAST( p, e ) =>
+			case ValAST( p, e ) =>
 				last = eval( e )
-				clear( localScope, p )
+				clear( declarationMap, p ) foreach export
 
-				if (!unify( localScope, last, p ))
+				if (!unify( declarationMap, last, p ))
 					sys.error( "unification failure" )
 			case SysvarExprAST( s ) =>
 				sysvars.get( s ) match
@@ -896,29 +896,38 @@ class Evaluator extends Types
 		}
 	}
 	
-	def clear( map: SymbolMap, p: PatternAST )
+	def clear( map: SymbolMap, p: PatternAST ) =
 	{
-		p match
+	var vars: List[String] = Nil
+	
+		def clear( p: PatternAST )
 		{
-			case AliasPatternAST( alias, pat ) =>
-				map remove alias
-				clear( map, pat )
-			case VariablePatternAST( n, _ ) =>
-				map remove n
-			case TuplePatternAST( t ) =>
-				for (e <- t)
-					clear( map, e )
-			case RecordPatternAST( n, l ) =>
-				for (e <- l)
-					clear( map, e )
-			case ListPatternAST( f ) =>
-				for (e <- f)
-					clear( map, e )
-			case ConsPatternAST( head, tail ) =>
-				clear( map, head )
-				clear( map, tail )
-			case _ =>
+			p match
+			{
+				case AliasPatternAST( alias, pat ) =>
+					map remove alias
+					vars = alias :: vars
+					clear( pat )
+				case VariablePatternAST( n, _ ) =>
+					vars = n :: vars
+					map remove n
+				case TuplePatternAST( t ) =>
+					for (e <- t)
+						clear( e )
+				case RecordPatternAST( n, l ) =>
+					for (e <- l)
+						clear( e )
+				case ListPatternAST( f ) =>
+					for (e <- f)
+						clear( e )
+				case ConsPatternAST( head, tail ) =>
+					clear( head )
+					clear( tail )
+				case _ =>
+			}
 		}
+
+		vars
 	}
 
 	def typecheck( a: Any, t: Option[String] ) =
@@ -978,7 +987,7 @@ class Evaluator extends Types
 			case RecordPatternAST( n, l ) =>
 				a match
 				{
-					case r: Record => r == n && r.args.length == l.length && (r.args zip l).forall( pair => unify(map, pair._1, pair._2) )
+					case r: Record => r.name == n && r.args.length == l.length && (r.args zip l).forall( pair => unify(map, pair._1, pair._2) )
 					case _ => false
 				}
 			case ListPatternAST( f ) =>

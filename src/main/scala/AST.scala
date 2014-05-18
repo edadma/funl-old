@@ -16,18 +16,16 @@ trait StatementAST extends AST
 
 case class DeclStatementAST( decls: List[StatementAST] ) extends StatementAST
 case class ImportAST( qual: String, names: List[(String, Option[String])] ) extends StatementAST
-//case class ImportSymbolsAST( from: String, symbols: List[String] ) extends StatementAST
 case class ClassAST( pkg: String, name: List[(String, Option[String])] ) extends StatementAST
 case class MethodAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
 case class FieldAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
 case class FunctionAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
-// case class ConstAST( module: String, name: String, const: ExprAST ) extends ComponentAST
- case class VarAST( name: String, init: Option[ExprAST] ) extends StatementAST
-// case class DataAST( module: String, name: String, constructors: List[(String, List[String])] ) extends ComponentAST
- case class DefAST( name: String, func: FunctionExprAST ) extends StatementAST
+case class ValAST( pat: PatternAST, exp: ExprAST ) extends StatementAST
+case class VarAST( name: String, init: Option[ExprAST] ) extends StatementAST
+case class DataAST( name: String, constructors: List[(String, List[String])] ) extends StatementAST
+case class DefAST( name: String, func: FunctionExprAST ) extends StatementAST
 
 case class ExpressionStatementAST( e: ExprAST ) extends StatementAST
-case class ValStatementAST( pat: PatternAST, exp: ExprAST ) extends StatementAST
 
 trait ExprAST extends AST
 case class SysvarExprAST( s: String ) extends ExprAST

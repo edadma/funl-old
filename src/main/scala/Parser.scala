@@ -81,7 +81,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		
 	lazy val source: PackratParser[ModuleAST] = rep(statement) ^^ {case l => ModuleAST(module, l)}
 
-	lazy val declaration: PackratParser[DeclStatementAST] = imports | /*symbolImports |*/ natives /*| constants | variables | data*/ | definitions
+	lazy val declaration: PackratParser[DeclStatementAST] = imports | natives | constants | variables | data | definitions
 
 	lazy val imports =
 		"import" ~> importModule ^^ {case m => DeclStatementAST( List(m) )} |
@@ -115,37 +115,37 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 
 	lazy val idents = rep1sep( ident, "," )
 
-// 	lazy val constants =
-// 		"val" ~> constant ^^ {case c => List( c )} |
-// 		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline
-// 
-// 	lazy val constant =
-// 		(ident <~ "=") ~ expr <~ Newline ^^
-// 			{case n ~ c => ConstAST( module, n, c )}
+	lazy val constants =
+		"val" ~> constant ^^ {case c => DeclStatementAST( List(c) )} |
+		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline ^^ (DeclStatementAST( _ ))
+
+	lazy val constant =
+		(pattern <~ "=") ~ expr5 <~ Newline ^^
+			{case pat ~ exp => ValAST( pat, exp )}
 
 	lazy val variables =
-		"var" ~> variable ^^ {case v => List( v )} |
-		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline
+		"var" ~> variable ^^ {case v => DeclStatementAST( List(v) )} |
+		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline ^^ (DeclStatementAST( _ ))
 
 	lazy val variable =
 		ident ~ opt("=" ~> expr) <~ Newline ^^
 			{case n ~ v => VarAST( n, v )}
 
-// 	lazy val data =
-// 		"data" ~> datatype ^^ {case v => List( v )} |
-// 		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline
-// 
-// 	lazy val datatype =
-// 		(ident <~ "=") ~ rep1sep(constructor, "|") <~ Newline ^^
-// 			{case typename ~ constructors => DataAST( module, typename, constructors )} |
-// 		constructor <~ Newline ^^
-// 			{case c => DataAST( module, c._1, List(c) )}
-// 
-// 	lazy val constructor =
-// 		(ident <~ "(") ~ (idents <~ ")") ^^
-// 			{case name ~ fields => (name, fields)} |
-// 		ident ^^
-// 			{case name => (name, Nil)}
+	lazy val data =
+		"data" ~> datatype ^^ {case v => DeclStatementAST( List(v) )} |
+		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline ^^ (DeclStatementAST( _ ))
+
+	lazy val datatype =
+		(ident <~ "=") ~ rep1sep(constructor, "|") <~ Newline ^^
+			{case typename ~ constructors => DataAST( typename, constructors )} |
+		constructor <~ Newline ^^
+			{case c => DataAST( c._1, List(c) )}
+
+	lazy val constructor =
+		(ident <~ "(") ~ (idents <~ ")") ^^
+			{case name ~ fields => (name, fields)} |
+		ident ^^
+			{case name => (name, Nil)}
 
 	lazy val definitions =
 		"def" ~> definition ^^ {case d => DeclStatementAST(List( d ))} |
@@ -180,11 +180,6 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 // 					ExpressionStatementAST( ApplyExprAST(VariableExprAST(Symbol(f)), args, false) )} |
 		expr <~ Newline ^^ (ExpressionStatementAST( _ )) |
 		declaration
-	
-//	lazy val statementExpr: PackratParser[StatementAST] =
-// 		("val" ~> pattern <~ "=") ~ expr5 ^^
-// 			{case pat ~ exp => ValStatementAST( pat, exp )} |
-//		expr ^^ (ExpressionStatementAST( _ ))
 
 	lazy val expr: PackratParser[ExprAST] =
 		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "^=") ~ rep1sep(expr5, ",") ^^
