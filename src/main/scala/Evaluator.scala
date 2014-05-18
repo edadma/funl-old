@@ -235,7 +235,7 @@ class Evaluator extends Types
 // 		}
 		def vars( name: String ) =
 		{
-			def vars( a: Activation ): Any =
+			def vars( a: Activation ): Option[Any] =
 			{
 				a.scope find (_ contains name) match
 				{
@@ -247,12 +247,12 @@ class Evaluator extends Types
 							{
 								case None =>
 									if (creatvars)
-										newVar( name )
+										Some( newVar(name) )
 									else
 										sys.error( "unknown variable: " + name )
-								case Some( v ) => v
+								case v => v
 							}
-					case Some( map ) => map(name)
+					case Some( map ) => Some( map(name) )
 				}
 			}
 
@@ -360,7 +360,7 @@ class Evaluator extends Types
 					case Some( v ) => push( v )
 					case _ => sys.error( "problem" )
 				}
-			case TestExprAST( s ) =>
+			case TestExprAST( name ) => push( vars( name ) != None )
 			case BreakExprAST =>
 				throw new BreakThrowable
 			case ContinueExprAST =>
@@ -469,7 +469,7 @@ class Evaluator extends Types
 							push( Math(op, l, r) )
 						else
 							push( if (op == '==) l == r else l != r )
-					case _ =>//'- | '^ | '/ | '* | `FLOORDIV` =>
+					case _ =>
 						push( Math(op, l, r) )
 				}
 			case BooleanConnectiveExprAST( left, op, right ) =>
@@ -489,7 +489,7 @@ class Evaluator extends Types
 							push( beval(right) )
 				}
 			case NotExprAST( e ) => push( !beval(e) )
-			case VariableExprAST( v ) => push( vars(v) )
+			case VariableExprAST( v ) => push( vars(v).get )
 			case CaseFunctionExprAST( m, cases ) => push( new Closure(activations.top, module(m), cases) )
 			case f@FunctionExprAST( m, _, _ ) => push( new Closure(activations.top, module(m), List(f)) )
 			case ApplyExprAST( f, args, tailrecursive ) =>
