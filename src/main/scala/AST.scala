@@ -15,8 +15,8 @@ case class ModuleAST( module: String, statements: List[StatementAST] ) extends A
 trait StatementAST extends AST
 
 case class DeclStatementAST( decls: List[StatementAST] ) extends StatementAST
-case class ImportModuleAST( toimport: String ) extends StatementAST
-case class ImportSymbolsAST( from: String, symbols: List[String] ) extends StatementAST
+case class ImportAST( qual: String, names: List[(String, Option[String])] ) extends StatementAST
+//case class ImportSymbolsAST( from: String, symbols: List[String] ) extends StatementAST
 case class ClassAST( pkg: String, name: List[(String, Option[String])] ) extends StatementAST
 case class MethodAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
 case class FieldAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST

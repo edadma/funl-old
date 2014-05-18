@@ -86,22 +86,33 @@ class Evaluator extends Types
 	def loaded( m: String ) = symbols.contains( m ) && symbols(m).isInstanceOf[Module]
 
 	def load( m: String ) =
-		if (!loaded( PREDEF ))
+		if (!loaded( m ))
 		{
-		val ast = parse( PREDEF )
+		val ast = parse( m )
 
 			apply( ast )
+      exitEnvironment
 		}
 	
 	def symbol( m: String, key: String ) = module( m ).symbols(key)
 
 	def symbolExists( m: String, key: String ) = module( m ).symbols contains key
 
-	def declare( syms: SymbolMap, key: String, value: Any ) =
+	def declare( key: String, value: Any ) =
+	{
+	val syms = declarationMap
+	
 		if (syms contains key)
 			sys.error( "already declared: " + key )
 		else
 			syms(key) = value
+
+		export( key )
+	}
+
+	def export( sym: String ) =
+		if (mainScope)
+			activations.top.module.exports.add( sym )
 
 	def assign( m: String, key: String, value: Any )
 	{
@@ -139,7 +150,7 @@ class Evaluator extends Types
 	
 	def reval( t: AST ) =
 	{
-		apply( t, true )
+		apply( t, creatvars = true )
 		rpop
 	}
 	
@@ -250,34 +261,32 @@ class Evaluator extends Types
 				apply( s )
 			case DeclStatementAST( s ) =>
 				apply( s )
-			case ImportModuleAST( name ) =>
-				val ast = parse( name )
+			case ImportAST( qual, names ) =>
+				if (qual == "")
+				{
+					load( names.head._1 )
+					declare( names.head._2.getOrElse(names.head._1), module(names.head._1) )
+				}
+				else
+				{
+					load( qual )
 
-				apply( ast )
-				declare( declarationMap, name, module(name) )
-// 			case ImportSymbolsAST( into, from, symbols ) =>
-// 				val ast = parse( from )
-// 
-// 				apply( ast )
-// 
-// 				if (symbols eq null)
-// 					for ((k, v) <- module( from ).symbols)
-// 					{
-// 						if (!symbolExists( into, k ))
-// 							assign( into, k -> v )
-// 					}
-// 				else
-// 					for (s <- symbols)
-// 						assign( into, s -> symbol(from, s) )
+					if (names eq null)
+						for ((k, v) <- module(qual).symbols if module(qual).exports contains k)
+							declare( k, v )
+					else
+						for ((s, a) <- names)
+							declare( a.getOrElse(s), symbol(qual, s) )
+				}
 			case ClassAST( pkg, names ) =>
 				for ((n, a) <- names)
-					declare( declarationMap, a.getOrElse(n), Class.forName(pkg + '.' + n) )
+					declare( a.getOrElse(n), Class.forName(pkg + '.' + n) )
 			case MethodAST( cls, names ) =>
 				for ((n, a) <- names)
 				{
 				val methods = Class.forName( cls ).getMethods.toList.filter( m => m.getName == n && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
 
-					declare( declarationMap, a.getOrElse(n), NativeMethod(null, methods) )
+					declare( a.getOrElse(n), NativeMethod(null, methods) )
 				}
 			case FunctionAST( cls, names ) =>
 				for ((n, a) <- names)
@@ -286,7 +295,7 @@ class Evaluator extends Types
 
 					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) sys.error( "function method must be static" )
 
-					declare( declarationMap, a.getOrElse(n), (a => method.invoke(null, a)): Function )
+					declare( a.getOrElse(n), (a => method.invoke(null, a)): Function )
 				}
 // 			case ConstAST( m, name, expr ) =>
 // 				assign( m, name, eval(expr) )
@@ -312,6 +321,8 @@ class Evaluator extends Types
 					case Some( c: Closure ) => declarationMap(name) = new Closure( if (mainScope) null else activations.top, module(func.module), c.funcs :+ func )
 					case _ => sys.error( "already declared: " + name )
 				}
+
+				export( name )
 // 			case MainAST( m, l ) =>
 // 				enterEnvironment( null, module(m) )
 // 				apply( l )
@@ -876,7 +887,7 @@ class Evaluator extends Types
 					case m: Module =>
 						m.symbols.get( f ) match
 						{
-							case None => sys.error( "'" + f + "' not found in module '" + m + "'" )
+							case None => sys.error( "'" + f + "' not found in module '" + m.name + "'" )
 							case Some( elem ) => push( elem )
 						}
 					case o =>

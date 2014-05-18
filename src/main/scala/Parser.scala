@@ -88,7 +88,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline ^^ (DeclStatementAST( _ ))
 
 	lazy val importModule =
-		ident <~ Newline ^^ (ImportModuleAST( _ ))
+		name ^^ {case (qual, names) => ImportAST( qual, names )}
 
 // 	lazy val symbolImports =
 // 		("from" ~> ident <~ "import") ~ idents <~ Newline ^^
@@ -97,25 +97,27 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 // 			{case m => List( ImportSymbolsAST(m, null) )}
 
 	lazy val natives =
-		"class" ~> native ^^ {case (pkg, names) => DeclStatementAST( List(ClassAST(pkg, names)) )} |
-		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^
+		"class" ~> name ^^ {case (pkg, names) => DeclStatementAST( List(ClassAST(pkg, names)) )} |
+		"class" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^
 			(cs => DeclStatementAST( cs map {case (pkg, names) => ClassAST( pkg, names )})) |
- 		"method" ~> native ^^ {case (cls, names) => DeclStatementAST( List(MethodAST(cls, names)) )} |
- 		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST(cs map {case (cls, names) => MethodAST( cls, names )})) |
-		"field" ~> native ^^ {case (cls, names) => DeclStatementAST( List(FieldAST(cls, names)) )} |
-		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST( cs map {case (cls, names) => FieldAST( cls, names )} )) |
-		"function" ~> native ^^ {case (cls, names) => DeclStatementAST(List( FunctionAST(cls, names) ))} |
-		"function" ~> Indent ~> rep1(native) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST(cs map {case (cls, names) => FunctionAST( cls, names )}))
+ 		"method" ~> name ^^ {case (cls, names) => DeclStatementAST( List(MethodAST(cls, names)) )} |
+ 		"method" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST(cs map {case (cls, names) => MethodAST( cls, names )})) |
+		"field" ~> name ^^ {case (cls, names) => DeclStatementAST( List(FieldAST(cls, names)) )} |
+		"field" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST( cs map {case (cls, names) => FieldAST( cls, names )} )) |
+		"function" ~> name ^^ {case (cls, names) => DeclStatementAST(List( FunctionAST(cls, names) ))} |
+		"function" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST(cs map {case (cls, names) => FunctionAST( cls, names )}))
 
 	lazy val dottedName = rep1sep(ident, ".")
 
-	lazy val className = ident ~ opt("=>" ~> ident) ^^ {case name ~ alias => (name, alias)}
+	lazy val qualifier = ident ~ opt("=>" ~> ident) ^^ {case name ~ alias => (name, alias)}
 
-	lazy val native: PackratParser[(String, List[(String, Option[String])])] =
+	lazy val name: PackratParser[(String, List[(String, Option[String])])] =
 		dottedName ~ opt("=>" ~> ident) <~ Newline ^^
 			{case name ~ alias => (name.init.mkString( "." ), List((name.last, alias)))} |
-		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) ^^
-			{case pkg ~ names => (pkg.mkString( "." ), names)}
+		(dottedName <~ ".") ~ ("{" ~> rep1sep(qualifier, ",") <~ "}" <~ Newline) ^^
+			{case pkg ~ names => (pkg.mkString( "." ), names)} |
+		dottedName <~ "." <~ "*" <~ Newline ^^
+			{case name => (name.mkString( "." ), null)}
 
 	lazy val idents = rep1sep( ident, "," )
 

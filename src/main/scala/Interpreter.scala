@@ -67,14 +67,20 @@ object Interpreter
 		}
 	}
 
+	def displayQuoted( a: Any ): String =
+		a match
+		{
+			case s: String => "'" + s + "'"
+			case _ => display( a )
+		}
+
 	def display( a: Any ): String =
 		a match
 		{
 			case l: List[_] => l.mkString( "[", ", ", "]" )
 			case s: collection.Set[_] => s.mkString( "{", ", ", "}" )
-			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => display(k) + ": " + display(v)} ).mkString( "{", ", ", "}" )
+			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => displayQuoted(k) + ": " + display(v)} ).mkString( "{", ", ", "}" )
 			case t: Vector[_] => t.mkString( "(", ", ", ")" )
-			case s: String => "'" + s + "'"
 			case _ => String.valueOf( a )
 		}
 
