@@ -29,13 +29,14 @@ case class ExpressionStatementAST( e: ExprAST ) extends StatementAST
 
 trait ExprAST extends AST
 case class SysvarExprAST( s: String ) extends ExprAST
+case class TestExprAST( s: String ) extends ExprAST
 case object BreakExprAST extends ExprAST
 case object ContinueExprAST extends ExprAST
 case class IntegerLiteralExprAST( i: Int ) extends ExprAST
 case class DoubleLiteralExprAST( d: Double ) extends ExprAST
 case class BooleanLiteralExprAST( b: Boolean ) extends ExprAST
 case class StringLiteralExprAST( s: String ) extends ExprAST
-case class VariableExprAST( module: String, v: String ) extends ExprAST
+case class VariableExprAST( name: String ) extends ExprAST
 case class ApplyExprAST( f: ExprAST, args: List[ExprAST], var tailrecursive: Boolean ) extends ExprAST
 case class BinaryExprAST( left: ExprAST, op: Symbol, right: ExprAST ) extends ExprAST
 case class UnaryExprAST( op: Symbol, exp: ExprAST ) extends ExprAST

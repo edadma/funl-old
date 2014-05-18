@@ -62,7 +62,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "import", "break", "continue", "repeat", "until", "of",
 				"class", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case",
 				"method", "field", "function")
-			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<", "$",
+			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<", "$", "?",
 				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "^=", ":", "\\", "::", "@")
 		}
 
@@ -307,7 +307,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			(StringLiteralExprAST( _ )) |
 		"(" ~> expr <~ ")" |
 		ident ^^
-			{case v => VariableExprAST( module, v )} |
+			{case v => VariableExprAST( v )} |
 		("true" | "false") ^^
 			(b => BooleanLiteralExprAST( b.toBoolean )) |
 		"(" ~ ")" ^^^
@@ -323,7 +323,9 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"{" ~> repsep(entry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
 		"$" ~> ident ^^
-			(SysvarExprAST( _ ))
+			(SysvarExprAST( _ )) |
+		"?" ~> ident ^^
+			(TestExprAST( _ ))
 			
 	lazy val pattern =
 		(ident <~ "@") ~ pattern5 ^^

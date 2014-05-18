@@ -212,7 +212,28 @@ class Evaluator extends Types
 
 	def apply( t: AST, creatvars: Boolean = false ): Any =
 	{
-		def vars( m: String, name: String ) =
+// 		def vars( m: String, name: String ) =
+// 		{
+// 			def vars( a: Activation ): Any =
+// 			{
+// 				a.scope find (_ contains name) match
+// 				{
+// 					case None =>
+// 						if (a.closure != null && a.closure.referencing != null)
+// 							vars( a.closure.referencing )
+// 						else if (symbolExists( m, name ))
+// 							symbol( m, name )
+// 						else if (creatvars)
+// 							newVar( name )
+// 						else
+// 							sys.error( "unknown variable: " + name )
+// 					case Some( map ) => map(name)
+// 				}
+// 			}
+// 			
+// 			vars( activations.top )
+// 		}
+		def vars( name: String ) =
 		{
 			def vars( a: Activation ): Any =
 			{
@@ -221,16 +242,20 @@ class Evaluator extends Types
 					case None =>
 						if (a.closure != null && a.closure.referencing != null)
 							vars( a.closure.referencing )
-						else if (symbolExists( m, name ))
-							symbol( m, name )
-						else if (creatvars)
-							newVar( name )
 						else
-							sys.error( "unknown variable: " + name )
-					case Some( m ) => m(name)
+							activations.top.module.symbols.get( name ) match
+							{
+								case None =>
+									if (creatvars)
+										newVar( name )
+									else
+										sys.error( "unknown variable: " + name )
+								case Some( v ) => v
+							}
+					case Some( map ) => map(name)
 				}
 			}
-			
+
 			vars( activations.top )
 		}
 		
@@ -335,6 +360,7 @@ class Evaluator extends Types
 					case Some( v ) => push( v )
 					case _ => sys.error( "problem" )
 				}
+			case TestExprAST( s ) =>
 			case BreakExprAST =>
 				throw new BreakThrowable
 			case ContinueExprAST =>
@@ -463,7 +489,7 @@ class Evaluator extends Types
 							push( beval(right) )
 				}
 			case NotExprAST( e ) => push( !beval(e) )
-			case VariableExprAST( m, v ) => push( vars(m, v) )
+			case VariableExprAST( v ) => push( vars(v) )
 			case CaseFunctionExprAST( m, cases ) => push( new Closure(activations.top, module(m), cases) )
 			case f@FunctionExprAST( m, _, _ ) => push( new Closure(activations.top, module(m), List(f)) )
 			case ApplyExprAST( f, args, tailrecursive ) =>

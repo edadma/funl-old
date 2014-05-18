@@ -45,7 +45,7 @@ object Interpreter
 			case a@ApplyExprAST( f, _, _ ) =>
 				f match
 				{
-					case VariableExprAST( _, v ) =>
+					case VariableExprAST( v ) =>
 						if (v == n)
 							a.tailrecursive = true
 					case CaseFunctionExprAST( _, cases ) =>

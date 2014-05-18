@@ -19,7 +19,7 @@ data Person( firstName, lastName )
 
 val Person( fn, ln ) = Person( 'Cool', 'Whip' )
 
-println( fn, ln )
+println( fn + ' ' + ln )
 """
 
 //class javax.swing.JFrame
