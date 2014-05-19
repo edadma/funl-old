@@ -8,6 +8,15 @@
 function funl.Predef.{
 	print, println, printf,
 	error, require,
-	Array, Map, Set,
+	Array, Map, Set, tuple,
 	rnd
 	}
+
+def
+	map( f, [] )							= []
+	map( f, x:xs )						= f( x ) : map( f, xs )
+
+	filter( p, [] )					= []
+	filter( p, x:xs	)
+		| p( x )								= x : filter( p, xs )
+		| otherwise						= filter( p, xs )

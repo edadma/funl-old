@@ -504,7 +504,7 @@ class Evaluator extends Types
 				pop match
 				{
 					case m: collection.Map[Any, Any] => push( m(argList.head) )
-					case s: collection.Seq[_] => push( s(argList.head.asInstanceOf[Int]) )
+					case s: Seq[_] => push( s(argList.head.asInstanceOf[Int]) )
 					case a: Array[_] => push( a(argList.head.asInstanceOf[Int]) )
 					case s: collection.Set[Any] => push( s(argList.head) )
 					case c: Closure =>
@@ -648,11 +648,17 @@ class Evaluator extends Types
 				apply( l )
 				push( list(l.length) )
 			case ConsExprAST( head, tail ) =>
-				eval( tail ) match
+				val hd = eval( head )
+				val tl = eval( tail )
+				
+				push( tl match
 				{
-					case t: List[Any] => push( eval(head) :: t )
-					case t => RuntimeException( "list object expected: " + t )
-				}
+					case t: List[Any] => hd :: t
+					case end: Int if hd.isInstanceOf[Int] => hd.asInstanceOf[Int] until end
+					case r: Range if hd.isInstanceOf[Int] && tail.isInstanceOf[ConsExprAST] && !tail.asInstanceOf[ConsExprAST].tail.isInstanceOf[ConsExprAST] =>
+						hd.asInstanceOf[Int] until r.start by r.end
+					case _ => RuntimeException( "not a valid slice or list: " + hd + ":" + tl )
+				} )
 			case SetExprAST( l ) =>
 				apply( l )
 				push( list(l.length).toSet )

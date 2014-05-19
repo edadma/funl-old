@@ -54,6 +54,14 @@ object Predef
 		else
 			HashMap( a.head.asInstanceOf[collection.Map[Any, Any]].toArray: _* )
 
+	def tuple( a: List[Any] ) =
+		a match
+		{
+			case Nil => ()
+			case List( c: Iterable[_] ) => c.toVector
+			case List( a: Array[_] ) => a.toVector
+		}
+		
 	def rnd( a: List[Any] ): Any =
 		a match
 		{
