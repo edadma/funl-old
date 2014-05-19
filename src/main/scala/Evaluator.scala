@@ -268,7 +268,7 @@ class Evaluator extends Types
 		
 		def newVar( name: String ) =
 		{
-			val ref = new VariableReference
+		val ref = new VariableReference
 			
 			localScope(name) = ref
 			
@@ -504,9 +504,9 @@ class Evaluator extends Types
 				pop match
 				{
 					case ms: MutableSeq[Any] => push( new MutableSeqReference(ms, argList.head.asInstanceOf[Int]) )
+					case a: Array[Any] => push( new MutableSeqReference(a, argList.head.asInstanceOf[Int]) )
 					case m: collection.Map[Any, Any] => push( m(argList.head) )
 					case s: Seq[_] => push( s(argList.head.asInstanceOf[Int]) )
-					case a: Array[_] => push( a(argList.head.asInstanceOf[Int]) )
 					case s: collection.Set[Any] => push( s(argList.head) )
 					case c: Closure =>
 						def occur( argList: List[Any] )

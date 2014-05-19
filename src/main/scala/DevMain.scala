@@ -13,10 +13,29 @@ import interp.Evaluator
 
 object DevMain extends App
 {
+	def array( a: List[Any] ) = Array[Any](1, 2, 3)
+
 	val s =
 """
-for i <- 1:3
-	println( i )
+// function funl.DevMain.array
+// 
+// a = array()
+// println( a )
+// 
+// def f =
+// 	println( 'here' )
+// 	a(1)
+// 
+// f() = 123
+// println( a(1) )
+def f( a ) =
+	def g = a + b
+
+	g() + 2
+
+val b = 1
+
+println( f(3))
 """
 
 //class javax.swing.JFrame
