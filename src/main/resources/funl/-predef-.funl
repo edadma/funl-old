@@ -8,8 +8,7 @@
 function funl.Predef.{
 	print, println, printf,
 	error, require,
-	Array, Map, Set, tuple,
-	rnd
+	list, dict, set, tuple
 	}
 
 def

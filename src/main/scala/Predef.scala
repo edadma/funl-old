@@ -7,7 +7,7 @@
 
 package funl
 
-import collection.mutable.{HashSet, HashMap}
+import collection.mutable.{HashSet, HashMap, ArrayBuffer}
 import util.Random.{nextInt, nextDouble}
 
 import interp.Interpreter._
@@ -33,14 +33,15 @@ object Predef
 		if (!a.head.asInstanceOf[Boolean])
 			error( a.last.toString )
 
-	def Array( a: List[Any] ) =
+	def list( a: List[Any] ) =
 		a match
 		{
-			case List( n: Int ) => new scala.Array[Any]( n )
-			case List( init: List[Any] ) => scala.Array[Any]( init: _* )
+			case Nil => new ArrayBuffer[Any]
+			case List( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
+			case List( init: List[Any] ) => ArrayBuffer[Any]( init: _* )
 		}
 
-	def Set( a: List[Any] ) =
+	def set( a: List[Any] ) =
 		if (a isEmpty)
 			new HashSet[Any]
 		else if (a.head.isInstanceOf[collection.Set[Any]])
@@ -48,7 +49,7 @@ object Predef
 		else
 			HashSet( a: _* )
 	
-	def Map( a: List[Any] ) = 
+	def dict( a: List[Any] ) = 
 		if (a isEmpty)
 			new HashMap[Any, Any]
 		else
