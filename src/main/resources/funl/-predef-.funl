@@ -8,6 +8,6 @@
 function funl.Predef.{
 	print, println, printf,
 	error, require,
-	array, map, set,
+	Array, Map, Set,
 	rnd
 	}
