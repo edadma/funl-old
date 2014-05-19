@@ -33,9 +33,9 @@ object Predef
 		if (!a.head.asInstanceOf[Boolean])
 			error( a.last.toString )
 			
-	def Array( a: List[Any] ) = new scala.Array[Any]( a.head.asInstanceOf[Int] )
+	def array( a: List[Any] ) = new Array[Any]( a.head.asInstanceOf[Int] )
 
-	def Set( a: List[Any] ) =
+	def set( a: List[Any] ) =
 		if (a isEmpty)
 			new HashSet[Any]
 		else if (a.head.isInstanceOf[collection.Set[Any]])
@@ -43,7 +43,7 @@ object Predef
 		else
 			HashSet( a: _* )
 	
-	def Map( a: List[Any] ) = 
+	def map( a: List[Any] ) =
 		if (a isEmpty)
 			new HashMap[Any, Any]
 		else

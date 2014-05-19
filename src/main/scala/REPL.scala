@@ -55,7 +55,7 @@ object REPL extends App
 						case Some( res ) =>
 						val name = "res" + count
 
-							out.println( name + ": " + res.getClass.getName + " = " + res )
+							out.println( name + ": " + res.getClass.getName + " = " + display(res) )
 							eval.assign( "REPL", name -> res )
 							count += 1
 					}
