@@ -9,7 +9,7 @@ package funl.interp
 
 import java.lang.reflect.{Method, Modifier}
 
-import collection.mutable.{ArrayBuffer, ArrayStack, ListBuffer, HashMap, HashSet}
+import collection.mutable.{ArrayBuffer, ArrayStack, ListBuffer, HashMap, HashSet, Seq => MutableSeq}
 import collection.immutable.ListMap
 import util.parsing.input.{Reader, CharSequenceReader}
 import math._
@@ -503,6 +503,7 @@ class Evaluator extends Types
 
 				pop match
 				{
+					case ms: MutableSeq[Any] => push( new MutableSeqReference(ms, argList.head.asInstanceOf[Int]) )
 					case m: collection.Map[Any, Any] => push( m(argList.head) )
 					case s: Seq[_] => push( s(argList.head.asInstanceOf[Int]) )
 					case a: Array[_] => push( a(argList.head.asInstanceOf[Int]) )

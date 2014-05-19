@@ -7,6 +7,8 @@
 
 package funl.interp
 
+import collection.mutable.{Seq => MutableSeq}
+
 
 trait Reference
 {
@@ -31,6 +33,13 @@ trait ReadOnlyReference extends Reference
 	def name: String
 
 	def assign( v: Any ) = RuntimeException( name + " is read-only" )
+}
+
+class MutableSeqReference( seq: MutableSeq[Any], index: Int ) extends Reference
+{
+	def value = seq( index )
+
+	def assign( v: Any ) = seq(index) = v
 }
 
 class ConstantReference( val name: String, val value: Any ) extends ReadOnlyReference
