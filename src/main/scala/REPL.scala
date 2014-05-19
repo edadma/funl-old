@@ -33,8 +33,9 @@ object REPL extends App
 	out.println( "Type :help for more information." )
 	out.println
 
-	eval.enterEnvironment( null, new Module("REPL") )
-
+	eval.loadPredef( "REPL" )
+	eval.enterEnvironment( null, eval.module("REPL") )
+	
 	while ({line = reader.readLine; line != null})
 	{
 		line match
@@ -54,7 +55,11 @@ object REPL extends App
 						case Some( res ) =>
 						val name = "res" + count
 
-							out.println( name + ": " + res.getClass.getName + " = " + display(res) )
+							if (res == null)
+								out.println( name + " = null" )
+							else
+								out.println( name + ": " + res.getClass.getName + " = " + display(res) )
+								
 							eval.assign( "REPL", name -> res )
 							count += 1
 					}
@@ -64,6 +69,7 @@ object REPL extends App
 				catch
 				{
 					case e: Exception =>
+//						e.printStackTrace( out )
 						out.println( e )
 						out.println
 				}

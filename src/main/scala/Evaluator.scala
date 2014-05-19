@@ -204,6 +204,14 @@ class Evaluator extends Types
 		r.assign( v )
 		v
 	}
+
+	def loadPredef( m: String )
+	{
+		load( PREDEF )
+
+		for ((k, v) <- module( PREDEF ).symbols)
+			assign( m, k -> v )
+	}
 	
 	def apply( l: List[AST] ): Any =
 		for (s <- l)
@@ -271,12 +279,8 @@ class Evaluator extends Types
 		{
 			case ModuleAST( m, s ) =>
 				if (m != PREDEF)
-				{
-					load( PREDEF )
+					loadPredef( m )
 
-					for ((k, v) <- module( PREDEF ).symbols)
-						assign( m, k -> v )
-				}
 // 				assign( m,
 // 					'i -> Complex( 0, 1 ),
 // 					'sys -> this
@@ -501,6 +505,7 @@ class Evaluator extends Types
 				{
 					case m: collection.Map[Any, Any] => push( m(argList.head) )
 					case s: collection.Seq[_] => push( s(argList.head.asInstanceOf[Int]) )
+					case a: Array[_] => push( a(argList.head.asInstanceOf[Int]) )
 					case s: collection.Set[Any] => push( s(argList.head) )
 					case c: Closure =>
 						def occur( argList: List[Any] )

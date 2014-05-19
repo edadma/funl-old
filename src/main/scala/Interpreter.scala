@@ -77,6 +77,7 @@ object Interpreter
 	def display( a: Any ): String =
 		a match
 		{
+			case a: Array[_] => a.mkString( "Array(", ", ", ")" )
 			case l: List[_] => l.mkString( "[", ", ", "]" )
 			case s: collection.Set[_] => s.mkString( "{", ", ", "}" )
 			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => displayQuoted(k) + ": " + display(v)} ).mkString( "{", ", ", "}" )

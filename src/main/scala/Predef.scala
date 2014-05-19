@@ -32,8 +32,13 @@ object Predef
 	def require( a: List[Any] ) =
 		if (!a.head.asInstanceOf[Boolean])
 			error( a.last.toString )
-			
-	def Array( a: List[Any] ) = new scala.Array[Any]( a.head.asInstanceOf[Int] )
+
+	def Array( a: List[Any] ) =
+		a match
+		{
+			case List( n: Int ) => new scala.Array[Any]( n )
+			case List( init: List[Any] ) => scala.Array[Any]( init: _* )
+		}
 
 	def Set( a: List[Any] ) =
 		if (a isEmpty)
