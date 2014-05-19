@@ -15,7 +15,8 @@ object DevMain extends App
 {
 	val s =
 """
-println( tuple() )
+for i <- 1:3
+	println( i )
 """
 
 //class javax.swing.JFrame

@@ -963,6 +963,7 @@ class Evaluator extends Types
 			}
 		}
 
+		clear( p )
 		vars
 	}
 
