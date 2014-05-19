@@ -30,7 +30,7 @@ trait ReadOnlyReference extends Reference
 {
 	def name: String
 
-	def assign( v: Any ) = sys.error( name + " is read-only" )
+	def assign( v: Any ) = RuntimeException( name + " is read-only" )
 }
 
 class ConstantReference( val name: String, val value: Any ) extends ReadOnlyReference

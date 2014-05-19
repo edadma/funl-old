@@ -16,7 +16,6 @@ import math._
 import compat.Platform._
 
 import funl.lia.{Complex, Math}
-
 import Interpreter._
 
 
@@ -62,7 +61,7 @@ class Evaluator extends Types
 	val stack = new StackArray[Any]
 	val activations = new ArrayStack[Activation]
 	
-	var last: Any = null
+	var last: Option[Any] = None
 
 	def sysvar( k: String )( v: => Any )
 	{
@@ -103,7 +102,7 @@ class Evaluator extends Types
 	val syms = declarationMap
 	
 		if (syms contains key)
-			sys.error( "already declared: " + key )
+			RuntimeException( "already declared: " + key )
 		else
 			syms(key) = value
 
@@ -119,7 +118,7 @@ class Evaluator extends Types
 	val syms = module(m).symbols
 	
 		if (syms contains key)
-			sys.error( "already declared: " + key )
+			RuntimeException( "already declared: " + key )
 		else
 			syms(key) = value
 	}
@@ -226,7 +225,7 @@ class Evaluator extends Types
 // 						else if (creatvars)
 // 							newVar( name )
 // 						else
-// 							sys.error( "unknown variable: " + name )
+// 							RuntimeException( "unknown variable: " + name )
 // 					case Some( map ) => map(name)
 // 				}
 // 			}
@@ -249,7 +248,7 @@ class Evaluator extends Types
 									if (creatvars)
 										Some( newVar(name) )
 									else
-										sys.error( "unknown variable: " + name )
+										RuntimeException( "unknown variable: " + name )
 								case v => v
 							}
 					case Some( map ) => Some( map(name) )
@@ -286,6 +285,7 @@ class Evaluator extends Types
 				apply( s )
 			case DeclStatementAST( s ) =>
 				apply( s )
+				last = None
 			case ImportAST( qual, names ) =>
 				if (qual == "")
 				{
@@ -318,7 +318,7 @@ class Evaluator extends Types
 				{
 				val method = Class.forName( cls ).getMethod( n, classOf[List[Any]] )
 
-					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) sys.error( "function method must be static" )
+					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) RuntimeException( "function method must be static" )
 
 					declare( a.getOrElse(n), (a => method.invoke(null, a)): Function )
 				}
@@ -327,7 +327,7 @@ class Evaluator extends Types
 			case VarAST( n, v ) =>
 				declare( n, new VariableReference(if (v == None) null else eval(v.get)) )
 			case DataAST( n, cs ) =>
-				if (datatypes contains n) sys.error( "already declared: " + n )
+				if (datatypes contains n) RuntimeException( "already declared: " + n )
 
 				datatypes.add( n )
 
@@ -341,24 +341,23 @@ class Evaluator extends Types
 				{
 					case None => declarationMap(name) = new Closure( if (topLevel) null else activations.top, module(func.module), List(func) )
 					case Some( c: Closure ) => declarationMap(name) = new Closure( if (topLevel) null else activations.top, module(func.module), c.funcs :+ func )
-					case _ => sys.error( "already declared: " + name )
+					case _ => RuntimeException( "already declared: " + name )
 				}
 
 				export( name )
 			case ExpressionStatementAST( e ) =>
-				last = eval( e )
+				last = Some( eval(e) )
 			case ValAST( p, e ) =>
-				last = eval( e )
 				clear( declarationMap, p ) foreach export
 
-				if (!unify( declarationMap, last, p ))
-					sys.error( "unification failure" )
+				if (!unify( declarationMap, eval(e), p ))
+					RuntimeException( "unification failure" )
 			case SysvarExprAST( s ) =>
 				sysvars.get( s ) match
 				{
-					case None => sys.error( s + " not a system variable" )
+					case None => RuntimeException( s + " not a system variable" )
 					case Some( v ) => push( v )
-					case _ => sys.error( "problem" )
+					case _ => RuntimeException( "problem" )
 				}
 			case TestExprAST( name ) => push( vars( name ) != None )
 			case BreakExprAST =>
@@ -378,7 +377,7 @@ class Evaluator extends Types
 							if (r.first == '\\')
 							{
 								if (r.rest.atEnd)
-									sys.error( "unexpected end of string" )
+									RuntimeException( "unexpected end of string" )
 
 								if (r.rest.first == 'u')
 								{
@@ -386,7 +385,7 @@ class Evaluator extends Types
 								
 									def nextc =
 										if (u.atEnd)
-											sys.error( "unexpected end of string inside unicode sequence" )
+											RuntimeException( "unexpected end of string inside unicode sequence" )
 										else
 										{
 										val res = u.first
@@ -406,7 +405,7 @@ class Evaluator extends Types
 										).get(r.rest.first) match
 										{
 											case Some( c ) => c
-											case _ => sys.error( "illegal escape character " + r.rest.first )
+											case _ => RuntimeException( "illegal escape character " + r.rest.first )
 										} )
 
 									chr( r.rest.rest )
@@ -434,7 +433,7 @@ class Evaluator extends Types
 							case seq: collection.Seq[Any] => seq contains l
 							case set: collection.Set[Any] => set contains l
 							case map: collection.Map[Any, Any] => map contains l
-							case _ => sys.error( "illegal use of 'in' predicate" )
+							case _ => RuntimeException( "illegal use of 'in' predicate" )
 						}
 
 						push( (op == 'notin)^res )
@@ -446,7 +445,7 @@ class Evaluator extends Types
 						else if (l.isInstanceOf[Number] && r.isInstanceOf[Number])
 							push( Math(op, l, r) )
 						else
-							sys.error( "operation '" + op.name + "' not applicable to values: '" + l + "', '" + r + "'" )
+							RuntimeException( "operation '" + op.name + "' not applicable to values: '" + l + "', '" + r + "'" )
 					case '< | '> | '<= | '>= =>
 						if (l.isInstanceOf[String] || r.isInstanceOf[String])
 						{
@@ -528,7 +527,7 @@ class Evaluator extends Types
 
 							findPart match
 							{
-								case None => sys.error( "function application failure: " + c.funcs + " applied to " + argList )
+								case None => RuntimeException( "function application failure: " + c.funcs + " applied to " + argList )
 								case Some( part ) =>
 // 									part.locals match
 // 									{
@@ -559,7 +558,7 @@ class Evaluator extends Types
 					case b: Function =>
 						push( b(argList) )
 					case Constructor( t, n, fields ) =>
-						if (fields.length != argList.length) sys.error( "argument list length does not match data declaration" )
+						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 
 						push( new Record(t, n, fields, argList) )
 					case NativeMethod( o, m ) =>
@@ -573,7 +572,7 @@ class Evaluator extends Types
 										t.isAssignableFrom( cls )
 								}) ) match
 							{
-								case None => sys.error( "no class methods with matching signatures for: " + argList )
+								case None => RuntimeException( "no class methods with matching signatures for: " + argList )
 								case Some( cm ) => push( cm.invoke( o, argList.asInstanceOf[List[Object]]: _* ) )
 							}
 					case c: Class[Any] =>
@@ -587,12 +586,12 @@ class Evaluator extends Types
 										t.isAssignableFrom( cls )
 								}) ) match
 							{
-								case None => sys.error( "no constructor with matching signatures for: " + argList )
+								case None => RuntimeException( "no constructor with matching signatures for: " + argList )
 								case Some( cm ) => push( cm.newInstance( argList.asInstanceOf[List[Object]]: _* ) )
 							}
 					case p: Product =>
 						push( p.productElement(argList.head.asInstanceOf[Int]) )
-					case o => sys.error( "not a function: " + o )
+					case o => RuntimeException( "not a function: " + o )
 				}
 			case UnaryExprAST( op, exp ) =>
 				apply( exp )
@@ -619,7 +618,7 @@ class Evaluator extends Types
 				}
 			case AssignmentExprAST( lhs, op, rhs ) =>
 				if (lhs.length != rhs.length)
-					sys.error( "left hand side must have the same number of elements as the right hand side" )
+					RuntimeException( "left hand side must have the same number of elements as the right hand side" )
 
 				var result: Any = null
 				
@@ -647,7 +646,7 @@ class Evaluator extends Types
 				eval( tail ) match
 				{
 					case t: List[Any] => push( eval(head) :: t )
-					case t => sys.error( "list object expected: " + t )
+					case t => RuntimeException( "list object expected: " + t )
 				}
 			case SetExprAST( l ) =>
 				apply( l )
@@ -708,7 +707,7 @@ class Evaluator extends Types
 							clear( localScope, p )
 
 							if (!unify( localScope, deref(elem), p ))
-								sys.error( "unification error in for loop" )
+								RuntimeException( "unification error in for loop" )
 
 							pop
 
@@ -729,7 +728,7 @@ class Evaluator extends Types
 // 							clear( activations.top.scope.top, p )
 // 
 // 							if (!unify( activations.top.scope.top, deref(it.next), p ))
-// 								sys.error( "unification error in for loop" )
+// 								RuntimeException( "unification error in for loop" )
 // 
 // 	//						activations.top.scope.top(v) = deref( it.next )
 // 	//						h.v = deref( it.next )
@@ -763,7 +762,7 @@ class Evaluator extends Types
 					exitScope
 				}
 				else
-					sys.error( "non iterable object: " + o )
+					RuntimeException( "non iterable object: " + o )
 			case WhileExprAST( cond, body, e ) =>
 				void
 
@@ -878,7 +877,7 @@ class Evaluator extends Types
 					case d: Double if inclusive => push( d to deval(t) by (if (b == None) 1 else deval(b.get)) )
 					case i: Int => push( i until ieval(t) by (if (b == None) 1 else ieval(b.get)) )
 					case d: Double => push( d until deval(t) by (if (b == None) 1 else deval(b.get)) )
-					case _ => sys.error( "expected a number as the initial value of a range" )
+					case _ => RuntimeException( "expected a number as the initial value of a range" )
 				}
 			case DotExprAST( e, f ) =>
 				eval( e ) match
@@ -886,7 +885,7 @@ class Evaluator extends Types
 					case r: Record =>
 						r.get( f ) match
 						{
-							case None => sys.error( "unknown field: " + f )
+							case None => RuntimeException( "unknown field: " + f )
 							case Some( v ) => push( v )
 						}
 					case m: Map[Any, Any] =>
@@ -898,7 +897,7 @@ class Evaluator extends Types
 						{
 							c.getFields.find( cf => cf.getName == f && (cf.getModifiers&Modifier.STATIC) == Modifier.STATIC ) match
 							{
-								case None => sys.error( "static method or field not found: " + f )
+								case None => RuntimeException( "static method or field not found: " + f )
 								case Some( field ) => push( field.get(null) )
 							}
 						}
@@ -907,7 +906,7 @@ class Evaluator extends Types
 					case m: Module =>
 						m.symbols.get( f ) match
 						{
-							case None => sys.error( "'" + f + "' not found in module '" + m.name + "'" )
+							case None => RuntimeException( "'" + f + "' not found in module '" + m.name + "'" )
 							case Some( elem ) => push( elem )
 						}
 					case o =>
@@ -915,7 +914,7 @@ class Evaluator extends Types
 						val methods = c.getMethods.toList.filter( m => m.getName == f && (m.getModifiers&Modifier.STATIC) != Modifier.STATIC )
 						
 						if (methods isEmpty)
-							sys.error( "object method '" + f + "' not found in:" + o )
+							RuntimeException( "object method '" + f + "' not found in:" + o )
 
 						push( NativeMethod(o, methods) )
 				}
@@ -964,7 +963,7 @@ class Evaluator extends Types
 			case Some( "Int" ) => a.isInstanceOf[Int]
 			case Some( "List" ) => a.isInstanceOf[List[_]]
 			case Some( datatype ) => datatypes.contains( datatype ) && a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == datatype
-			case _ => sys.error( "unknown type" )
+			case _ => RuntimeException( "unknown type" )
 		}
 	
 	def unify( map: SymbolMap, a: Any, p: PatternAST ): Boolean =
@@ -983,7 +982,7 @@ class Evaluator extends Types
 				{
 					if (unify( map, a, pat ))
 					{
-						map(alias) = a
+						map(alias) = new ConstantReference( alias, a )
 						true
 					}
 					else
@@ -997,7 +996,7 @@ class Evaluator extends Types
 				{
 					if (typecheck( a, t ))
 					{
-						map(n) = a
+						map(n) = new ConstantReference( n, a )
 						true
 					}
 					else

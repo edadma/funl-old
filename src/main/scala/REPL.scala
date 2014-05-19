@@ -49,13 +49,18 @@ object REPL extends App
 			case _ =>
 				try
 				{
-				val res = statement( "REPL", line, eval )
-				val name = "res" + count
+					statement( "REPL", line, eval ) match
+					{
+						case None =>
+						case Some( res ) =>
+						val name = "res" + count
 
-					out.println( name + ": " + res.getClass.getName + " = " + res )
+							out.println( name + ": " + res.getClass.getName + " = " + res )
+							eval.assign( "REPL", name -> res )
+							count += 1
+					}
+					
 					out.println
-					eval.assign( "REPL", name -> res )
-					count += 1
 				}
 				catch
 				{
