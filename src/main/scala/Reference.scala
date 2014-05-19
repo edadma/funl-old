@@ -28,18 +28,18 @@ class VariableReference( init: Any ) extends Reference
 	def assign( v: Any ) = _value = v
 }
 
-trait ReadOnlyReference extends Reference
-{
-	def name: String
-
-	def assign( v: Any ) = RuntimeException( name + " is read-only" )
-}
-
 class MutableSeqReference( seq: MutableSeq[Any], index: Int ) extends Reference
 {
 	def value = seq( index )
 
 	def assign( v: Any ) = seq(index) = v
+}
+
+trait ReadOnlyReference extends Reference
+{
+	def name: String
+
+	def assign( v: Any ) = RuntimeException( name + " is read-only" )
 }
 
 class ConstantReference( val name: String, val value: Any ) extends ReadOnlyReference

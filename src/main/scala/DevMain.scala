@@ -15,8 +15,9 @@ object DevMain extends App
 {
 	val s =
 """
-for i <- 1:3
-	println( i )
+l = list()
+l.append(1, 2)
+println( l, l.length() )
 """
 
 //class javax.swing.JFrame

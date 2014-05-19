@@ -569,17 +569,29 @@ class Evaluator extends Types
 						push( new Record(t, n, fields, argList) )
 					case NativeMethod( o, m ) =>
 						m.filter( _.getParameterTypes.length == argList.length ).
-							find( cm => (argList zip cm.getParameterTypes).forall(
-								{case (a, t) =>
-									val cls = a.getClass
+							find( cm =>
+								(argList zip cm.getParameterTypes).forall(
+									{case (a, t) =>
+										val cls = a.getClass
 
-									t.getName == "int" && cls.getName == "java.lang.Integer" ||
-										t.getName == "double" && cls.getName == "java.lang.Double" ||
-										t.isAssignableFrom( cls )
-								}) ) match
+										t.getName == "int" && cls.getName == "java.lang.Integer" ||
+											t.getName == "double" && cls.getName == "java.lang.Double" ||
+											t.isAssignableFrom( cls )
+									})
+							) match
 							{
-								case None => RuntimeException( "no class methods with matching signatures for: " + argList )
-								case Some( cm ) => push( cm.invoke( o, argList.asInstanceOf[List[Object]]: _* ) )
+								case None =>
+									m.find( cm =>
+										{
+										val types = cm.getParameterTypes
+
+												types.length == 1 && types(0).getName == "scala.collection.Seq"
+										}) match
+										{
+											case None => RuntimeException( "no class methods with matching signatures for: " + argList.mkString(", ") )
+											case Some( cm ) => push( cm.invoke(o, argList) )
+										}
+								case Some( cm ) => push( cm.invoke(o, argList.asInstanceOf[List[Object]]: _*) )
 							}
 					case c: Class[Any] =>
 						c.getConstructors.toList.filter( _.getParameterTypes.length == argList.length ).
