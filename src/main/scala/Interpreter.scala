@@ -191,4 +191,20 @@ object Interpreter
 			case parser.Error( m, r ) => PARSE_FAILURE( m )
 		}
 	}
+
+	def expression( s: String, vs: (String, Any)* ) =
+	{
+	val eval = new Evaluator
+	val parser = new Parser( "module" )
+
+		parser.parseExpression( new CharSequenceReader(s) ) match
+		{
+			case parser.Success( l, _ ) =>
+				eval.enterEnvironment( null, eval.module("module") )
+				eval.assign( "module", vs: _* )
+				eval.eval( l )
+			case parser.Failure( m, r ) => PARSE_FAILURE( m )
+			case parser.Error( m, r ) => PARSE_FAILURE( m )
+		}
+	}
 }

@@ -70,7 +70,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 
 	def parseSource( r: Reader[Char] ) = phrase( source )( lexical.read(r) )
 
-	def parseExpression( r: Reader[Char] ) = phrase( expr )( lexical.read(r) )
+	def parseExpression( r: Reader[Char] ) = phrase( expression )( lexical.read(r) )
 
 	def parseStatement( r: Reader[Char] ) = phrase( statement )( lexical.read(r) )
 
@@ -170,6 +170,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		rep1(statement)
 
 	lazy val onl = opt(Newline)
+
+	lazy val expression: PackratParser[ExprAST] = expr <~ Newline
 	
 	lazy val statement: PackratParser[StatementAST] =
 // 		ident ~ rep1sep( expr, "," ) <~ Newline ^^
