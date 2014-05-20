@@ -138,26 +138,11 @@ object Interpreter
 
 	case class PARSE_FAILURE( message: String )
 
-// 	def expr( e: String, where: (Symbol, Any)* ) =
-// 	{
-// 		Parser.parseExpression( new CharSequenceReader(e) ) match
-// 		{
-// 			case Parser.Success( l, _ ) =>
-// 				val e = new Evaluator
-//
-// 					e.assign( where: _* )
-// 					e.enterEnvironment( null )
-// 					e.eval( l )
-// 			case Parser.Failure( m, r ) => PARSE_FAILURE( m )
-// 			case Parser.Error( m, r ) => PARSE_FAILURE( m )
-// 		}
-// 	}
-
 	def statement( m: String, s: String ): Any =
 	{
 	val eval = new Evaluator
 
-		eval.enterEnvironment( null, new Module(m) )
+		eval.enterEnvironment( null, eval.module(m) )
 		statement( m, s, eval )
 	}
 
@@ -185,7 +170,7 @@ object Interpreter
 		parser.parseSnippet( new CharSequenceReader(s) ) match
 		{
 			case parser.Success( l, _ ) =>
-				eval.enterEnvironment( null, new Module("module") )
+				eval.enterEnvironment( null, eval.module("module") )
 				eval.eval( l )
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
 			case parser.Error( m, r ) => PARSE_FAILURE( m )

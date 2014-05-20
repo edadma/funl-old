@@ -15,7 +15,11 @@ object DevMain extends App
 {
 	val s =
 """
-println()
+val a = dict({1:'one', 2:'two'})
+
+def f = a(1)
+
+println( f() )
 """
 
 //class javax.swing.JFrame

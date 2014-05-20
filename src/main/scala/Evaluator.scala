@@ -9,8 +9,8 @@ package funl.interp
 
 import java.lang.reflect.{Method, Modifier}
 
-import collection.mutable.{ArrayBuffer, ArrayStack, ListBuffer, HashMap, HashSet, Seq => MutableSeq}
-import collection.immutable.ListMap
+import collection.mutable.{ArrayBuffer, ArrayStack, ListBuffer, HashMap, HashSet, Seq => MutableSeq, Map => MutableMap}
+import collection.immutable.{ListMap, Seq => ImmutableSeq, Map => ImmutableMap}
 import util.parsing.input.{Reader, CharSequenceReader}
 import math._
 import compat.Platform._
@@ -505,8 +505,9 @@ class Evaluator extends Types
 				{
 					case ms: MutableSeq[Any] => push( new MutableSeqReference(ms, argList.head.asInstanceOf[Int]) )
 					case a: Array[Any] => push( new MutableSeqReference(a, argList.head.asInstanceOf[Int]) )
-					case m: collection.Map[Any, Any] => push( m(argList.head) )
-					case s: Seq[_] => push( s(argList.head.asInstanceOf[Int]) )
+					case m: Map[Any, Any] => push( new ImmutableMapReference(m, argList.head) )
+					case mm: MutableMap[Any, Any] => push( new MutableMapReference(mm, argList.head) )
+					case s: ImmutableSeq[_] => push( new ImmutableSeqReference(s, argList.head.asInstanceOf[Int]) )
 					case s: collection.Set[Any] => push( s(argList.head) )
 					case c: Closure =>
 						def occur( argList: List[Any] )

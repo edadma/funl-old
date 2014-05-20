@@ -7,7 +7,8 @@
 
 package funl.interp
 
-import collection.mutable.{Seq => MutableSeq}
+import collection.mutable.{Seq => MutableSeq, Map => MutableMap}
+import collection.immutable.{Seq => ImmutableSeq, Map => ImmutableMap}
 
 
 trait Reference
@@ -35,6 +36,13 @@ class MutableSeqReference( seq: MutableSeq[Any], index: Int ) extends Reference
 	def assign( v: Any ) = seq(index) = v
 }
 
+class MutableMapReference( map: MutableMap[Any, Any], key: Any ) extends Reference
+{
+	def value = map( key )
+
+	def assign( v: Any ) = map(key) = v
+}
+
 trait ReadOnlyReference extends Reference
 {
 	def name: String
@@ -43,6 +51,20 @@ trait ReadOnlyReference extends Reference
 }
 
 class ConstantReference( val name: String, val value: Any ) extends ReadOnlyReference
+
+class ImmutableSeqReference( seq: ImmutableSeq[Any], index: Int ) extends ReadOnlyReference
+{
+	val name = "attempt to assign to index " + index + ", but sequence"
+	
+	def value = seq( index )
+}
+
+class ImmutableMapReference( map: ImmutableMap[Any, Any], key: Any ) extends ReadOnlyReference
+{
+	val name = "attempt to assign to key " + key + ", but map"
+
+	def value = map( key )
+}
 
 class ByNameReference( val name: String )( thunk: => Any ) extends ReadOnlyReference
 {
