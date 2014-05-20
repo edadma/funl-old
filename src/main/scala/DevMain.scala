@@ -15,11 +15,12 @@ object DevMain extends App
 {
 	val s =
 """
-val a = dict({1:'one', 2:'two'})
+a = 1
 
-def f = a(1)
-
-println( f() )
+println( a++ )
+println( a )
+println( --a )
+println( a )
 """
 
 //class javax.swing.JFrame

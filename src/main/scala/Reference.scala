@@ -54,14 +54,14 @@ class ConstantReference( val name: String, val value: Any ) extends ReadOnlyRefe
 
 class ImmutableSeqReference( seq: ImmutableSeq[Any], index: Int ) extends ReadOnlyReference
 {
-	val name = "attempt to assign to index " + index + ", but sequence"
+	val name = "tried to assign to index " + index + ", but sequence"
 	
 	def value = seq( index )
 }
 
 class ImmutableMapReference( map: ImmutableMap[Any, Any], key: Any ) extends ReadOnlyReference
 {
-	val name = "attempt to assign to key " + key + ", but map"
+	val name = "tried to assign to key '" + key + "', but map"
 
 	def value = map( key )
 }

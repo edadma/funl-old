@@ -911,10 +911,10 @@ class Evaluator extends Types
 						r.get( f ) match
 						{
 							case None => RuntimeException( "unknown field: " + f )
-							case Some( v ) => push( v )
+							case Some( v ) => push( new ConstantReference("field '" + f + "'", v) )
 						}
-					case m: Map[Any, Any] =>
-						push( m(f) )
+					case m: Map[Any, Any] => push( new ImmutableMapReference(m, f) )
+					case mm: MutableMap[Any, Any] => push( new MutableMapReference(mm, f) )
 					case c: Class[Any] =>
 						val methods = c.getMethods.toList.filter( m => m.getName == f && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
 
@@ -932,7 +932,7 @@ class Evaluator extends Types
 						m.symbols.get( f ) match
 						{
 							case None => RuntimeException( "'" + f + "' not found in module '" + m.name + "'" )
-							case Some( elem ) => push( elem )
+							case Some( elem ) => push( new ConstantReference("module symbol '" + f + "'", elem) )
 						}
 					case o =>
 						val c = o.getClass
