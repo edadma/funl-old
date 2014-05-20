@@ -16,9 +16,10 @@ trait StatementAST extends AST
 
 case class DeclStatementAST( decls: List[StatementAST] ) extends StatementAST
 case class ImportAST( qual: String, names: List[(String, Option[String])] ) extends StatementAST
-case class ClassAST( pkg: String, name: List[(String, Option[String])] ) extends StatementAST
-case class MethodAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
-case class FieldAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
+case class NativeAST( pkg: String, name: List[(String, Option[String])] ) extends StatementAST
+// case class ClassAST( pkg: String, name: List[(String, Option[String])] ) extends StatementAST
+// case class MethodAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
+// case class FieldAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
 case class FunctionAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
 case class ValAST( pat: PatternAST, exp: ExprAST ) extends StatementAST
 case class VarAST( name: String, init: Option[ExprAST] ) extends StatementAST
