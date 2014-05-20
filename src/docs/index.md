@@ -11,7 +11,7 @@ If you haven't yet done so, please download the software by clicking on the *Dow
 
 After executing the above command to run the REPL, you shoud see
 
-	Welcome to FunL version 0.1
+	Welcome to FunL version 0.4-SNAPSHOT
 	Type in expressions to have them evaluated.
 	Type :help for more information.
 
@@ -34,7 +34,7 @@ The FunL REPL allows expressions to be evaluated, but in the current version, no
 
 at the prompt, you should see
 
-	res1: lia.Rational = 7/6
+	res1: funl.lia.Rational = 7/6
 
 The example highlights FunL's *exact arithmetic* capability.  The type `lia.Rational` is the rational or fraction type. The REPL creates a new variable for every result.  In this case, the result variable is `res1`.  The following code
 
@@ -44,7 +44,7 @@ should produce the expected result of inverting the fraction to yield `6/7`.
 
 FunL also uses JSON syntax for the *map* type.  The following code (with each line entered separately)
 
-	a = {"one": 1, "two": 2}
+	a = {'one': 1, 'two': 2}
 
 	a.two
 
@@ -68,18 +68,19 @@ The keyword `main` indicates the entry point of the program.  `println` means "p
 
 As a more interesting example, here is an (not fairly efficient) implementation of the Quick Sort.  Create a file called `quicksort.funl` with the following contents:
 
-	def
-	  filter( p, [] )         = []
-	  filter( p, x:xs )
-	    | p( x )              = x : filter( p, xs )
-	    | otherwise           = filter( p, xs )
+    def
+      qsort( [] )             = []
+      qsort( p:xs )           =
+        def
+          filter( p, [] )     = []
+          filter( p, x:xs )
+            | p( x )          = x : filter( p, xs )
+            | otherwise       = filter( p, xs )
 
-	  qsort( [] )             = []
-	  qsort( p:xs )           = qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
+        qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
 
-	main
-	  println( qsort([4, 2, 1, 3, 0, 2]) )
-	  println( qsort(["bob", "alice", "barry", "zoe", "charlotte", "fred"]) )
+    println( qsort([4, 2, 1, 3, 0, 2]) )
+    println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )
 
 Run the program by typing
 
@@ -88,4 +89,4 @@ Run the program by typing
 at the command prompt.  You should see
 
 	[0, 1, 2, 2, 3, 4]
-	[alice, barry, bob, charlotte, fred, zoe]
+	[Alice, Barry, Bob, Charlotte, Fred, Zoe]

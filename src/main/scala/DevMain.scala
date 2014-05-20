@@ -15,12 +15,11 @@ object DevMain extends App
 {
 	val s =
 """
-a = 1
+method java.net.URLEncoder.encode
 
-println( a++ )
-println( a )
-println( --a )
-println( a )
+val s = "abc%d&e f"
+
+println( encode( s, "UTF-8" ) )
 """
 
 //class javax.swing.JFrame

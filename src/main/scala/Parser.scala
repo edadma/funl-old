@@ -339,20 +339,6 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		pattern10
 
 	lazy val pattern10: PackratParser[PatternAST] =
-		pattern20 |
-		ident ~ ("(" ~> repsep(pattern, ",") <~ ")") ^^
-			{case n ~ l => RecordPatternAST( n, l )} |
-		ident ~ opt("::" ~> ident) ^^
-			{case v ~ t => VariablePatternAST( v, t )} |
-		("(" ~> pattern <~ ",") ~ (rep1sep(pattern, ",") <~ ")") ^^
-			{case e ~ l => TuplePatternAST( e +: l )} |
-		("[" ~> repsep(pattern, ",") <~ "]") ^^
-			{case l => ListPatternAST( l )} |
-		("(" ~> pattern/*30*/ <~ "|") ~ (rep1sep(pattern/*30*/, "|") <~ ")") ^^
-			{case e ~ l => AltPatternAST( e +: l )} |
-		"(" ~> pattern <~ ")"
-
-	lazy val pattern20 =
 		numericLit ^^
 			(n =>
 				if (n matches ".*(\\.|e|E).*")
@@ -366,17 +352,16 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"(" ~ ")" ^^^
 			UnitPatternAST |
 		"null" ^^^
-			NullPatternAST
-
-// 	lazy val pattern30: PackratParser[PatternAST] =
-// 		pattern40 ~ (":" ~> pattern30) ^^ {case h ~ t => ConsPatternAST( h, t )} |
-// 		pattern40
-// 
-// 	lazy val pattern40: PackratParser[PatternAST] =
-// 		pattern20 |
-// 		("(" ~> pattern30 <~ ",") ~ (rep1sep(pattern30, ",") <~ ")") ^^
-// 			{case e ~ l => TuplePatternAST( e +: l )} |
-// 		"[" ~> repsep(pattern30, ",") <~ "]" ^^
-// 			{case l => ListPatternAST( l )} |
-// 		"(" ~> pattern30 <~ ")"
+			NullPatternAST |
+		ident ~ ("(" ~> repsep(pattern, ",") <~ ")") ^^
+			{case n ~ l => RecordPatternAST( n, l )} |
+		ident ~ opt("::" ~> ident) ^^
+			{case v ~ t => VariablePatternAST( v, t )} |
+		("(" ~> pattern <~ ",") ~ (rep1sep(pattern, ",") <~ ")") ^^
+			{case e ~ l => TuplePatternAST( e +: l )} |
+		("[" ~> repsep(pattern, ",") <~ "]") ^^
+			{case l => ListPatternAST( l )} |
+		("(" ~> pattern <~ "|") ~ (rep1sep(pattern, "|") <~ ")") ^^
+			{case e ~ l => AltPatternAST( e +: l )} |
+		"(" ~> pattern <~ ")"
 }

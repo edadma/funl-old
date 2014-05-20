@@ -7,111 +7,98 @@ Here is the actual grammar (without parser actions and other source code boilerp
 
 	snippet = statements
 	
-	source = rep(component)
+	source = rep(statement)
 
-	component = imports | symbolImports | natives | constants | variables | data | definitions | main
+	declaration = imports | natives | constants | variables | data | definitions
 
 	imports =
 		"import" ~> importModule |
 		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline
 
-	symbolImports =
-		("from" ~> symbol <~ "import") ~ symbols <~ Newline |
-		("from" ~> symbol <~ "import") <~ "*" <~ Newline
-
-	lazy val importModule =
-		symbol <~ Newline ^^ (ImportModuleAST( module, _ ))
+	lazy val importModule = name <~ Newline
 
 	natives =
-		"class" ~> native |
-		"class" ~> Indent ~> rep1(native) <~ Dedent <~ Newline |
-		"method" ~> native |
-		"method" ~> Indent ~> rep1(native) <~ Dedent <~ Newline |
-		"field" ~> native |
-		"field" ~> Indent ~> rep1(native) <~ Dedent <~ Newline |
-		"function" ~> native |
-		"function" ~> Indent ~> rep1(native) <~ Dedent <~ Newline
+		"class" ~> name |
+		"class" ~> Indent ~> rep1(name) <~ Dedent <~ Newline |
+		"method" ~> name |
+		"method" ~> Indent ~> rep1(name) <~ Dedent <~ Newline |
+		"field" ~> name |
+		"field" ~> Indent ~> rep1(name) <~ Dedent <~ Newline |
+		"function" ~> name |
+		"function" ~> Indent ~> rep1(name) <~ Dedent <~ Newline
 		
 	dottedName = rep1sep(ident, ".")
 
-	className = ident ~ opt("=>" ~> symbol)
+	qualifier = ident ~ opt("=>" ~> ident)
 
-	native =
-		dottedName ~ opt("=>" ~> symbol) <~ Newline
+	name =
+		dottedName ~ opt("=>" ~> ident) <~ Newline
 		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline)
 
-	symbol = ident
-
-	symbols = rep1sep( symbol, "," )
+	idents = rep1sep( ident, "," )
 	
 	constants =
 		"val" ~> constant |
 		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline
 
 	constant =
-		(symbol <~ "=") ~ expr <~ Newline
+		(ident <~ "=") ~ expr <~ Newline
 
 	variables =
 		"var" ~> variable |
 		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline
 
 	variable =
-		symbol ~ opt("=" ~> expr) <~ Newline
+		ident ~ opt("=" ~> expr) <~ Newline
 
 	data =
 		"data" ~> datatype |
 		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline
 
 	datatype =
-		(symbol <~ "=") ~ rep1sep(constructor, "|") <~ Newline |
+		(ident <~ "=") ~ rep1sep(constructor, "|") <~ Newline |
 		constructor <~ Newline
 
 	constructor =
-		(symbol <~ "(") ~ (rep1sep(symbol, ",") <~ ")") |
-		symbol
+		(ident <~ "(") ~ (idents <~ ")") |
+		ident
 
 	definitions =
 		"def" ~> definition {case d => List( d )} |
 		"def" ~> (Indent ~> rep1(definition) <~ (Dedent ~ Newline))
 
 	definition =
-		(symbol <~ "(") ~ (repsep(pattern, ",") <~ ")") ~ (part | parts)
+		(ident <~ "(") ~ (repsep(pattern, ",") <~ ")") ~ (part | parts)
 
-	locals = opt("local" ~> rep1sep(symbol, ","))
-
-	part = opt("|" ~> expr10) ~ locals ~ ("=" ~> expr) <~ Newline
+	part = opt("|" ~> expr10) ~ ("=" ~> expr) <~ Newline
 
 	subpart =
-		"|" ~> ("otherwise"^ None | expr10 (e => Some(e))) ~ locals ~ ("=" ~> expr) <~ Newline
+		"|" ~> ("otherwise" | expr10) ~ ("=" ~> expr) <~ Newline
 
 	parts =
 		Indent ~> rep1(subpart) <~ Dedent <~ Newline
-
-	main =
-		"main" ~> statement (s => List(MainAST( s )))
 
 	statements =
 		rep1(statement)
 
 	onl = opt(Newline)
 
+	expression = expr <~ Newline
+	
 	statement =
-		statementExpr <~ Newline
-
-	statementExpr: PackratParser[StatementAST] =
-		("val" ~> pattern <~ "=") ~ expr5 |
-		expr (ExpressionStatementAST( _ ))
+		expr <~ Newline |
+		declaration
 
 	expr: PackratParser[ExprAST] =
 		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "^=") ~ rep1sep(expr5, ",") |
 		expr5
 
- 	functionCase =
+ 	mapping =
 		("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> expr10) ~ ("->" ~> expr)
 
-	functionExpr =
-		functionCase |
-		Indent ~> rep1(functionCase <~ Newline) <~ Dedent
+	caseFunctionExpr = Indent ~> rep1(mapping <~ Newline) <~ Dedent
+	
+	functionExpr = mapping | caseFunctionExpr
 
 	expr5 =
 		functionExpr |
@@ -128,7 +115,7 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		("repeat" ~> expr) ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> expr) |
 		"break" |
 		"continue" |
-		("case" ~> expr) ~ ("of" ~> functionExpr) |
+		("case" ~> expr) ~ ("of" ~> functionExpr | caseFunctionExpr) |
 		expr10
 
 	booleanExpr = expr10
@@ -183,7 +170,7 @@ Here is the actual grammar (without parser actions and other source code boilerp
 
 	expr35 =
 		expr35 ~ ("(" ~> repsep(expr, ",") <~ ")") |
-		expr35 ~ ("." ~> symbol) |
+		expr35 ~ ("." ~> ident) |
 		expr40
 
 	entry =
@@ -193,7 +180,7 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		numericLit |
 		stringLit |
 		"(" ~> expr <~ ")" |
-		symbol |
+		ident |
 		("true" | "false") |
 		"(" ~ ")" |
 		("(" ~> expr <~ ",") ~ (rep1sep(expr, ",") <~ ")") |
@@ -202,10 +189,11 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		"{" ~> repsep(jsonExpr, ",") <~ "}" |
 		"{" ~> repsep(entry, ",") <~ "}" |
 		Indent ~> statements <~ Dedent |
-		"$" ~> symbol
+		"$" ~> ident |
+		"?" ~> ident
 
 	pattern =
-		(symbol <~ "@") ~ pattern5 |
+		(ident <~ "@") ~ pattern5 |
 		pattern5
 
 	pattern5: PackratParser[PatternAST] =
@@ -213,38 +201,26 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		pattern10
 
 	pattern10: PackratParser[PatternAST] =
-		pattern20 |
-		ident ~ ("(" ~> repsep(pattern, ",") <~ ")") |
-		symbol ~ opt("::" ~> symbol) |
-		("(" ~> pattern <~ ",") ~ (rep1sep(pattern, ",") <~ ")") |
-		("[" ~> repsep(pattern, ",") <~ "]") |
-		("(" ~> pattern30 <~ "|") ~ (rep1sep(pattern30, "|") <~ ")")
-
-	pattern20 =
 		numericLit |
 		stringLit |
 		("true" | "false") |
 		"(" ~ ")" |
-		"null"
-
-	pattern30 =
-		pattern40 ~ (":" ~> pattern30) |
-		pattern40
-
-	pattern40 =
-		pattern20 |
-		("(" ~> pattern30 <~ ",") ~ (rep1sep(pattern30, ",") <~ ")") |
-		"[" ~> repsep(pattern30, ",") <~ "]"
+		"null" |
+		ident ~ ("(" ~> repsep(pattern, ",") <~ ")") |
+		ident ~ opt("::" ~> ident) |
+		("(" ~> pattern <~ ",") ~ (rep1sep(pattern, ",") <~ ")") |
+		("[" ~> repsep(pattern, ",") <~ "]") |
+		("(" ~> pattern <~ "|") ~ (rep1sep(pattern, "|") <~ ")")
 
 
 ## Lexical Grammar
 
-The reserved words in the language are: `do`, `if`, `then`, `for`, `else`, `elsif`, `by`, `while`, `var`, `from`, `import`, `break`, `continue`, `repeat`,
+The reserved words in the language are: `do`, `if`, `then`, `for`, `else`, `elsif`, `by`, `while`, `var`, `import`, `break`, `continue`, `repeat`,
 `until`, `of`,
-`export`, `class`, `main`, `data`, `def`, `true`, `false`, `val`, `null`, `not`, `and`, `or`, `xor`, `otherwise`, `in`, `case`, `method`, `field`, `function`.
+`class`, `data`, `def`, `true`, `false`, `val`, `null`, `not`, `and`, `or`, `xor`, `otherwise`, `in`, `case`, `method`, `field`, `function`.
 
 The special delimiters are: `+`, `*`, `-`, `/`, `^`, `(`, `)`, `[`, `]`, `|`, `{`, `}`, `,`, `=`, `==`, `/=`, `<`, `$`,
-`>`, `<-`, `<=`, `>=`, `--`, `++`, `.`, `..`, `<-`, `->`, `=>`, `+=`, `-=`, `*=`, `^=`, `:`, `\\`, `::`, `@`.
+`>`, `<-`, `<=`, `>=`, `--`, `++`, `.`, `..`, `<-`, `->`, `=>`, `+=`, `-=`, `*=`, `^=`, `:`, `\\`, `::`, `@`, `?`.
 
 	decimalParser =
 		rep1(digit) ~ optFraction ~ optExponent |
