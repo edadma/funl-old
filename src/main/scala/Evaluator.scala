@@ -22,7 +22,7 @@ import Interpreter._
 trait Types
 {
 	type SymbolMap = HashMap[String, Any]
-	type Function = List[Any] => Any
+	type Function = Vector[Any] => Any
 }
 
 class Evaluator extends Types
@@ -350,7 +350,7 @@ class Evaluator extends Types
 			case FunctionAST( cls, names ) =>
 				for ((n, a) <- names)
 				{
-				val method = Class.forName( cls ).getMethod( n, classOf[List[Any]] )
+				val method = Class.forName( cls ).getMethod( n, classOf[Vector[Any]] )
 
 					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) RuntimeException( "function method must be static" )
 
@@ -593,7 +593,7 @@ class Evaluator extends Types
 							exitEnvironment
 						}
 					case b: Function =>
-						push( b(argList) )
+						push( b(argList.toVector) )
 					case Constructor( t, n, fields ) =>
 						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 
@@ -685,7 +685,7 @@ class Evaluator extends Types
 				push( result )
 			case VectorExprAST( l ) =>
 				apply( l )
-				push( list(l.length).toIndexedSeq )
+				push( list(l.length).toVector )
 			case TupleExprAST( l, r ) =>
 				push( (eval(l), eval(r)) )
 			case ListExprAST( l ) =>

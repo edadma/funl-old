@@ -6,7 +6,7 @@
 \*                                                               */
 
 function funl.Predef.{
-	print, println, printf,
+	print, println, printf, readLine,
 	error, require,
 	list, dict, set, tuple
 	}

@@ -15,13 +15,17 @@ import interp.Interpreter._
 
 object Predef
 {
-	def println( a: List[Any] ) = Console.println( a map (display(_)) mkString(", ") )
+	private val NIL = Vector.empty[Any]
 	
-	def print( a: List[Any] ) = Console.print( a map (display(_)) mkString(", ") )
+	def println( a: Vector[Any] ) = Console.println( a map (display(_)) mkString(", ") )
+	
+	def print( a: Vector[Any] ) = Console.print( a map (display(_)) mkString(", ") )
 
-	def printf( a: List[Any] ) = Console.printf( a.head.asInstanceOf[String], a.tail: _* )
+	def printf( a: Vector[Any] ) = Console.printf( a.head.asInstanceOf[String], a.tail: _* )
 
-	def error( a: List[Any] ) {error( a.head.toString )}
+	def readLine( a: Vector[Any] ) = Console.readLine
+	
+	def error( a: Vector[Any] ) {error( a.head.toString )}
 
 	def error( msg: String )
 	{
@@ -29,19 +33,19 @@ object Predef
 		sys.exit( 1 )
 	}
 	
-	def require( a: List[Any] ) =
+	def require( a: Vector[Any] ) =
 		if (!a.head.asInstanceOf[Boolean])
 			error( a.last.toString )
 
-	def list( a: List[Any] ) =
+	def list( a: Vector[Any] ) =
 		a match
 		{
-			case Nil => new ArrayBuffer[Any]
-			case List( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
-			case List( init: Seq[Any] ) => ArrayBuffer[Any]( init: _* )
+			case NIL => new ArrayBuffer[Any]
+			case Vector( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
+			case Vector( init: Seq[Any] ) => ArrayBuffer[Any]( init: _* )
 		}
 
-	def set( a: List[Any] ) =
+	def set( a: Vector[Any] ) =
 		if (a isEmpty)
 			new HashSet[Any]
 		else if (a.head.isInstanceOf[collection.Set[Any]])
@@ -49,26 +53,26 @@ object Predef
 		else
 			HashSet( a: _* )
 	
-	def dict( a: List[Any] ) = 
+	def dict( a: Vector[Any] ) =
 		if (a isEmpty)
 			new HashMap[Any, Any]
 		else
 			HashMap( a.head.asInstanceOf[collection.Map[Any, Any]].toArray: _* )
 
-	def tuple( a: List[Any] ) =
+	def tuple( a: Vector[Any] ) =
 		a match
 		{
-			case Nil => ()
-			case List( c: Iterable[_] ) => c.toVector
-			case List( a: Array[_] ) => a.toVector
+			case NIL => ()
+			case Vector( c: Iterable[_] ) => c.toVector
+			case Vector( a: Array[_] ) => a.toVector
 		}
 		
-	def rnd( a: List[Any] ): Any =
+	def rnd( a: Vector[Any] ): Any =
 		a match
 		{
-			case Nil => nextDouble
-			case List( n: Int ) => nextInt( n )
-			case List( l: Int, u: Int ) if l <= u => nextInt( u - l ) + l
-			case List( r: collection.immutable.Range ) => nextInt( r.last + 1 - r.start ) + r.start
+			case NIL => nextDouble
+			case Vector( n: Int ) => nextInt( n )
+			case Vector( l: Int, u: Int ) if l <= u => nextInt( u - l ) + l
+			case Vector( r: collection.immutable.Range ) => nextInt( r.last + 1 - r.start ) + r.start
 		}
 }
