@@ -19,19 +19,26 @@ object Interpreter
 {
 	val PREDEF = "-predef-"
 	val VERSION = "0.5-SNAPSHOT"
+	val NIL = Vector.empty[Any]
 	
-	def markTailRecursion( s: ModuleAST )
+	def markTailRecursion( m: ModuleAST )
 	{
-		for (c <- s.statements)
-			c match
+		for (s <- m.statements)
+			s match
 			{
-// 				case DefAST( _, name, func ) =>
-// 					for (p <- func.parts)
-// 						markTailRecursion( name, p.body )
+				case DeclStatementAST( decls ) =>
+					for (c <- decls)
+						c match
+						{
+							case DefAST( name, func ) =>
+								for (p <- func.parts)
+									markTailRecursion( name, p.body )
+							case _ =>
+						}
 				case _ =>
 			}
 	}
-
+	
 	def markTailRecursion( n: String, e: ExprAST )
 	{
 		e match
@@ -95,6 +102,7 @@ object Interpreter
 		{
 			case parser.Success( l, _ ) =>
 				markTailRecursion( l )
+//				println( l )
 				l
 			case parser.Failure( m, r ) => sys.error( r.pos + ": " + m + '\n' + r.pos.longString )
 			case parser.Error( m, r ) => sys.error( r.pos + ": " + m )

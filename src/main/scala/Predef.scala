@@ -15,8 +15,6 @@ import interp.Interpreter._
 
 object Predef
 {
-	private val NIL = Vector.empty[Any]
-	
 	def println( a: Vector[Any] ) = Console.println( a map (display(_)) mkString(", ") )
 	
 	def print( a: Vector[Any] ) = Console.print( a map (display(_)) mkString(", ") )

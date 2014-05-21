@@ -15,9 +15,12 @@ object DevMain extends App
 {
 	val s =
 """
-native java.awt.Color.{decode, RED}
+import ackermann.ack
 
-println( decode('0x0000FF'), RED )
+println( ack(3, 3) )
+// for m <- 0..3
+// 	for n <- 0..4
+//		println( m, n, ack(m, n) )
 """
 
 //class javax.swing.JFrame

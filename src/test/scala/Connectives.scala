@@ -4,9 +4,10 @@ import org.scalatest._
 import prop.PropertyChecks
 
 import funl.interp.Interpreter._
+import funl.interp.Types
 
 
-class Connectives extends FreeSpec with PropertyChecks with Matchers
+class Connectives extends FreeSpec with PropertyChecks with Matchers with Types
 {
 	val p =
 	Table( "p", true, false )
@@ -56,21 +57,21 @@ class Connectives extends FreeSpec with PropertyChecks with Matchers
 	{
 		forAll (pq) { (p: Boolean, q: Boolean) =>
 			var a = 1
-			val _p = (_: List[Any]) => {a *= 2; p}
-			val _q = (_: List[Any]) => {a *= 3; q}
+			val _p = (_: Vector[Any]) => {a *= 2; p}
+			val _q = (_: Vector[Any]) => {a *= 3; q}
 
-			{a = 1; expression( "p() or q()", "p" -> _p, "q" -> _q ); a} shouldBe {a = 1; _p(Nil) || _q(Nil); a}
-			{a = 1; expression( "p() and q()", "p" -> _p, "q" -> _q ); a} shouldBe {a = 1; _p(Nil) && _q(Nil); a}
+			{a = 1; expression( "p() or q()", "p" -> _p, "q" -> _q ); a} shouldBe {a = 1; _p(NIL) || _q(NIL); a}
+			{a = 1; expression( "p() and q()", "p" -> _p, "q" -> _q ); a} shouldBe {a = 1; _p(NIL) && _q(NIL); a}
 		}
 
 		forAll (pqr) { (p: Boolean, q: Boolean, r: Boolean) =>
 			var a = 1
-			val _p = (_: List[Any]) => {a *= 2; p}
-			val _q = (_: List[Any]) => {a *= 3; q}
-			val _r = (_: List[Any]) => {a *= 5; r}
+			val _p = (_: Vector[Any]) => {a *= 2; p}
+			val _q = (_: Vector[Any]) => {a *= 3; q}
+			val _r = (_: Vector[Any]) => {a *= 5; r}
 
-			{a = 1; expression( "p() or q() and r()", "p" -> _p, "q" -> _q, "r" -> _r ); a} shouldBe {a = 1; _p(Nil) || _q(Nil) && _r(Nil); a}
-			{a = 1; expression( "p() and q() or r()", "p" -> _p, "q" -> _q, "r" -> _r ); a} shouldBe {a = 1; _p(Nil) && _q(Nil) || _r(Nil); a}
+			{a = 1; expression( "p() or q() and r()", "p" -> _p, "q" -> _q, "r" -> _r ); a} shouldBe {a = 1; _p(NIL) || _q(NIL) && _r(NIL); a}
+			{a = 1; expression( "p() and q() or r()", "p" -> _p, "q" -> _q, "r" -> _r ); a} shouldBe {a = 1; _p(NIL) && _q(NIL) || _r(NIL); a}
 		}
 	}
 }
