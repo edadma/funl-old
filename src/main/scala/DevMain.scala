@@ -15,11 +15,9 @@ object DevMain extends App
 {
 	val s =
 """
-native java.net.URLEncoder
+native java.awt.Color.{decode, RED}
 
-val s = 'abc%d&e f'
-
-println( URLEncoder.encode( s, 'UTF-8' ) )
+println( decode('0x0000FF'), RED )
 """
 
 //class javax.swing.JFrame

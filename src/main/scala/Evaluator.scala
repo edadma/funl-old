@@ -308,8 +308,35 @@ class Evaluator extends Types
 							declare( a.getOrElse(s), symbol(qual, s) )
 				}
 			case NativeAST( pkg, names ) =>
-				for ((n, a) <- names)
-					declare( a.getOrElse(n), Class.forName(pkg + '.' + n) )
+				(try
+				{
+					Some( Class.forName(pkg) )
+				}
+				catch
+				{
+					case _: Exception => None
+				}) match
+				{
+					case None =>
+						for ((n, a) <- names)
+							declare( a.getOrElse(n), Class.forName(pkg + '.' + n) )
+					case Some( cls ) =>
+						for ((n, a) <- names)
+						{
+						val methods = cls.getMethods.toList.filter( m => m.getName == n && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
+
+							if (methods != Nil)
+								declare( a.getOrElse(n), NativeMethod(null, methods) )
+							else
+							{
+								cls.getFields.find( f => f.getName == n && (f.getModifiers&Modifier.STATIC) == Modifier.STATIC ) match
+								{
+									case None => RuntimeException( "no method or field called '" + n + "' for class '" + pkg + "'" )
+									case Some( f ) => declare( a.getOrElse(n), new ConstantReference("field '" + n + "'", f.get(null)) )
+								}
+							}
+						}
+				}
 // 			case ClassAST( pkg, names ) =>
 // 				for ((n, a) <- names)
 // 					declare( a.getOrElse(n), Class.forName(pkg + '.' + n) )
