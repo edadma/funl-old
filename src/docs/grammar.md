@@ -18,12 +18,8 @@ Here is the actual grammar (without parser actions and other source code boilerp
 	lazy val importModule = name <~ Newline
 
 	natives =
-		"class" ~> name |
-		"class" ~> Indent ~> rep1(name) <~ Dedent <~ Newline |
-		"method" ~> name |
-		"method" ~> Indent ~> rep1(name) <~ Dedent <~ Newline |
-		"field" ~> name |
-		"field" ~> Indent ~> rep1(name) <~ Dedent <~ Newline |
+		"native" ~> name |
+		"native" ~> Indent ~> rep1(name) <~ Dedent <~ Newline |
 		"function" ~> name |
 		"function" ~> Indent ~> rep1(name) <~ Dedent <~ Newline
 		
@@ -216,8 +212,8 @@ Here is the actual grammar (without parser actions and other source code boilerp
 ## Lexical Grammar
 
 The reserved words in the language are: `do`, `if`, `then`, `for`, `else`, `elsif`, `by`, `while`, `var`, `import`, `break`, `continue`, `repeat`,
-`until`, `of`,
-`class`, `data`, `def`, `true`, `false`, `val`, `null`, `not`, `and`, `or`, `xor`, `otherwise`, `in`, `case`, `method`, `field`, `function`.
+`until`, `of`, `native`,
+`class`, `data`, `def`, `true`, `false`, `val`, `null`, `not`, `and`, `or`, `xor`, `otherwise`, `in`, `case`, `function`.
 
 The special delimiters are: `+`, `*`, `-`, `/`, `^`, `(`, `)`, `[`, `]`, `|`, `{`, `}`, `,`, `=`, `==`, `/=`, `<`, `$`,
 `>`, `<-`, `<=`, `>=`, `--`, `++`, `.`, `..`, `<-`, `->`, `=>`, `+=`, `-=`, `*=`, `^=`, `:`, `\\`, `::`, `@`, `?`.
