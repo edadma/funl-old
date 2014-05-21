@@ -38,7 +38,7 @@ object Predef
 		{
 			case Nil => new ArrayBuffer[Any]
 			case List( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
-			case List( init: List[Any] ) => ArrayBuffer[Any]( init: _* )
+			case List( init: Seq[Any] ) => ArrayBuffer[Any]( init: _* )
 		}
 
 	def set( a: List[Any] ) =
