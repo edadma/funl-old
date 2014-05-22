@@ -5,8 +5,32 @@
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
 
-function funl.Predef.{
+function funl.modules.Predef.{
 	print, println, printf, readLine,
 	error, require,
 	list, dict, set, tuple
 	}
+
+def
+	map( f, [] )            = []
+	map( f, x:xs )          = f( x ) : map( f, xs )
+
+	filter( p, [] )         = []
+	filter( p, x:xs	)
+		| p( x )              = x : filter( p, xs )
+		| otherwise           = filter( p, xs )
+
+	foldl( f, z, [] )				= z
+	foldl( f, z, x:xs )			= foldl( f, f(z, x), xs )
+
+	foldl1( f, x:xs )       = foldl( f, x, xs )
+	foldl1( _, [] )         = error( "foldl1: empty list" )
+
+	sum( l )									= foldl( (a, b) -> a + b, 0, l )
+	product( l )							= foldl( (a, b) -> a * b, 1, l )
+
+	max( a, b )							= if a <= b then b else a
+	max( xs )								= foldl1( max, xs )
+
+	min( a, b )							= if a >= b then b else a
+	min( xs )								= foldl1( min, xs )

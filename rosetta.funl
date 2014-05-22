@@ -2,20 +2,22 @@
 // Ackermann function
 //
 def
-  ack( 0, n ) = n + 1
-  ack( m, 0 ) = ack( m - 1, 1 )
-  ack( m, n ) = ack( m - 1, ack(m, n - 1) )
+  ackermann( 0, n ) = n + 1
+  ackermann( m, 0 ) = ackermann( m - 1, 1 )
+  ackermann( m, n ) = ackermann( m - 1, ackermann(m, n - 1) )
 
 //
 // Greatest element of a list
 //
 def
-  foldl( f, z, [] )       = z
-  foldl( f, z, x:xs )     = foldl( f, f(z, x), xs )
+  maximum( xs ) =
+    def
+      max( a, b )             = if a <= b then b else a
 
-  foldl1( f, x:xs )       = foldl( f, x, xs )
-  foldl1( _, [] )         = error( "foldl1: empty list" )
+      foldl( f, z, [] )       = z
+      foldl( f, z, x:xs )     = foldl( f, f(z, x), xs )
 
-  max( a, b )             = if a <= b then b else a
+      foldl1( f, x:xs )       = foldl( f, x, xs )
+      foldl1( _, [] )         = error( "foldl1: empty list" )
 
-  maximum( xs )           = foldl1( max, xs )
+    foldl1( max, xs )

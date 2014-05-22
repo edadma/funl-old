@@ -5,4 +5,21 @@
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
 
-function funl.modules.Util.{rnd}
+package funl.modules
+
+import util.Random.{nextInt, nextDouble}
+
+import funl.interp.Interpreter._
+
+
+object Util
+{
+	def rnd( a: Vector[Any] ): Any =
+		a match
+		{
+			case NIL => nextDouble
+			case Vector( n: Int ) => nextInt( n )
+			case Vector( l: Int, u: Int ) if l <= u => nextInt( u - l ) + l
+			case Vector( r: collection.immutable.Range ) => nextInt( r.last + 1 - r.start ) + r.start
+		}
+}

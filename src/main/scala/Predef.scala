@@ -5,12 +5,11 @@
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
 
-package funl
+package funl.modules
 
 import collection.mutable.{HashSet, HashMap, ArrayBuffer}
-import util.Random.{nextInt, nextDouble}
 
-import interp.Interpreter._
+import funl.interp.Interpreter._
 
 
 object Predef
@@ -64,13 +63,11 @@ object Predef
 			case Vector( c: Iterable[_] ) => c.toVector
 			case Vector( a: Array[_] ) => a.toVector
 		}
-		
-	def rnd( a: Vector[Any] ): Any =
-		a match
-		{
-			case NIL => nextDouble
-			case Vector( n: Int ) => nextInt( n )
-			case Vector( l: Int, u: Int ) if l <= u => nextInt( u - l ) + l
-			case Vector( r: collection.immutable.Range ) => nextInt( r.last + 1 - r.start ) + r.start
-		}
+
+// 	def max( a: Vector[Any] ) =
+// 		a match
+// 		{
+// 			case Vector( a, b ) => if (a <= b) b else a
+// 			case Vector( c: Iterable[_] ) => c.toVector
+// 		}
 }
