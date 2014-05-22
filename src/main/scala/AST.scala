@@ -33,9 +33,7 @@ case class SysvarExprAST( name: String ) extends ExprAST
 case class TestExprAST( name: String ) extends ExprAST
 case object BreakExprAST extends ExprAST
 case object ContinueExprAST extends ExprAST
-case class IntegerLiteralExprAST( i: Int ) extends ExprAST
-case class DoubleLiteralExprAST( d: Double ) extends ExprAST
-case class BooleanLiteralExprAST( b: Boolean ) extends ExprAST
+case class LiteralExprAST( v: Any ) extends ExprAST
 case class StringLiteralExprAST( s: String ) extends ExprAST
 case class VariableExprAST( name: String ) extends ExprAST
 case class ApplyExprAST( f: ExprAST, args: List[ExprAST], var tailrecursive: Boolean ) extends ExprAST
@@ -66,10 +64,7 @@ case class NotExprAST( exp: ExprAST ) extends ExprAST
 
 trait PatternAST extends AST
 case class AliasPatternAST( alias: String, pat: PatternAST ) extends PatternAST
-case class IntegerLiteralPatternAST( i: Int ) extends PatternAST
-case class DoubleLiteralPatternAST( d: Double ) extends PatternAST
-case class BooleanLiteralPatternAST( b: Boolean ) extends PatternAST
-case class StringLiteralPatternAST( s: String ) extends PatternAST
+case class LiteralPatternAST( v: Any ) extends PatternAST
 case class VariablePatternAST( v: String, t: Option[String] ) extends PatternAST
 case class TuplePatternAST( l: List[PatternAST] ) extends PatternAST
 case class AltPatternAST( l: List[PatternAST] ) extends PatternAST

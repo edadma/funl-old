@@ -398,9 +398,7 @@ class Evaluator extends Types
 				throw new BreakThrowable
 			case ContinueExprAST =>
 				throw new ContinueThrowable
-			case DoubleLiteralExprAST( d ) => push( d )
-			case IntegerLiteralExprAST( i ) => push( i )
-			case BooleanLiteralExprAST( b ) => push( b )
+			case LiteralExprAST( v ) => push( v )
 			case StringLiteralExprAST( s ) =>
 				val buf = new StringBuilder
 				
@@ -1027,10 +1025,7 @@ class Evaluator extends Types
 	def unify( map: SymbolMap, a: Any, p: PatternAST ): Boolean =
 		p match
 		{
-			case IntegerLiteralPatternAST( i ) => a == i
-			case DoubleLiteralPatternAST( d ) => a == d
-			case BooleanLiteralPatternAST( b ) => a == b
-			case StringLiteralPatternAST( s ) => a == s
+			case LiteralPatternAST( v ) => a == v
 			case UnitPatternAST => a == ()
 			case NullPatternAST => a == null
 			case AliasPatternAST( alias, pat ) =>

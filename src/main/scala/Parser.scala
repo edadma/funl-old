@@ -302,16 +302,23 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		numericLit ^^
 			(n =>
 				if (n matches ".*(\\.|e|E).*")
-					DoubleLiteralExprAST( n.toDouble )
+					LiteralExprAST( n.toDouble )
 				else
-					IntegerLiteralExprAST( n.toInt )) |
+				{
+				val bi = BigInt( n )
+
+					if (bi.isValidInt)
+						LiteralExprAST( bi.intValue )
+					else
+						LiteralExprAST( bi )
+				}) |
 		stringLit ^^
 			(StringLiteralExprAST( _ )) |
 		"(" ~> expr <~ ")" |
 		ident ^^
 			{case v => VariableExprAST( v )} |
 		("true" | "false") ^^
-			(b => BooleanLiteralExprAST( b.toBoolean )) |
+			(b => LiteralExprAST( b.toBoolean )) |
 		"(" ~ ")" ^^^
 			UnitExprAST |
 		("(" ~> expr <~ ",") ~ (rep1sep(expr, ",") <~ ")") ^^
@@ -342,13 +349,20 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		numericLit ^^
 			(n =>
 				if (n matches ".*(\\.|e|E).*")
-					DoubleLiteralPatternAST( n.toDouble )
+					LiteralPatternAST( n.toDouble )
 				else
-					IntegerLiteralPatternAST( n.toInt )) |
+				{
+				val bi = BigInt( n )
+
+					if (bi.isValidInt)
+						LiteralPatternAST( bi.intValue )
+					else
+						LiteralPatternAST( bi )
+				}) |
 		stringLit ^^
-			(StringLiteralPatternAST( _ )) |
+			(LiteralPatternAST( _ )) |
 		("true" | "false") ^^
-			(b => BooleanLiteralPatternAST( b.toBoolean )) |
+			(b => LiteralPatternAST( b.toBoolean )) |
 		"(" ~ ")" ^^^
 			UnitPatternAST |
 		"null" ^^^
