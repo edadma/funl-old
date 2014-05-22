@@ -1,4 +1,12 @@
 /*
+ * 100 doors
+ */
+def hundred_doors_unoptimized =
+  for i <- 1..100
+    r = foldl1( (a, b) -> a xor b, map(a -> i % a == 0, 1..100) )
+    println( i + ' ' + (if r then 'open' else 'closed') )
+
+/*
  * A+B
  */
 def a_plus_b = println( sum(map(int, readLine().split(' +'))) )

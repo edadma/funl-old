@@ -54,8 +54,8 @@ object Predef
 	def set( a: Vector[Any] ) =
 		if (a isEmpty)
 			new HashSet[Any]
-		else if (a.head.isInstanceOf[collection.Set[Any]])
-			HashSet( a.head.asInstanceOf[collection.Set[Any]].toArray: _* )
+		else if (a.head.isInstanceOf[Seq[Any]])
+			HashSet( a.head.asInstanceOf[Seq[Any]]: _* )
 		else
 			HashSet( a: _* )
 	

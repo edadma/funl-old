@@ -15,9 +15,13 @@ object DevMain extends App
 {
 	val s =
 """
-import rosetta.*
+o = map( a -> a*a, 1..10 )
 
-println( maximum([3, 6, 7, 2, 1]) )
+for i <- 1..100
+	println( i + ' ' + (if o(i) then 'open' else 'closed') )
+// import rosetta.*
+// 
+// println( maximum([3, 6, 7, 2, 1]) )
 // for m <- 0..3
 // 	for n <- 0..4
 //		println( m, n, ack(m, n) )
