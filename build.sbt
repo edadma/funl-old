@@ -37,7 +37,7 @@ libraryDependencies ++= Seq(
 	)
 
 libraryDependencies ++= Seq(
-	"org.funl-lang" %% "lia" % "0.1-SNAPSHOT",
+	"org.funl-lang" %% "lia" % "0.2-SNAPSHOT",
 	"org.funl-lang" %% "indentation-lexical" % "0.1-SNAPSHOT"
 	)
 

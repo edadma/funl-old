@@ -60,8 +60,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				}
 				
 			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "import", "break", "continue", "repeat", "until", "of",
-				"class", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "otherwise", "in", "case", "function", "native")
-			delimiters += ("+", "*", "-", "/", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<", "$", "?",
+				"class", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "mod", "otherwise", "in", "case", "function", "native")
+			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<", "$", "?",
 				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "^=", ":", "\\", "::", "@")
 		}
 
@@ -259,7 +259,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		expr31
 
 	lazy val expr31: PackratParser[ExprAST] =
-		expr31 ~ ("*" | "/" | "\\") ~ expr32 ^^
+		expr31 ~ ("*" | "/" | "\\" | "%") ~ expr32 ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
 		expr31 ~ leftExpr ^^
 			{case l ~ r => BinaryExprAST( l, '*, r )} |
