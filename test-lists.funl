@@ -4,10 +4,10 @@ def
 /*	
   foldl( f, z, [] )				= z
   foldl( f, z, x:xs )			= foldl( f, f(z, x), xs )
-*/
+
   foldl1( f, x:xs )				= foldl( f, x, xs )
   foldl1( _, [] )					= error( "foldl1: empty list" )
-
+*/
   foldr( f, z, [] )				= z
   foldr( f, z, x:xs )			= f( x, foldr(f, z, xs) )
 
