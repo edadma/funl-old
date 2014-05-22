@@ -1017,7 +1017,9 @@ class Evaluator extends Types
 			case None => true
 			case Some( "String" ) => a.isInstanceOf[String]
 			case Some( "Int" ) => a.isInstanceOf[Int]
+			case Some( "Seq" ) => a.isInstanceOf[Seq[_]]
 			case Some( "List" ) => a.isInstanceOf[List[_]]
+			case Some( "Array" ) => a.isInstanceOf[Array[_]] || a.isInstanceOf[ArrayBuffer[_]]
 			case Some( datatype ) => datatypes.contains( datatype ) && a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == datatype
 			case _ => RuntimeException( "unknown type" )
 		}

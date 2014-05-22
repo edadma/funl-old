@@ -8,23 +8,28 @@
 function funl.modules.Predef.{
 	print, println, printf, readLine,
 	error, require,
-	list, dict, set, tuple
+	array, list, dict, set, tuple,
+	int
 	}
 
 def
-	map( f, [] )            = []
-	map( f, x:xs )          = f( x ) : map( f, xs )
+	map( f, [] )                = []
+	map( f, x:xs )              = f( x ) : map( f, xs )
+	map( f, (a::Array|a::Seq) ) = map( f, list(a) )
 
-	filter( p, [] )         = []
+	filter( p, [] )                 = []
 	filter( p, x:xs	)
-		| p( x )              = x : filter( p, xs )
-		| otherwise           = filter( p, xs )
+		| p( x )                      = x : filter( p, xs )
+		| otherwise                   = filter( p, xs )
+	filter( p, (a::Array|a::Seq) )  = filter( p, list(a) )
 
-	foldl( f, z, [] )				= z
-	foldl( f, z, x:xs )			= foldl( f, f(z, x), xs )
+	foldl( f, z, [] )                 = z
+	foldl( f, z, x:xs )               = foldl( f, f(z, x), xs )
+	foldl( f, z, (a::Array|a::Seq) )  = foldl( f, z, list(a) )
 
-	foldl1( f, x:xs )       = foldl( f, x, xs )
-	foldl1( _, [] )         = error( "foldl1: empty list" )
+	foldl1( f, x:xs )               = foldl( f, x, xs )
+	foldl1( _, [] )                 = error( "foldl1: empty list" )
+	foldl1( f, (a::Array|a::Seq) )  = foldl1( f, list(a) )
 
 	sum( l )									= foldl( (a, b) -> a + b, 0, l )
 	product( l )							= foldl( (a, b) -> a * b, 1, l )

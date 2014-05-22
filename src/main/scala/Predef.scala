@@ -34,12 +34,21 @@ object Predef
 		if (!a.head.asInstanceOf[Boolean])
 			error( a.last.toString )
 
-	def list( a: Vector[Any] ) =
+	def array( a: Vector[Any] ) =
 		a match
 		{
 			case NIL => new ArrayBuffer[Any]
 			case Vector( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
+			case Vector( init: Array[Any] ) => ArrayBuffer[Any]( init: _* )
 			case Vector( init: Seq[Any] ) => ArrayBuffer[Any]( init: _* )
+		}
+
+	def list( a: Vector[Any] ) =
+		a match
+		{
+			case NIL => Nil
+			case Vector( init: Array[Any] ) => List[Any]( init: _* )
+			case Vector( init: Seq[Any] ) => List[Any]( init: _* )
 		}
 
 	def set( a: Vector[Any] ) =
@@ -64,6 +73,14 @@ object Predef
 			case Vector( a: Array[_] ) => a.toVector
 		}
 
+
+	def int( a: Vector[Any] ) =
+		a match
+		{
+			case Vector( n: Number ) => n.intValue
+			case Vector( s: String ) => s.toInt
+		}
+		
 // 	def max( a: Vector[Any] ) =
 // 		a match
 // 		{

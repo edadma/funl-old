@@ -1,14 +1,21 @@
-//
-// Ackermann function
-//
+/*
+ * A+B
+ */
+def a_plus_b = println( sum(map(int, readLine().split(' +'))) )
+
+/*
+ * Ackermann function
+ */
 def
   ackermann( 0, n ) = n + 1
   ackermann( m, 0 ) = ackermann( m - 1, 1 )
   ackermann( m, n ) = ackermann( m - 1, ackermann(m, n - 1) )
 
-//
-// Greatest element of a list
-//
+/*
+ * Greatest element of a list
+ * 
+ * predefined as 'max( xs )' but can be explicitly implemented (only for lists) as:
+ */
 def
   maximum( xs ) =
     def
