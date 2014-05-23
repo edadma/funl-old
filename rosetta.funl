@@ -6,6 +6,11 @@ def hundred_doors_unoptimized =
     r = foldl1( (a, b) -> a xor b, map(a -> i % a == 0, 1..100) )
     println( i + ' ' + (if r then 'open' else 'closed') )
 
+def hundred_doors_optimized =
+  import math.sqrt
+
+  for i <- 1..100
+    println( i + ' ' + (if sqrt(i)::Integer then 'open' else 'closed') )
 /*
  * A+B
  */

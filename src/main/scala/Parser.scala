@@ -240,6 +240,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val expr22: PackratParser[ExprAST] =
 		expr26 ~ ("==" | "/=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin") ~ expr26 ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
+		expr26 ~ "::" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
 		expr26
 
 	lazy val expr26: PackratParser[ExprAST] =

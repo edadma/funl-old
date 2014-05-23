@@ -971,6 +971,8 @@ class Evaluator extends Types
 
 						push( NativeMethod(o, methods) )
 				}
+			case TypeExprAST( e, t ) =>
+				push( typecheck(eval(e), t) )
 		}
 	}
 	
@@ -1009,17 +1011,17 @@ class Evaluator extends Types
 		vars
 	}
 
-	def typecheck( a: Any, t: Option[String] ) =
+	def typecheck( a: Any, t: String ) =
 		t match
 		{
-			case None => true
-			case Some( "String" ) => a.isInstanceOf[String]
-			case Some( "Int" ) => a.isInstanceOf[Int]
-			case Some( "Seq" ) => a.isInstanceOf[Seq[_]]
-			case Some( "List" ) => a.isInstanceOf[List[_]]
-			case Some( "Array" ) => a.isInstanceOf[Array[_]] || a.isInstanceOf[ArrayBuffer[_]]
-			case Some( datatype ) => datatypes.contains( datatype ) && a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == datatype
-			case _ => RuntimeException( "unknown type" )
+			case "String" => a.isInstanceOf[String]
+			case "Integer" => a.isInstanceOf[Int]
+			case "Float" => a.isInstanceOf[Double]
+			case "Seq" => a.isInstanceOf[Seq[_]]
+			case "List" => a.isInstanceOf[List[_]]
+			case "Array" => a.isInstanceOf[Array[_]] || a.isInstanceOf[ArrayBuffer[_]]
+			case _ if datatypes.contains( t ) => a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == t
+			case _ => RuntimeException( "unknown type: " + t )
 		}
 	
 	def unify( map: SymbolMap, a: Any, p: PatternAST ): Boolean =
@@ -1041,13 +1043,13 @@ class Evaluator extends Types
 					else
 						false
 				}
-			case VariablePatternAST( "_", t ) => typecheck( a, t )
+			case VariablePatternAST( "_", t ) => t == None || typecheck( a, t.get )
 			case VariablePatternAST( n, t ) =>
 				if (map contains n)
 					a == map(n)
 				else
 				{
-					if (typecheck( a, t ))
+					if (t == None || typecheck( a, t.get ))
 					{
 						map(n) = new ConstantReference( n, a )
 						true

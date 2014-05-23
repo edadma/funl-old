@@ -5,7 +5,7 @@
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
 
-function funl.modules.Predef.{
+function funl.modules.ModulePredef.{
 	print, println, printf, readLine,
 	error, require,
 	array, list, dict, set, tuple,
