@@ -1,4 +1,4 @@
-# FunL Programming Language
+# The FunL Programming Language
 
 *FunL* (pronounced "funnel") is a functional dynamically typed scripting language. The name FunL stands for "fun language", but it can also stand for "functional language".
 
@@ -43,7 +43,7 @@ Add the following to your build file to use FunL in your SBT project:
 
 	resolvers += Resolver.sonatypeRepo( "snapshots" )
 
-	libraryDependencies ++= "org.funl-lang" %% "funl" % "0.4-SNAPSHOT"
+	libraryDependencies ++= "org.funl-lang" %% "funl" % "0.5-SNAPSHOT"
 
 
 ## Building
