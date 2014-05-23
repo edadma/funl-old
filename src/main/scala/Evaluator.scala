@@ -152,6 +152,15 @@ class Evaluator extends Types
 		apply( t, creatvars = true )
 		rpop
 	}
+
+	def teval( t: AST ) =
+		eval( t ) match
+		{
+			case tr: TraversableOnce[Any] => tr
+			case s: String => s.map( _.toString ).iterator
+			case a: Array[Any] => a.iterator
+			case o => 	RuntimeException( "non traversable object: " + o )
+		}
 	
 	def pop = deref( stack.pop )
 		
@@ -455,21 +464,24 @@ class Evaluator extends Types
 				push( buf.toString )
 			case BinaryExprAST( left, op, right ) =>
 				val l = eval( left )
-				val r = eval( right )
 
 				op match
 				{
 					case 'in | 'notin =>
-						val res = r match
-						{
-							case seq: collection.Seq[Any] => seq contains l
-							case set: collection.Set[Any] => set contains l
-							case map: collection.Map[Any, Any] => map contains l
-							case _ => RuntimeException( "illegal use of 'in' predicate" )
-						}
+						val r = teval( right )
+
+						val res = r exists (_ == l)
+// 						{
+// 							case seq: collection.Seq[Any] => seq contains l
+// 							case set: collection.Set[Any] => set contains l
+// 							case map: collection.Map[Any, Any] => map contains l
+// 							case _ => RuntimeException( "illegal use of 'in' predicate" )
+// 						}
 
 						push( (op == 'notin)^res )
 					case '+ =>
+						val r = eval( right )
+						
 						if (l.isInstanceOf[String] || r.isInstanceOf[String])
 							push( l.toString + r.toString )
 						else if (l.isInstanceOf[Iterable[_]] && r.isInstanceOf[Iterable[_]])
@@ -479,6 +491,8 @@ class Evaluator extends Types
 						else
 							RuntimeException( "operation '" + op.name + "' not applicable to values: '" + l + "', '" + r + "'" )
 					case '< | '> | '<= | '>= =>
+						val r = eval( right )
+
 						if (l.isInstanceOf[String] || r.isInstanceOf[String])
 						{
 						val c = l.toString.compare( r.toString )
@@ -496,12 +510,14 @@ class Evaluator extends Types
 						else
 							push( Math(op, l, r) )
 					case '== | '/= =>
+						val r = eval( right )
+
 						if (l.isInstanceOf[Number] && r.isInstanceOf[Number])
 							push( Math(op, l, r) )
 						else
 							push( if (op == '==) l == r else l != r )
 					case _ =>
-						push( Math(op, l, r) )
+						push( Math(op, l, eval(right)) )
 				}
 			case BooleanConnectiveExprAST( left, op, right ) =>
 				op match
@@ -739,54 +755,47 @@ class Evaluator extends Types
 							apply( no.get )
 				}
 			case ForExprAST( p, r, body, e ) =>
-				val o = eval( r )
+				val o = teval( r )
 
-				if (o.isInstanceOf[TraversableOnce[Any]])
-				{
-//				val it = o.asInstanceOf[Iterable[Any]].iterator
-				
-					enterScope
-	
-//				val h = newVar( v )
-				
-					void
+				enterScope
+				void
 
 				val stacksize = stack.size
 
-					try
-					{
-						o.asInstanceOf[TraversableOnce[Any]].foreach
-						{ elem =>
-							clear( localScope, p )
+				try
+				{
+					o.foreach
+					{ elem =>
+						clear( localScope, p )
 
-							if (!unify( localScope, deref(elem), p ))
-								RuntimeException( "unification error in for loop" )
+						if (!unify( localScope, deref(elem), p ))
+							RuntimeException( "unification error in for loop" )
 
-							pop
+						pop
 
-							try
-							{
-								apply( body )
-							}
-							catch
-							{
-								case _: ContinueThrowable =>
-									stack reduceToSize stacksize - 1		// because of the pop inside the while loop
-									void
-							}
+						try
+						{
+							apply( body )
 						}
-						
+						catch
+						{
+							case _: ContinueThrowable =>
+								stack reduceToSize stacksize - 1		// because of the pop inside the while loop
+								void
+						}
+					}
+
 // 						while (it hasNext)
 // 						{
 // 							clear( activations.top.scope.top, p )
-// 
+//
 // 							if (!unify( activations.top.scope.top, deref(it.next), p ))
 // 								RuntimeException( "unification error in for loop" )
-// 
+//
 // 	//						activations.top.scope.top(v) = deref( it.next )
 // 	//						h.v = deref( it.next )
 // 							pop
-// 						
+//
 // 							try
 // 							{
 // 								apply( body )
@@ -799,23 +808,20 @@ class Evaluator extends Types
 // 							}
 // 						}
 
-						if (e != None)
-						{
-							pop
-							apply( e.get )
-						}
-					}
-					catch
+					if (e != None)
 					{
-						case _: BreakThrowable =>
-							stack reduceToSize stacksize - 1		// because of the pop inside the while loop
-							void
+						pop
+						apply( e.get )
 					}
-					
-					exitScope
 				}
-				else
-					RuntimeException( "non iterable object: " + o )
+				catch
+				{
+					case _: BreakThrowable =>
+						stack reduceToSize stacksize - 1		// because of the pop inside the while loop
+						void
+				}
+
+				exitScope
 			case WhileExprAST( cond, body, e ) =>
 				void
 

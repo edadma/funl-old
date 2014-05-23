@@ -11,6 +11,7 @@ def hundred_doors_optimized =
 
   for i <- 1..100
     println( i + ' ' + (if sqrt(i)::Integer then 'open' else 'closed') )
+
 /*
  * A+B
  */
