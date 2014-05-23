@@ -6,5 +6,11 @@
 \*                                                               */
 
 function funl.modules.ModuleMath.{
-	sqrt
+	sqrt, choose
 	}
+
+// def
+// 	choose( n, 0 ) | n >= 0 = 1
+// 	choose( n, n ) | n >= 0 = 1
+// 	choose( n, k ) | 1 <= k and k <= n - 1 = choose( n - 1, k - 1 ) + choose( n - 1, k )
+// 	choose( n, k ) = error( "choose: illegal arguments: " + (n, k) )

@@ -10,6 +10,7 @@ package funl.modules
 import collection.mutable.{HashSet, HashMap, ArrayBuffer}
 
 import funl.interp.Interpreter._
+import funl.interp.RuntimeException
 
 
 object ModulePredef
@@ -26,8 +27,9 @@ object ModulePredef
 
 	def error( msg: String )
 	{
-		Console.err.println( msg )
-		sys.exit( 1 )
+		throw new RuntimeException( msg )
+// 		Console.err.println( msg )
+// 		sys.exit( 1 )
 	}
 	
 	def require( a: Vector[Any] ) =

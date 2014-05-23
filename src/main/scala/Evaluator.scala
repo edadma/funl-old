@@ -1052,7 +1052,7 @@ class Evaluator extends Types
 			case VariablePatternAST( "_", t ) => t == None || typecheck( a, t.get )
 			case VariablePatternAST( n, t ) =>
 				if (map contains n)
-					a == map(n)
+					a == deref( map(n) )
 				else
 				{
 					if (t == None || typecheck( a, t.get ))
