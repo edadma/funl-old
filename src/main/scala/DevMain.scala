@@ -15,6 +15,15 @@ object DevMain extends App
 {
 	val s =
 """
+def
+	choose( n, 0 ) | n >= 0 = 1
+	choose( n, n ) | n >= 0 = 1
+	choose( n, k ) | 1 <= k and k <= n - 1 = choose( n - 1, k - 1 ) + choose( n - 1, k )
+	choose( n, k ) = error( "choose: illegal arguments: " + (n, k) )
+
+println( choose(2, 2) )
+
+//def bernoulli( n ) = 
 // import rosetta.*
 // 
 // println( maximum([3, 6, 7, 2, 1]) )
