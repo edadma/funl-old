@@ -42,3 +42,5 @@ def
       foldl1( _, [] )         = error( "foldl1: empty list" )
 
     foldl1( max, xs )
+
+//binomialCoefficient

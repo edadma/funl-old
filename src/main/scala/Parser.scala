@@ -120,7 +120,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline ^^ (DeclStatementAST( _ ))
 
 	lazy val constant =
-		(pattern <~ "=") ~ expr5 <~ Newline ^^
+		(pattern <~ "=") ~ nonassignmentExpr <~ Newline ^^
 			{case pat ~ exp => ValAST( pat, exp )}
 
 	lazy val variables =
@@ -184,9 +184,9 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		declaration
 
 	lazy val expr: PackratParser[ExprAST] =
-		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "^=") ~ rep1sep(expr5, ",") ^^
+		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "^=") ~ rep1sep(nonassignmentExpr, ",") ^^
 			{case lhs ~ op ~ rhs => AssignmentExprAST( lhs, Symbol(op), rhs )} |
-		expr5
+		nonassignmentExpr
 
  	lazy val mapping =
  	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> expr10) ~ ("->" ~> expr) ^^
@@ -199,6 +199,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val functionExpr =
 		mapping | caseFunctionExpr
 
+	lazy val nonassignmentExpr = expr5
+	
 	lazy val expr5 =
 		functionExpr |
 		expr7
@@ -322,9 +324,11 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			(b => LiteralExprAST( b.toBoolean )) |
 		"(" ~ ")" ^^^
 			UnitExprAST |
-		("(" ~> expr <~ ",") ~ (rep1sep(expr, ",") <~ ")") ^^
+		("(" ~> nonassignmentExpr <~ ",") ~ (rep1sep(nonassignmentExpr, ",") <~ ")") ^^
 			{case e ~ l => VectorExprAST( e +: l )} |
-		("[" ~> repsep(expr, ",") <~ "]") ^^
+		("[" ~> nonassignmentExpr) ~ ("|" ~> pattern <~ "<-") ~ (expr <~ "]") ^^
+			{case e ~ p ~ t => ListComprehensionExprAST( e, p, t )} |
+		"[" ~> repsep(nonassignmentExpr, ",") <~ "]" ^^
 			{case l => ListExprAST( l )} |
 		"null" ^^
 			(_ => NullExprAST) |
@@ -374,7 +378,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case v ~ t => VariablePatternAST( v, t )} |
 		("(" ~> pattern <~ ",") ~ (rep1sep(pattern, ",") <~ ")") ^^
 			{case e ~ l => TuplePatternAST( e +: l )} |
-		("[" ~> repsep(pattern, ",") <~ "]") ^^
+		"[" ~> repsep(pattern, ",") <~ "]" ^^
 			{case l => ListPatternAST( l )} |
 		("(" ~> pattern <~ "|") ~ (rep1sep(pattern, "|") <~ ")") ^^
 			{case e ~ l => AltPatternAST( e +: l )} |

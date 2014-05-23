@@ -15,10 +15,10 @@ object DevMain extends App
 {
 	val s =
 """
-import math.choose
+import math.B
 
-println( 'start' )
-println( choose(9234567891, 3) )
+for i <- 0..60
+	println( i, B(i) )
 
 //def bernoulli( n ) = 
 // import rosetta.*

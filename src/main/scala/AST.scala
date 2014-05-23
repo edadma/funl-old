@@ -29,6 +29,7 @@ case class DefAST( name: String, func: FunctionExprAST ) extends StatementAST
 case class ExpressionStatementAST( e: ExprAST ) extends StatementAST
 
 trait ExprAST extends AST
+case class ListComprehensionExprAST( e: ExprAST, p: PatternAST, t: ExprAST ) extends ExprAST
 case class TypeExprAST( e: ExprAST, t: String ) extends ExprAST
 case class SysvarExprAST( name: String ) extends ExprAST
 case class TestExprAST( name: String ) extends ExprAST
