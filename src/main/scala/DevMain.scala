@@ -15,10 +15,12 @@ object DevMain extends App
 {
 	val s =
 """
-import math.B
+import math.*
 
-for i <- 0..60
-	println( i, B(i) )
+def bernoulli( n::Integer ) | n >= 0 = sigma( 0..n, k -> 1/(k + 1)*sigma(0..k, r -> (if even(r) then 1 else -1)*choose(k, r)*(r^n)) )
+
+for i <- 0..60 if i == 1 or even( i )
+	println( i, bernoulli(i) )
 
 //def bernoulli( n ) = 
 // import rosetta.*

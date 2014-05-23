@@ -772,7 +772,7 @@ class Evaluator extends Types
 						else
 							apply( no.get )
 				}
-			case ForExprAST( p, r, body, e ) =>
+			case ForExprAST( p, r, filter, body, e ) =>
 				val o = teval( r )
 
 				enterScope
@@ -789,17 +789,20 @@ class Evaluator extends Types
 						if (!unify( localScope, deref(elem), p ))
 							RuntimeException( "unification error in for loop" )
 
-						pop
+						if (filter == None || beval(filter.get))
+						{
+							pop
 
-						try
-						{
-							apply( body )
-						}
-						catch
-						{
-							case _: ContinueThrowable =>
-								stack reduceToSize stacksize - 1		// because of the pop inside the while loop
-								void
+							try
+							{
+								apply( body )
+							}
+							catch
+							{
+								case _: ContinueThrowable =>
+									stack reduceToSize stacksize - 1		// because of the pop inside the while loop
+									void
+							}
 						}
 					}
 

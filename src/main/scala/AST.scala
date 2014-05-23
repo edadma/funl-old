@@ -52,7 +52,7 @@ case object UnitExprAST extends ExprAST
 case object NullExprAST extends ExprAST
 case class BlockExprAST( l: List[StatementAST] ) extends ExprAST
 case class ConditionalExprAST( cond: List[(ExprAST, ExprAST)], no: Option[ExprAST] ) extends ExprAST
-case class ForExprAST( p: PatternAST, r: ExprAST, body: ExprAST, e: Option[ExprAST] ) extends ExprAST
+case class ForExprAST( p: PatternAST, r: ExprAST, f: Option[ExprAST], body: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class WhileExprAST( cond: ExprAST, body: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class DoWhileExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class RepeatExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
