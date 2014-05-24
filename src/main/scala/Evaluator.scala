@@ -702,7 +702,7 @@ class Evaluator extends Types
 				push( list(l.length).toVector )
 			case TupleExprAST( l, r ) =>
 				push( (eval(l), eval(r)) )
-			case ListComprehensionExprAST( e, p, t ) =>
+			case ListComprehensionExprAST( e, p, t, f ) =>
 				val o = teval( t )
 				val buf = new ListBuffer[Any]
 				
@@ -715,7 +715,8 @@ class Evaluator extends Types
 					if (!unify( localScope, deref(elem), p ))
 						RuntimeException( "unification error in list comprehension" )
 
-					buf += eval( e )
+					if (f == None || beval(f.get))
+						buf += eval( e )
 				}
 
 				push( buf.toList )

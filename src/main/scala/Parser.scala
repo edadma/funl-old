@@ -326,8 +326,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			UnitExprAST |
 		("(" ~> nonassignmentExpr <~ ",") ~ (rep1sep(nonassignmentExpr, ",") <~ ")") ^^
 			{case e ~ l => VectorExprAST( e +: l )} |
-		("[" ~> nonassignmentExpr) ~ ("|" ~> pattern <~ "<-") ~ (expr <~ "]") ^^
-			{case e ~ p ~ t => ListComprehensionExprAST( e, p, t )} |
+		("[" ~> nonassignmentExpr) ~ ("|" ~> pattern <~ "<-") ~ expr ~ (opt("if" ~> expr) <~ "]") ^^
+			{case e ~ p ~ t ~ f => ListComprehensionExprAST( e, p, t, f )} |
 		"[" ~> repsep(nonassignmentExpr, ",") <~ "]" ^^
 			{case l => ListExprAST( l )} |
 		"null" ^^

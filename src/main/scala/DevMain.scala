@@ -17,15 +17,8 @@ object DevMain extends App
 """
 import math.*
 
-def bernoulli( n::Integer ) | n >= 0 = sigma( 0..n, k -> 1/(k + 1)*sigma(0..k, r -> (if even(r) then 1 else -1)*choose(k, r)*(r^n)) )
+println( [i | i <- 1..5 if even(i)] )
 
-for i <- 0..60 if i == 1 or even( i )
-	println( i, bernoulli(i) )
-
-//def bernoulli( n ) = 
-// import rosetta.*
-// 
-// println( maximum([3, 6, 7, 2, 1]) )
 // for m <- 0..3
 // 	for n <- 0..4
 //		println( m, n, ack(m, n) )
