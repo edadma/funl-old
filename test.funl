@@ -1,0 +1,5 @@
+def f( x ) = 3x
+
+def g( x ) = x + 4
+
+println( compose(g, f)(5) )
