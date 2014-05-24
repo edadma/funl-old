@@ -18,7 +18,7 @@ import io.Source
 object Interpreter
 {
 	val PREDEF = "-predef-"
-	val VERSION = "0.5-SNAPSHOT"
+	val VERSION = "0.6-SNAPSHOT"
 	val NIL = Vector.empty[Any]
 	
 	def markTailRecursion( m: ModuleAST )
@@ -84,11 +84,11 @@ object Interpreter
 	def display( a: Any ): String =
 		a match
 		{
-			case a: Array[_] => a.mkString( "Array(", ", ", ")" )
-			case l: List[_] => l.mkString( "[", ", ", "]" )
-			case s: collection.Set[_] => s.mkString( "{", ", ", "}" )
+			case a: Array[_] => a.map( display(_) ).mkString( "Array(", ", ", ")" )
+			case l: List[_] => l.map( display(_) ).mkString( "[", ", ", "]" )
+			case s: collection.Set[_] => s.map( display(_) ).mkString( "{", ", ", "}" )
 			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => displayQuoted(k) + ": " + display(v)} ).mkString( "{", ", ", "}" )
-			case t: Vector[_] => t.mkString( "(", ", ", ")" )
+			case t: Vector[_] => t.map( display(_) ).mkString( "(", ", ", ")" )
 			case _ => String.valueOf( a )
 		}
 
