@@ -13,6 +13,8 @@ function funl.modules.ModulePredef.{
 	}
 
 def
+	compose( f, g ) = x -> f( g(x) )
+	
 	map( f, [] )                = []
 	map( f, x:xs )              = f( x ) : map( f, xs )
 	map( f, (a::Array|a::Seq) ) = map( f, list(a) )

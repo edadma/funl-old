@@ -42,8 +42,7 @@ def
   drop( _, [] )						= []
   drop( n, _:xs )					= drop( n - 1, xs )
 
-  concat( [], ys )					= ys
-  concat( x:xs, ys )				= x : concat( xs, ys )
+  concat( xss )           = foldr( (x, y) -> x + y, [], xss )
 
   head( x:_ )							= x
   head( [] )								= error( "head: empty list" )

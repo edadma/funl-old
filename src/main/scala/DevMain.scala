@@ -15,10 +15,6 @@ object DevMain extends App
 {
 	val s =
 """
-import math.*
-
-println( [i | i <- 1..5 if even(i)] )
-
 // for m <- 0..3
 // 	for n <- 0..4
 //		println( m, n, ack(m, n) )
