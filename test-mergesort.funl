@@ -1,21 +1,10 @@
+import lists.splitAt
+
 def
-	length( [] )                  =  0
-	length( _:t )                 =  1 + length( t )
-
-	splitAt( n, xs )              =  (take( n, xs ), drop( n, xs ))
-
-	take( _, [] )                 =  []
-	take( n, _ ) | n <= 0         =  []
-	take( n, x:xs )               =  x : take( n - 1, xs )
-
-	drop( n, xs ) | n <= 0        =  xs
-	drop( _, [] )                 =  []
-	drop( n, _:xs )               =  drop( n - 1, xs )
-
 	sort( [] )                    =  []
 	sort( [x] )                   =  [x]
 	sort( xs ) =
-		s = splitAt( length(xs)\2, xs )
+		s = splitAt( xs.length()\2, xs )
 		merge( sort(s(0)), sort(s(1)) )
 
 	merge( [], xs )               =  xs
