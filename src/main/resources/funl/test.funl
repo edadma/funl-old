@@ -1,5 +1,15 @@
-def f( x ) = 3x
+println( 'hello' )
 
-def g( x ) = x + 4
+//class javax.swing.JFrame
+// 	f = JFrame()
+// 	f.setSize( 200, 100 )
+// 	f.setTitle( 'asdf' )
+// 	f.setVisible( true )
+// 	f.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE )
 
-println( compose(g, f)(5) )
+// 	cg
+// 	start = time()
+//
+// 	for i <- 1..10000000 do 0
+//
+// 	println time() - start

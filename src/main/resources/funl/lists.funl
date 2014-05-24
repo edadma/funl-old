@@ -6,16 +6,8 @@
 \*                                                               */
 
 def
-  length( [] )							= 0
-  length( _:t )						= 1 + length( t )
-	
-/*
-  foldl( f, z, [] )				= z
-  foldl( f, z, x:xs )			= foldl( f, f(z, x), xs )
-
-  foldl1( f, x:xs )				= foldl( f, x, xs )
-  foldl1( _, [] )					= error( "foldl1: empty list" )
-*/
+//   length( [] )							= 0
+//   length( _:t )						= 1 + length( t )
 
   foldr( f, z, [] )				= z
   foldr( f, z, x:xs )			= f( x, foldr(f, z, xs) )
@@ -23,14 +15,6 @@ def
   foldr1( f, [x] )					= x
   foldr1( f, x:xs )				= f( x, foldr1(f, xs) )
   foldr1( _, [] )					= error( "foldr1: empty list" )
-	
-/*
-  sum( l )									= foldl( (a, b) -> a + b, 0, l )
-  product( l )							= foldl( (a, b) -> a * b, 1, l )
-
-  map( f, [] )							= []
-  map( f, x:xs )						= f( x ) : map( f, xs )
-*/
 
   splitAt( n, xs )					= (take( n, xs ), drop( n, xs ))
 
@@ -53,13 +37,15 @@ def
   last( [x] )							= x
   last( _:xs )							= last( xs )
   last( [] )								= error( "last: empty list" )
-	
-/*
-  filter( p, [] )					= []
-  filter( p, x:xs	)
-    | p( x )								= x : filter( p, xs )
-    | otherwise						= filter( p, xs )
-*/
+
+  span( p, [] )             =  ([], [])
+  span( p, xs@(x:xs_) )
+            | p( x )        =
+              val (ys, zs)  =  span( p, xs_ )
+              (x:ys, zs)
+            | otherwise     =  ([], xs)
+
+  break_( p, xs )           =  span( x -> not p(x), xs )
 
   zip( xs, ys )             =  zipWith( (a, b) -> (a, b), xs, ys )
 

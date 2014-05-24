@@ -78,7 +78,9 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val snippet: PackratParser[BlockExprAST] =
 		statements ^^ (BlockExprAST( _ ))
 		
-	lazy val source: PackratParser[ModuleAST] = rep(statement) ^^ {case l => ModuleAST(module, l)}
+	lazy val source: PackratParser[ModuleAST] =
+		Newline ^^^ (ModuleAST( module, Nil )) |
+		rep(statement) ^^ {case l => ModuleAST( module, l )}
 
 	lazy val declaration: PackratParser[DeclStatementAST] = imports | natives | constants | variables | data | definitions
 
