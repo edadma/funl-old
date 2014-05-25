@@ -7,12 +7,12 @@
 
 package funl.interp
 
-import collection.mutable.ArrayStack
+//import collection.mutable.ArrayStack
 
 
 class Activation( val closure: Closure, val module: Module ) extends Types
 {
-	val scope = new ArrayStack[SymbolMap]
+	val scope = new StackArray[SymbolMap]
 
 	override def toString = "Activation( " + closure + ", " + scope + " )"
 }

@@ -55,11 +55,13 @@ class Evaluator extends Types
 
 	class ContinueThrowable extends Throwable
 
+	case class Environment( stack: Int, activations: Int, scope: Int )
+		
 	val symbols = new SymbolMap
 	val sysvars = new SymbolMap
 	val datatypes = new HashSet[String]
 	val stack = new StackArray[Any]
-	val activations = new ArrayStack[Activation]
+	val activations = new StackArray[Activation]
 	
 	var last: Option[Any] = None
 
@@ -205,6 +207,15 @@ class Evaluator extends Types
 	}
 	
 	def exitEnvironment = activations.pop
+
+	def getEnvironment = Environment( stack.size, activations.size, activations.top.scope.size )
+
+	def restoreEnvironment( env: Environment )
+	{
+		stack reduceToSize env.stack
+		activations reduceToSize env.activations
+		activations.top.scope reduceToSize env.scope
+	}
 	
 	def enterScope = activations.top.scope push new SymbolMap
 
@@ -792,7 +803,7 @@ class Evaluator extends Types
 
 				enterScope
 
-				val stacksize = stack.size
+				val env = getEnvironment
 
 				try
 				{
@@ -812,7 +823,7 @@ class Evaluator extends Types
 							catch
 							{
 								case _: ContinueThrowable =>
-									stack reduceToSize stacksize
+									restoreEnvironment( env )
 							}
 						}
 					}
@@ -823,7 +834,7 @@ class Evaluator extends Types
 				catch
 				{
 					case _: BreakThrowable =>
-						stack reduceToSize stacksize
+						restoreEnvironment( env )
 				}
 
 				exitScope

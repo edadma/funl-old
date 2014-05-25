@@ -1,9 +1,7 @@
-a =
-	for i <- 1..3
-		if true then continue
-		println( i )
-	else
-		println( 'else' )
+for i <- 1..3
+	var a = 456
+	println( a )
+	break
 
 println( a )
 
