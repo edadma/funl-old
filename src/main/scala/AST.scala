@@ -31,7 +31,7 @@ case class ExpressionStatementAST( e: ExprAST ) extends StatementAST
 case class GeneratorAST( pattern: PatternAST, traversable: ExprAST, filter: Option[ExprAST] ) extends AST
 
 trait ExprAST extends AST
-case class ListComprehensionExprAST( e: ExprAST, gen: GeneratorAST ) extends ExprAST
+case class ListComprehensionExprAST( e: ExprAST, gen: List[GeneratorAST] ) extends ExprAST
 case class TypeExprAST( e: ExprAST, t: String ) extends ExprAST
 case class SysvarExprAST( name: String ) extends ExprAST
 case class TestExprAST( name: String ) extends ExprAST
@@ -54,7 +54,7 @@ case object UnitExprAST extends ExprAST
 case object NullExprAST extends ExprAST
 case class BlockExprAST( l: List[StatementAST] ) extends ExprAST
 case class ConditionalExprAST( cond: List[(ExprAST, ExprAST)], no: Option[ExprAST] ) extends ExprAST
-case class ForExprAST( gen: GeneratorAST, body: ExprAST, e: Option[ExprAST] ) extends ExprAST
+case class ForExprAST( gen: List[GeneratorAST], body: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class WhileExprAST( cond: ExprAST, body: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class DoWhileExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class RepeatExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST

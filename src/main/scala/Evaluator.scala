@@ -309,9 +309,9 @@ class Evaluator extends Types
 			ref
 		}
 
-		def forLoop( generator: GeneratorAST, body: =>Unit, elseClause: Option[ExprAST] )
+		def forLoop( gen: List[GeneratorAST], body: =>Unit, elseClause: Option[ExprAST] )
 		{
-		val o = teval( generator.traversable )
+		val o = teval( gen.head.traversable )
 
 			enterScope
 
@@ -321,12 +321,12 @@ class Evaluator extends Types
 			{
 				o.foreach
 				{ elem =>
-					clear( localScope, generator.pattern )
+					clear( localScope, gen.head.pattern )
 
-					if (!unify( localScope, deref(elem), generator.pattern ))
+					if (!unify( localScope, deref(elem), gen.head.pattern ))
 						RuntimeException( "unification error in for loop" )
 
-					if (generator.filter == None || beval(generator.filter.get))
+					if (gen.head.filter == None || beval(gen.head.filter.get))
 					{
 						try
 						{
