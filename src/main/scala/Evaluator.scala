@@ -309,6 +309,49 @@ class Evaluator extends Types
 			ref
 		}
 
+		def forLoop( pattern: PatternAST, traversableOnce: ExprAST, filter: Option[ExprAST], body: =>Unit, elseClause: Option[ExprAST] )
+		{
+		val o = teval( traversableOnce )
+
+			enterScope
+
+		val env = getEnvironment
+
+			try
+			{
+				o.foreach
+				{ elem =>
+					clear( localScope, pattern )
+
+					if (!unify( localScope, deref(elem), pattern ))
+						RuntimeException( "unification error in for loop" )
+
+					if (filter == None || beval(filter.get))
+					{
+						try
+						{
+							body
+						}
+						catch
+						{
+							case _: ContinueThrowable =>
+								restoreEnvironment( env )
+						}
+					}
+				}
+
+				if (elseClause != None)
+					exec( elseClause.get )
+			}
+			catch
+			{
+				case _: BreakThrowable =>
+					restoreEnvironment( env )
+			}
+
+			exitScope
+		}
+		
 		t match
 		{
 			case ModuleAST( m, s ) =>
@@ -728,24 +771,28 @@ class Evaluator extends Types
 			case TupleExprAST( l, r ) =>
 				push( (eval(l), eval(r)) )
 			case ListComprehensionExprAST( e, p, t, f ) =>
-				val o = teval( t )
 				val buf = new ListBuffer[Any]
+
+				forLoop( p, t, f, buf += eval(e), None )
+// 				val o = teval( t )
+// 				
+// 				enterScope
+// 
+// 				o.foreach
+// 				{ elem =>
+// 					clear( localScope, p )
+// 
+// 					if (!unify( localScope, deref(elem), p ))
+// 						RuntimeException( "unification error in list comprehension" )
+// 
+// 					if (f == None || beval(f.get))
+// 						buf += eval( e )
+// 				}
+// 
+// 				exitScope
+
 				
-				enterScope
-
-				o.foreach
-				{ elem =>
-					clear( localScope, p )
-
-					if (!unify( localScope, deref(elem), p ))
-						RuntimeException( "unification error in list comprehension" )
-
-					if (f == None || beval(f.get))
-						buf += eval( e )
-				}
-
 				push( buf.toList )
-				exitScope
 			case ListExprAST( l ) =>
 				apply( l )
 				push( list(l.length) )
@@ -799,45 +846,7 @@ class Evaluator extends Types
 							apply( no.get )
 				}
 			case ForExprAST( p, r, filter, body, e ) =>
-				val o = teval( r )
-
-				enterScope
-
-				val env = getEnvironment
-
-				try
-				{
-					o.foreach
-					{ elem =>
-						clear( localScope, p )
-
-						if (!unify( localScope, deref(elem), p ))
-							RuntimeException( "unification error in for loop" )
-
-						if (filter == None || beval(filter.get))
-						{
-							try
-							{
-								exec( body )
-							}
-							catch
-							{
-								case _: ContinueThrowable =>
-									restoreEnvironment( env )
-							}
-						}
-					}
-
-					if (e != None)
-						exec( e.get )
-				}
-				catch
-				{
-					case _: BreakThrowable =>
-						restoreEnvironment( env )
-				}
-
-				exitScope
+				forLoop( p, r, filter, exec(body), e )
 				void
 			case WhileExprAST( cond, body, e ) =>
 				void
