@@ -1,4 +1,49 @@
-println( 'hello' )
+import sys.currentTime
+import math.abs
+
+val digits = array( [
+	"   __",
+	" /  /",
+	"/__/ ",
+	"     ",
+	"    /",
+	"   / ",
+	"   __",
+	"  __/",
+	"/__  ",
+	"   __",
+	"  __/",
+	" __/ ",
+	"     ",
+	" /__/",
+	"   / ",
+	"   __",
+	" /__ ",
+	" __/ ",
+	"   __",
+	" /__ ",
+	"/__/ ",
+	"   __",
+	"    /",
+	"   / ",
+	"   __",
+	" /__/",
+	"/__/ ",
+	"   __",
+	" /__/",
+	" __/ "
+	] )
+val colon = array( [
+	"  ",
+	" .",
+	". "
+	] )
+
+def displayTime() = displayTime( currentTime() )
+def displayTime( t::Integer ) =
+	abs( t )%86400000
+
+println( displayTime() )
 
 //class javax.swing.JFrame
 // 	f = JFrame()

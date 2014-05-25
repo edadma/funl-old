@@ -1043,7 +1043,7 @@ class Evaluator extends Types
 		t match
 		{
 			case "String" => a.isInstanceOf[String]
-			case "Integer" => a.isInstanceOf[Int]
+			case "Integer" => a.isInstanceOf[Int] || a.isInstanceOf[BigInt]
 			case "Float" => a.isInstanceOf[Double]
 			case "Seq" => a.isInstanceOf[Seq[_]]
 			case "List" => a.isInstanceOf[List[_]]
@@ -1144,6 +1144,8 @@ class Evaluator extends Types
 			true
 		else if (args == Nil && parms != Nil)
 			pattern( (), Nil, parms.head, parms.tail )
+		else if (args != Nil && parms == Nil)
+			false
 		else
 			pattern( args.head, args.tail, parms.head, parms.tail )
 	}
