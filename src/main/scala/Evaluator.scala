@@ -145,6 +145,12 @@ class Evaluator extends Types
 		pop
 	}
 
+	def exec( t: AST )
+	{
+		apply( t )
+		stack.pop
+	}
+	
 	def neval( t: AST ) = eval( t ).asInstanceOf[Number]
 	
 	def ieval( t: AST ) = eval( t ).asInstanceOf[Int]
@@ -785,7 +791,6 @@ class Evaluator extends Types
 				val o = teval( r )
 
 				enterScope
-				void
 
 				val stacksize = stack.size
 
@@ -800,58 +805,29 @@ class Evaluator extends Types
 
 						if (filter == None || beval(filter.get))
 						{
-							pop
-
 							try
 							{
-								apply( body )
+								exec( body )
 							}
 							catch
 							{
 								case _: ContinueThrowable =>
-									stack reduceToSize stacksize - 1		// because of the pop inside the while loop
-									void
+									stack reduceToSize stacksize
 							}
 						}
 					}
 
-// 						while (it hasNext)
-// 						{
-// 							clear( activations.top.scope.top, p )
-//
-// 							if (!unify( activations.top.scope.top, deref(it.next), p ))
-// 								RuntimeException( "unification error in for loop" )
-//
-// 	//						activations.top.scope.top(v) = deref( it.next )
-// 	//						h.v = deref( it.next )
-// 							pop
-//
-// 							try
-// 							{
-// 								apply( body )
-// 							}
-// 							catch
-// 							{
-// 								case _: ContinueThrowable =>
-// 									stack reduceToSize stacksize - 1		// because of the pop inside the while loop
-// 									void
-// 							}
-// 						}
-
 					if (e != None)
-					{
-						pop
-						apply( e.get )
-					}
+						exec( e.get )
 				}
 				catch
 				{
 					case _: BreakThrowable =>
-						stack reduceToSize stacksize - 1		// because of the pop inside the while loop
-						void
+						stack reduceToSize stacksize
 				}
 
 				exitScope
+				void
 			case WhileExprAST( cond, body, e ) =>
 				void
 
