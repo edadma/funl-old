@@ -311,34 +311,40 @@ class Evaluator extends Types
 
 		def forLoop( gen: List[GeneratorAST], body: =>Unit, elseClause: Option[ExprAST] )
 		{
-		val o = teval( gen.head.traversable )
-
 			enterScope
 
 		val env = getEnvironment
 
 			try
 			{
-				o.foreach
-				{ elem =>
-					clear( localScope, gen.head.pattern )
+				def loop( g: List[GeneratorAST] )
+				{
+					teval( g.head.traversable ).foreach
+					{ elem =>
+						clear( localScope, g.head.pattern )
 
-					if (!unify( localScope, deref(elem), gen.head.pattern ))
-						RuntimeException( "unification error in for loop" )
+						if (!unify( localScope, deref(elem), g.head.pattern ))
+							RuntimeException( "unification error in for loop" )
 
-					if (gen.head.filter == None || beval(gen.head.filter.get))
-					{
-						try
+						if (g.head.filter == None || beval(g.head.filter.get))
 						{
-							body
-						}
-						catch
-						{
-							case _: ContinueThrowable =>
-								restoreEnvironment( env )
+							try
+							{
+								if (g.tail != Nil)
+									loop( g.tail )
+								else
+									body
+							}
+							catch
+							{
+								case _: ContinueThrowable =>
+									restoreEnvironment( env )
+							}
 						}
 					}
 				}
+				
+				loop( gen )
 
 				if (elseClause != None)
 					exec( elseClause.get )

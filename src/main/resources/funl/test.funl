@@ -1,13 +1,7 @@
-a = 123
+it = [1, 2, 3].iterator()
 
-println( a )
-
-for i <- 1..3
-	var a = 456
-	println( a )
-	break
-
-println( a )
+for i <- 'abc', j <- [1, 2, 3]
+	println( i, j )
 
 
 
