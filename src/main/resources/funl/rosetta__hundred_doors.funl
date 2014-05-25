@@ -10,4 +10,4 @@ for i <- 1..100
 // optimized version
 
 for i <- 1..100
-	println( i + ' ' + (if sqrt(i)::Integer then 'open' else 'closed') )
+	println( i + ' ' + (if sqrt(i) is Integer then 'open' else 'closed') )

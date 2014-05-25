@@ -59,7 +59,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 					case Some( exponent ) => exponent
 				}
 				
-			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "import", "break", "continue", "repeat", "until", "of",
+			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "import", "break", "continue", "repeat", "until", "of", "is",
 				"class", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "mod", "otherwise", "in", "case", "function", "native")
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "{", "}", ",", "=", "==", "/=", "<", "$", "?",
 				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "^=", ":", "\\", "::", "@")
@@ -249,7 +249,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val expr22: PackratParser[ExprAST] =
 		expr26 ~ ("==" | "/=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin") ~ expr26 ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
-		expr26 ~ "::" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
+		expr26 ~ "is" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
 		expr26
 
 	lazy val expr26: PackratParser[ExprAST] =
