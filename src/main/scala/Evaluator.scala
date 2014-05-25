@@ -105,10 +105,16 @@ class Evaluator extends Types
 
 	def symbolExists( m: String, key: String ) = module( m ).symbols contains key
 
+	def declarationMap =
+		if (topLevel)
+			activations.top.module.symbols
+		else
+			localScope
+
 	def declare( key: String, value: Any ) =
 	{
 	val syms = declarationMap
-	
+
 		if (syms contains key)
 			RuntimeException( "already declared: " + key )
 		else
@@ -224,12 +230,6 @@ class Evaluator extends Types
 	def exitScope = activations.top.scope pop
 
 	def topLevel = activations.top.scope.length ==1 && activations.top.closure == null
-
-	def declarationMap =
-		if (topLevel)
-			activations.top.module.symbols
-		else
-			localScope
 	
 	def assignOperation( r: Reference, op: Symbol, n: Number ) =
 	{
@@ -278,7 +278,7 @@ class Evaluator extends Types
 		{
 			def vars( a: Activation ): Option[Any] =
 			{
-				a.scope find (_ contains name) match
+				a.scope.reverseIterator find (_ contains name) match
 				{
 					case None =>
 						if (a.closure != null && a.closure.referencing != null)
