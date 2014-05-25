@@ -78,6 +78,7 @@ class Evaluator extends Types
 		tz.getRawOffset + tz.getDSTSavings
 		}
 	sysvar( "date" ) {new java.util.Date}
+	sysvar( "os" ) {System.getProperty( "os.name" )}
 	
 	def module( m: String ) =
 		symbols.get(m) match

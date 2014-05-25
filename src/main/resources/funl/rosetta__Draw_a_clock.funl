@@ -48,14 +48,16 @@ def displayTime() =
 	time = pad( s\3600 ) + ':' + pad( s%3600\60 ) + ':' + pad( s%60 )
 
 	for row <- 0:3
-		print( '\u001B[' + (ROW + row) + ';' + COL + 'H' )
+		print( if $os.startsWith('Windows') then '\n' else '\u001B[' + (ROW + row) + ';' + COL + 'H' )
 
 		for ch <- time
 			print( if ch == ':' then colon(row) else digits(int(ch)*3 + row) )
 
+	println()
 	t
 
-print( '\u001B[2J\u001B[?25l' )
+if not $os.startsWith('Windows')
+	print( '\u001B[2J\u001B[?25l' )
 
 while true
 	sleep( 1000 - displayTime()%1000 )
