@@ -69,6 +69,12 @@ class Evaluator extends Types
 	}
 
 	sysvar( "time" ) {compat.Platform.currentTime}
+	sysvar( "timeZone" ) {java.util.TimeZone.getDefault}
+	sysvar( "timeZoneOffset" ) {
+		val tz = java.util.TimeZone.getDefault
+
+		tz.getRawOffset + tz.getDSTSavings
+		}
 	sysvar( "date" ) {new java.util.Date}
 	
 	def module( m: String ) =
@@ -163,8 +169,10 @@ class Evaluator extends Types
 		}
 	
 	def pop = deref( stack.pop )
-		
-	def push( v: Any ) = stack.push( if (v.isInstanceOf[Long]) BigInt(v.asInstanceOf[Long]) else v )
+
+	def long2bigint( v: Any ) = if (v.isInstanceOf[Long]) BigInt(v.asInstanceOf[Long]) else v
+	
+	def push( v: Any ) = stack.push( long2bigint(v) )
 	
 	def rpop = stack.pop.asInstanceOf[Reference]
 	
@@ -1152,7 +1160,7 @@ class Evaluator extends Types
 
 	def deref( v: Any ) =
 		if (v.isInstanceOf[Reference])
-			v.asInstanceOf[Reference].value
+			long2bigint( v.asInstanceOf[Reference].value )
 		else
 			v
 }

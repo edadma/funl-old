@@ -6,10 +6,3 @@
 \*                                                               */
 
 //function funl.modules.ModuleSys.{
-
-native scala.compat.Platform.currentTime
-
-val timeZone =
-	native java.util.TimeZone
-
-	TimeZone.getDefault()
