@@ -1,29 +1,11 @@
 /*
- * 100 doors
- */
-def hundred_doors_unoptimized =
-  for i <- 1..100
-    r = foldl1( (a, b) -> a xor b, map(a -> i % a == 0, 1..100) )
-    println( i + ' ' + (if r then 'open' else 'closed') )
-
-def hundred_doors_optimized =
-  import math.sqrt
-
-  for i <- 1..100
-    println( i + ' ' + (if sqrt(i)::Integer then 'open' else 'closed') )
-
-/*
- * A+B
- */
-def a_plus_b = println( sum(map(int, readLine().split(' +'))) )
-
-/*
  * Ackermann function
  */
 def
   ackermann( 0, n ) = n + 1
   ackermann( m, 0 ) = ackermann( m - 1, 1 )
   ackermann( m, n ) = ackermann( m - 1, ackermann(m, n - 1) )
+
 
 /*
  * Greatest element of a list
@@ -42,15 +24,3 @@ def
       foldl1( _, [] )         = error( "foldl1: empty list" )
 
     foldl1( max, xs )
-
-/*
- * Bernoulli numbers
- *
- * predefined as 'B( n )' in the 'math' module, but can be explicitly implemented (only for lists) as:
- */
-import math.*
-
-def bernoulli( n::Integer ) | n >= 0 = sigma( 0..n, k -> 1/(k + 1)*sigma(0..k, r -> (if even(r) then 1 else -1)*choose(k, r)*(r^n)) )
-
-for i <- 0..60 if i == 1 or even( i )
-	println( i, bernoulli(i) )

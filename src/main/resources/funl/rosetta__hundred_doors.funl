@@ -1,0 +1,13 @@
+import math.sqrt
+
+// unoptimized version
+
+for i <- 1..100
+	r = foldl1( (a, b) -> a xor b, [i % a == 0 | a <- 1..100] )
+	println( i + ' ' + (if r then 'open' else 'closed') )
+
+
+// optimized version
+
+for i <- 1..100
+	println( i + ' ' + (if sqrt(i)::Integer then 'open' else 'closed') )
