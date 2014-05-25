@@ -309,9 +309,9 @@ class Evaluator extends Types
 			ref
 		}
 
-		def forLoop( pattern: PatternAST, traversableOnce: ExprAST, filter: Option[ExprAST], body: =>Unit, elseClause: Option[ExprAST] )
+		def forLoop( generator: GeneratorAST, body: =>Unit, elseClause: Option[ExprAST] )
 		{
-		val o = teval( traversableOnce )
+		val o = teval( generator.traversable )
 
 			enterScope
 
@@ -321,12 +321,12 @@ class Evaluator extends Types
 			{
 				o.foreach
 				{ elem =>
-					clear( localScope, pattern )
+					clear( localScope, generator.pattern )
 
-					if (!unify( localScope, deref(elem), pattern ))
+					if (!unify( localScope, deref(elem), generator.pattern ))
 						RuntimeException( "unification error in for loop" )
 
-					if (filter == None || beval(filter.get))
+					if (generator.filter == None || beval(generator.filter.get))
 					{
 						try
 						{
@@ -770,10 +770,10 @@ class Evaluator extends Types
 				push( list(l.length).toVector )
 			case TupleExprAST( l, r ) =>
 				push( (eval(l), eval(r)) )
-			case ListComprehensionExprAST( e, p, t, f ) =>
+			case ListComprehensionExprAST( e, g ) =>
 				val buf = new ListBuffer[Any]
 
-				forLoop( p, t, f, buf += eval(e), None )
+				forLoop( g, buf += eval(e), None )
 // 				val o = teval( t )
 // 				
 // 				enterScope
@@ -845,8 +845,8 @@ class Evaluator extends Types
 						else
 							apply( no.get )
 				}
-			case ForExprAST( p, r, filter, body, e ) =>
-				forLoop( p, r, filter, exec(body), e )
+			case ForExprAST( gen, body, e ) =>
+				forLoop( gen, exec(body), e )
 				void
 			case WhileExprAST( cond, body, e ) =>
 				void

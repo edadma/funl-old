@@ -210,11 +210,14 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val elif =
 		(onl ~ "elsif") ~> booleanExpr ~ ("then" ~> expr | block) ^^ {case c ~ t => (c, t)}
 
+	lazy val generator =
+		(pattern <~ "<-") ~ expr ~ opt("if" ~> expr) ^^ {case p ~ t ~ f => GeneratorAST( p, t, f )}
+	
 	lazy val expr7 =
 		("if" ~> booleanExpr) ~ ("then" ~> expr | block) ~ rep(elif) ~ opt(onl ~> "else" ~> expr) ^^
 			{case c ~ t ~ ei ~ e => ConditionalExprAST( (c, t) +: ei, e )} |
-		("for" ~> pattern <~ "<-") ~ expr ~ opt("if" ~> expr) ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) ^^
-			{case v ~ r ~ f ~ b ~ e => ForExprAST( v, r, f, b, e )} |
+		"for" ~> generator ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) ^^
+			{case g ~ b ~ e => ForExprAST( g, b, e )} |
 		("while" ~> expr) ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) ^^
 			{case c ~ b ~ e => WhileExprAST( c, b, e )} |
 		("do" ~> expr) ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> expr) ^^
@@ -328,8 +331,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			UnitExprAST |
 		("(" ~> nonassignmentExpr <~ ",") ~ (rep1sep(nonassignmentExpr, ",") <~ ")") ^^
 			{case e ~ l => VectorExprAST( e +: l )} |
-		("[" ~> nonassignmentExpr) ~ ("|" ~> pattern <~ "<-") ~ expr ~ (opt("if" ~> expr) <~ "]") ^^
-			{case e ~ p ~ t ~ f => ListComprehensionExprAST( e, p, t, f )} |
+		("[" ~> nonassignmentExpr) ~ ("|" ~> generator <~ "]") ^^
+			{case e ~ g => ListComprehensionExprAST( e, g )} |
 		"[" ~> repsep(nonassignmentExpr, ",") <~ "]" ^^
 			{case l => ListExprAST( l )} |
 		"null" ^^
