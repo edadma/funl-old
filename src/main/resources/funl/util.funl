@@ -5,4 +5,4 @@
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
 
-function funl.modules.Util.{rnd}
+function funl.modules.ModuleUtil.{rnd, sleep}

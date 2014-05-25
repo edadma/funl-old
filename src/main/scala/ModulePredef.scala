@@ -75,18 +75,10 @@ object ModulePredef
 			case Vector( a: Array[_] ) => a.toVector
 		}
 
-
 	def int( a: Vector[Any] ) =
 		a match
 		{
 			case Vector( n: Number ) => n.intValue
 			case Vector( s: String ) => s.toInt
 		}
-		
-// 	def max( a: Vector[Any] ) =
-// 		a match
-// 		{
-// 			case Vector( a, b ) => if (a <= b) b else a
-// 			case Vector( c: Iterable[_] ) => c.toVector
-// 		}
 }

@@ -1,5 +1,5 @@
-import sys.currentTime
-import math.abs
+import sys.{currentTime, timeZone}
+import util.sleep
 
 val digits = array( [
 	"   __",
@@ -38,12 +38,28 @@ val colon = array( [
 	" .",
 	". "
 	] )
+val ROW = 10
+val COL = 20
 
-def displayTime() = displayTime( currentTime() )
-def displayTime( t::Integer ) =
-	abs( t )%86400000
+def displayTime() =
+	def pad( n ) = if n < 10 then '0' + n else n
 
-println( displayTime() )
+	t = currentTime()
+	s = (t + timeZone.getRawOffset() + timeZone.getDSTSavings())\1000%86400
+	time = pad( s\3600 ) + ':' + pad( s%3600\60 ) + ':' + pad( s%60 )
+
+	for row <- 0:3
+		print( '\u001B[' + (ROW + row) + ';' + COL + 'H' )
+		
+		for ch <- time
+			print( if ch == ':' then colon(row) else digits(int(ch)*3 + row) )
+
+	t
+
+print( '\u001B[2J\u001B[?25l' )
+
+while true
+	sleep( 1000 - displayTime()%1000 )
 
 //class javax.swing.JFrame
 // 	f = JFrame()

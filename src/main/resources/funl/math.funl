@@ -9,8 +9,6 @@ function funl.modules.ModuleMath.{
 	sqrt
 	}
 
-def abs( x ) = if x < 0 then -x else x
-
 def
 	choose( n, k ) | k < 0 or k > n = 0
 	choose( n, 0 ) = 1

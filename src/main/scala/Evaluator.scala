@@ -283,7 +283,7 @@ class Evaluator extends Types
 			
 			ref
 		}
-		
+
 		t match
 		{
 			case ModuleAST( m, s ) =>
@@ -435,7 +435,7 @@ class Evaluator extends Types
 											res
 										}
 
-									buf append Integer.valueOf( new String(Array(nextc, nextc, nextc, nextc)) ).toChar
+									buf append Integer.valueOf( new String(Array(nextc, nextc, nextc, nextc)), 16 ).toChar
 									chr( u )
 								}
 								else

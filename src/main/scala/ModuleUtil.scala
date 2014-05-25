@@ -22,4 +22,10 @@ object ModuleUtil
 			case Vector( l: Int, u: Int ) if l <= u => nextInt( u - l ) + l
 			case Vector( r: collection.immutable.Range ) => nextInt( r.last + 1 - r.start ) + r.start
 		}
+
+	def sleep( a: Vector[Any] ) =
+		a match
+		{
+			case Vector( n: Int ) => Thread.sleep( n )
+		}
 }
