@@ -59,8 +59,12 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 					case Some( exponent ) => exponent
 				}
 				
-			reserved += ("do", "if", "then", "for", "else", "elsif", "by", "while", "var", "import", "break", "continue", "repeat", "until", "of", "is",
-				"class", "data", "def", "true", "false", "val", "null", "not", "and", "or", "xor", "mod", "otherwise", "in", "case", "function", "native")
+			reserved += (
+				"and", "break", "by", "case", "class", "continue", "data", "def", "do", "elif",
+				"else", "false", "for", "function", "if", "import", "in", "is", "mod", "native",
+				"not", "null", "of", "or", "otherwise", "repeat", "return", "then", "true", "until",
+				"val", "var", "while", "xor", "yield"
+				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", "=", "==", "/=", "<", "$", "?",
 				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "^=", ":", "\\", "::", "@")
 		}
@@ -208,7 +212,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		expr7
 
 	lazy val elif =
-		(onl ~ "elsif") ~> booleanExpr ~ ("then" ~> expr | block) ^^ {case c ~ t => (c, t)}
+		(onl ~ "elif") ~> booleanExpr ~ ("then" ~> expr | block) ^^ {case c ~ t => (c, t)}
 
 	lazy val generator =
 		(pattern <~ "<-") ~ expr ~ opt("if" ~> expr) ^^ {case p ~ t ~ f => GeneratorAST( p, t, f )}
