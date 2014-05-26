@@ -848,45 +848,74 @@ class Evaluator extends Types
 			case ForExprAST( gen, body, e ) =>
 				forLoop( gen, exec(body), e )
 				void
+			case ForeverExprAST( body ) =>
+				void
+
+			val env = getEnvironment
+
+				try
+				{
+					while (true)
+					{
+						pop
+
+						try
+						{
+							apply( body )
+						}
+						catch
+						{
+							case _: ContinueThrowable =>
+								restoreEnvironment( env )
+								void
+						}
+					}
+				}
+				catch
+				{
+					case _: BreakThrowable =>
+						restoreEnvironment( env )
+						void
+				}
 			case WhileExprAST( cond, body, e ) =>
 				void
 
-				val stacksize = stack.size
+			val env = getEnvironment
 
-					try
+				try
+				{
+					while (beval( cond ))
 					{
-						while (beval( cond ))
-						{
-							pop
+						pop
 
-							try
-							{
-								apply( body )
-							}
-							catch
-							{
-								case _: ContinueThrowable =>
-									stack reduceToSize stacksize - 1		// because of the pop inside the while loop
-									void
-							}
+						try
+						{
+							apply( body )
 						}
-
-						if (e != None)
+						catch
 						{
-							pop
-							apply( e.get )
+							case _: ContinueThrowable =>
+								restoreEnvironment( env )
+								void
 						}
 					}
-					catch
+
+					if (e != None)
 					{
-						case _: BreakThrowable =>
-							stack reduceToSize stacksize - 1		// because of the pop inside the while loop
-							void
+						pop
+						apply( e.get )
 					}
+				}
+				catch
+				{
+					case _: BreakThrowable =>
+						restoreEnvironment( env )
+						void
+				}
 			case DoWhileExprAST( body, cond, e ) =>
 				void
 
-				val stacksize = stack.size
+			val env = getEnvironment
 
 				try
 				{
@@ -901,7 +930,7 @@ class Evaluator extends Types
 						catch
 						{
 							case _: ContinueThrowable =>
-								stack reduceToSize stacksize - 1		// because of the pop inside the while loop
+								restoreEnvironment( env )
 								void
 						}
 					}
@@ -916,45 +945,45 @@ class Evaluator extends Types
 				catch
 				{
 					case _: BreakThrowable =>
-						stack reduceToSize stacksize - 1		// because of the pop inside the while loop
+						restoreEnvironment( env )
 						void
 				}
 			case RepeatExprAST( body, cond, e ) =>
 				void
 
-				val stacksize = stack.size
+			val env = getEnvironment
 
-					try
+				try
+				{
+					do
 					{
-						do
-						{
-							pop
-							
-							try
-							{
-								apply( body )
-							}
-							catch
-							{
-								case _: ContinueThrowable =>
-									stack reduceToSize stacksize - 1		// because of the pop inside the while loop
-									void
-							}
-						}
-						while (!beval( cond ))
+						pop
 
-						if (e != None)
+						try
 						{
-							pop
-							apply( e.get )
+							apply( body )
+						}
+						catch
+						{
+							case _: ContinueThrowable =>
+								restoreEnvironment( env )
+								void
 						}
 					}
-					catch
+					while (!beval( cond ))
+
+					if (e != None)
 					{
-						case _: BreakThrowable =>
-							stack reduceToSize stacksize - 1		// because of the pop inside the while loop
-							void
+						pop
+						apply( e.get )
 					}
+				}
+				catch
+				{
+					case _: BreakThrowable =>
+						restoreEnvironment( env )
+						void
+				}
 			case RangeExprAST( f, t, b, inclusive ) =>
 				eval( f ) match
 				{
