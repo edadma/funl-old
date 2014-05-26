@@ -322,7 +322,10 @@ class Evaluator extends Types
 				{
 					teval( g.head.traversable ).foreach
 					{ elem =>
-						clear( localScope, g.head.pattern )
+						if (g eq gen)
+							localScope.clear
+						else
+							clear( localScope, g.head.pattern )
 
 						if (!unify( localScope, deref(elem), g.head.pattern ))
 							RuntimeException( "unification error in for loop" )
@@ -849,6 +852,8 @@ class Evaluator extends Types
 				forLoop( gen, exec(body), e )
 				void
 			case ForeverExprAST( body ) =>
+				enterScope
+				
 				val env = getEnvironment
 
 				void
@@ -857,6 +862,7 @@ class Evaluator extends Types
 				{
 					while (true)
 					{
+						localScope.clear
 						pop
 
 						try
@@ -877,14 +883,18 @@ class Evaluator extends Types
 						restoreEnvironment( env )
 						void
 				}
+
+				exitScope
 			case WhileExprAST( cond, body, e ) =>
+				enterScope
+				
 				val env = getEnvironment
 
 				void
 
 				try
 				{
-					while (beval( cond ))
+					while ({	localScope.clear; beval( cond )})
 					{
 						pop
 
@@ -912,7 +922,11 @@ class Evaluator extends Types
 						restoreEnvironment( env )
 						void
 				}
+
+				exitScope
 			case DoWhileExprAST( body, cond, e ) =>
+				enterScope
+
 				val env = getEnvironment
 
 				void
@@ -921,6 +935,7 @@ class Evaluator extends Types
 				{
 					do
 					{
+						localScope.clear
 						pop
 
 						try
@@ -948,7 +963,11 @@ class Evaluator extends Types
 						restoreEnvironment( env )
 						void
 				}
+
+				exitScope
 			case RepeatExprAST( body, cond, e ) =>
+				enterScope
+
 				val env = getEnvironment
 
 				void
@@ -957,6 +976,7 @@ class Evaluator extends Types
 				{
 					do
 					{
+						localScope.clear
 						pop
 
 						try
@@ -984,6 +1004,8 @@ class Evaluator extends Types
 						restoreEnvironment( env )
 						void
 				}
+
+				exitScope
 			case RangeExprAST( f, t, b, inclusive ) =>
 				eval( f ) match
 				{
