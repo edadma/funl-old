@@ -216,7 +216,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val expr7 =
 		("if" ~> booleanExpr) ~ ("then" ~> expr | block) ~ rep(elif) ~ opt(onl ~> "else" ~> expr) ^^
 			{case c ~ t ~ ei ~ e => ConditionalExprAST( (c, t) +: ei, e )} |
-		"forever" ~> ("do" ~> expr | block) ^^
+		"forever" ~> expr ^^
 			(ForeverExprAST( _ )) |
 		"for" ~> generators ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) ^^
 			{case g ~ b ~ e => ForExprAST( g, b, e )} |

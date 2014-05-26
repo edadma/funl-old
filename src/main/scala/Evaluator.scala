@@ -849,9 +849,9 @@ class Evaluator extends Types
 				forLoop( gen, exec(body), e )
 				void
 			case ForeverExprAST( body ) =>
-				void
+				val env = getEnvironment
 
-			val env = getEnvironment
+				void
 
 				try
 				{
@@ -878,9 +878,9 @@ class Evaluator extends Types
 						void
 				}
 			case WhileExprAST( cond, body, e ) =>
-				void
+				val env = getEnvironment
 
-			val env = getEnvironment
+				void
 
 				try
 				{
@@ -913,9 +913,9 @@ class Evaluator extends Types
 						void
 				}
 			case DoWhileExprAST( body, cond, e ) =>
-				void
+				val env = getEnvironment
 
-			val env = getEnvironment
+				void
 
 				try
 				{
@@ -949,9 +949,9 @@ class Evaluator extends Types
 						void
 				}
 			case RepeatExprAST( body, cond, e ) =>
-				void
+				val env = getEnvironment
 
-			val env = getEnvironment
+				void
 
 				try
 				{
