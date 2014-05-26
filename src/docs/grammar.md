@@ -112,8 +112,9 @@ Here is the actual grammar (without parser actions and other source code boilerp
 	
 	expr7 =
 		("if" ~> booleanExpr) ~ ("then" ~> expr | block) ~ rep(elif) ~ opt(onl ~> "else" ~> expr) |
+		"forever" ~> expr |
 		"for" ~> generators ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) |
-		"while" ~> expr ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) |
+		"do" ~> expr ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) |
 		"do" ~> expr ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> expr) |
 		"repeat" ~> expr ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> expr) |
 		"break" |
@@ -221,7 +222,7 @@ Here is the actual grammar (without parser actions and other source code boilerp
 
 The reserved words in the language are:
 				`and`, `break`, `by`, `case`, `class`, `continue`, `data`, `def`, `do`, `elif`,
-				`else`, `false`, `for`, `function`, `if`, `import`, `in`, `is`, `mod`, `native`,
+				`else`, `false`, `for`, `forever`, `function`, `if`, `import`, `in`, `is`, `mod`, `native`,
 				`not`, `null`, `of`, `or`, `otherwise`, `repeat`, `return`, `then`, `true`, `until`,
 				`val`, `var`, `while`, `xor`, `yield`.
 
