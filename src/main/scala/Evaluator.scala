@@ -544,14 +544,7 @@ class Evaluator extends Types
 				{
 					case 'in | 'notin =>
 						val r = teval( right )
-
 						val res = r exists (_ == l)
-// 						{
-// 							case seq: collection.Seq[Any] => seq contains l
-// 							case set: collection.Set[Any] => set contains l
-// 							case map: collection.Map[Any, Any] => map contains l
-// 							case _ => RuntimeException( "illegal use of 'in' predicate" )
-// 						}
 
 						push( (op == 'notin)^res )
 					case '+ =>
