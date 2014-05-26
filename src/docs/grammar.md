@@ -1,6 +1,6 @@
 # Grammar
 
-Here is the actual grammar (without parser actions and other source code boilerplate) used to parse FunL.  The grammar syntax is documented here: <http://www.scala-lang.org/api/2.10.4/index.html#scala.util.parsing.combinator.Parsers$Parser>
+Here is the actual grammar (without parser actions and other source code boilerplate) used to parse FunL.  The grammar syntax is documented here: <http://www.scala-lang.org/api/2.11.1/scala-parser-combinators/#scala.util.parsing.combinator.Parsers>
 
 
 ## Syntactic Grammar
@@ -28,8 +28,9 @@ Here is the actual grammar (without parser actions and other source code boilerp
 	qualifier = ident ~ opt("=>" ~> ident)
 
 	name =
-		dottedName ~ opt("=>" ~> ident) <~ Newline
-		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline)
+		dottedName ~ opt("=>" ~> ident) <~ Newline |
+		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) |
+		dottedName <~ "." <~ "*" <~ Newline
 
 	idents = rep1sep( ident, "," )
 	
@@ -86,8 +87,8 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		declaration
 
 	expr: PackratParser[ExprAST] =
-		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "^=") ~ rep1sep(expr5, ",") |
-		expr5
+		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "^=") ~ rep1sep(nonassignmentExpr, ",") |
+		nonassignmentExpr
 
  	mapping =
 		("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> expr10) ~ ("->" ~> expr)
@@ -96,19 +97,25 @@ Here is the actual grammar (without parser actions and other source code boilerp
 	
 	functionExpr = mapping | caseFunctionExpr
 
+	nonassignmentExpr = expr5
+	
 	expr5 =
 		functionExpr |
 		expr7
 
 	elif =
-		(onl ~ "elsif") ~> (booleanExpr <~ "then") ~ expr
+		(onl ~ "elif") ~> (booleanExpr <~ "then") ~ expr
 
+	generator = (pattern <~ "<-") ~ expr ~ opt("if" ~> expr)
+
+	generators = rep1sep(generator, ",")
+	
 	expr7 =
-		"if" ~> (booleanExpr <~ "then") ~ expr ~ rep(elif) ~ opt(onl ~> "else" ~> expr) |
-		("for" ~> pattern <~ "<-") ~ (expr <~ "do") ~ expr ~ opt(onl ~> "else" ~> expr) |
-		("while" ~> expr) ~ ("do" ~> expr) ~ opt(onl ~> "else" ~> expr) |
-		("do" ~> expr) ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> expr) |
-		("repeat" ~> expr) ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> expr) |
+		("if" ~> booleanExpr) ~ ("then" ~> expr | block) ~ rep(elif) ~ opt(onl ~> "else" ~> expr) |
+		"for" ~> generators ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) |
+		"while" ~> expr ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) |
+		"do" ~> expr ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> expr) |
+		"repeat" ~> expr ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> expr) |
 		"break" |
 		"continue" |
 		("case" ~> expr) ~ ("of" ~> functionExpr | caseFunctionExpr) |
@@ -127,7 +134,7 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		expr22
 
 	expr22 =
-		expr26 ~ ("==" | "/=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in") ~ expr26 |
+		expr26 ~ ("==" | "/=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" | "|" | "/|") ~ expr26 |
 		expr26
 
 	expr26 =
@@ -145,7 +152,7 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		expr31
 
 	expr31 =
-		expr31 ~ ("*" | "/" | "\\") ~ expr32 |
+		expr31 ~ ("*" | "/" | """\""" | "%") ~ expr32 |
 		expr31 ~ leftExpr |
 		expr32
 
@@ -206,14 +213,17 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		ident ~ opt("::" ~> ident) |
 		("(" ~> pattern <~ ",") ~ (rep1sep(pattern, ",") <~ ")") |
 		("[" ~> repsep(pattern, ",") <~ "]") |
-		("(" ~> pattern <~ "|") ~ (rep1sep(pattern, "|") <~ ")")
+		("(" ~> pattern <~ "|") ~ (rep1sep(pattern, "|") <~ ")") |
+		"(" ~> pattern <~ ")"
 
 
 ## Lexical Grammar
 
-The reserved words in the language are: `do`, `if`, `then`, `for`, `else`, `elsif`, `by`, `while`, `var`, `import`, `break`, `continue`, `repeat`,
-`until`, `of`, `native`,
-`class`, `data`, `def`, `true`, `false`, `val`, `null`, `not`, `and`, `or`, `xor`, `otherwise`, `in`, `case`, `function`.
+The reserved words in the language are:
+				`and`, `break`, `by`, `case`, `class`, `continue`, `data`, `def`, `do`, `elif`,
+				`else`, `false`, `for`, `function`, `if`, `import`, `in`, `is`, `mod`, `native`,
+				`not`, `null`, `of`, `or`, `otherwise`, `repeat`, `return`, `then`, `true`, `until`,
+				`val`, `var`, `while`, `xor`, `yield`.
 
 The special delimiters are: `+`, `*`, `-`, `/`, `^`, `(`, `)`, `[`, `]`, `|`, `{`, `}`, `,`, `=`, `==`, `/=`, `<`, `$`,
 `>`, `<-`, `<=`, `>=`, `--`, `++`, `.`, `..`, `<-`, `->`, `=>`, `+=`, `-=`, `*=`, `^=`, `:`, `\\`, `::`, `@`, `?`.

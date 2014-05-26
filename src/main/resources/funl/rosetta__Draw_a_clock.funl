@@ -56,7 +56,7 @@ def displayTime() =
 	println()
 	t
 
-if not $os.startsWith('Windows')
+if not $os.startsWith( 'Windows' )
 	print( '\u001B[2J\u001B[?25l' )
 
 while true
