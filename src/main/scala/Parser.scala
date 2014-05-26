@@ -61,8 +61,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				
 			reserved += (
 				"and", "break", "by", "case", "class", "continue", "data", "def", "do", "elif",
-				"else", "false", "for", "forever", "function", "if", "import", "in", "is", "mod", "native",
-				"not", "null", "of", "or", "otherwise", "repeat", "return", "then", "true", "until",
+				"else", "false", "for", "forever", "function", "if", "import", "in", "is", "mod",
+				"native", "not", "null", "of", "or", "otherwise", "return", "then", "true", "until",
 				"val", "var", "while", "xor", "yield"
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", "=", "==", "/=", "<", "$", "?",
@@ -224,7 +224,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case c ~ b ~ e => WhileExprAST( c, b, e )} |
 		"do" ~> expr ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> expr) ^^
 			{case b ~ c ~ e => DoWhileExprAST( b, c, e )} |
-		"repeat" ~> expr ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> expr) ^^
+		"do" ~> expr ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> expr) ^^
 			{case b ~ c ~ e => RepeatExprAST( b, c, e )} |
 		"break" ^^^ BreakExprAST |
 		"continue" ^^^ ContinueExprAST |

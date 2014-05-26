@@ -1,9 +1,8 @@
 a = 1
 
-forever
+do
 	println( a )
-
-	if a++ == 5 then break
+until a++ == 5
 
 println( 'done' )
 
