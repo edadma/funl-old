@@ -252,6 +252,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		expr26 ~ "is" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
 		expr26
 
+	lazy val listComprehensionExpr = expr26
+	
 	lazy val expr26: PackratParser[ExprAST] =
 		expr27 ~ (":" ~> expr26) ^^ {case h ~ t => ConsExprAST( h, t )} |
 		expr27
@@ -333,7 +335,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			UnitExprAST |
 		("(" ~> nonassignmentExpr <~ ",") ~ (rep1sep(nonassignmentExpr, ",") <~ ")") ^^
 			{case e ~ l => VectorExprAST( e +: l )} |
-		("[" ~> nonassignmentExpr) ~ ("|" ~> generators <~ "]") ^^
+		("[" ~> listComprehensionExpr) ~ ("|" ~> generators <~ "]") ^^
 			{case e ~ g => ListComprehensionExprAST( e, g )} |
 		"[" ~> repsep(nonassignmentExpr, ",") <~ "]" ^^
 			{case l => ListExprAST( l )} |
