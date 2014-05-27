@@ -99,7 +99,7 @@ class Evaluator extends Types
 		val ast = parse( m )
 
 			apply( ast )
-      exitEnvironment
+      exitActivation
 		}
 	
 	def symbol( m: String, key: String ) = module( m ).symbols(key)
@@ -207,13 +207,13 @@ class Evaluator extends Types
 		buf.toList
 	}
 	
-	def enterEnvironment( closure: Closure, module: Module )
+	def enterActivation( closure: Closure, module: Module )
 	{
 		activations push new Activation( closure, module )
 		enterScope
 	}
 	
-	def exitEnvironment = activations.pop
+	def exitActivation = activations.pop
 
 	def getState = State( stack.size, activations.size, activations.top.scope.size )
 
@@ -372,7 +372,7 @@ class Evaluator extends Types
 // 					'i -> Complex( 0, 1 ),
 // 					'sys -> this
 // 					)
-				enterEnvironment( null, module(m) )
+				enterActivation( null, module(m) )
 				apply( s )
 			case DeclStatementAST( s ) =>
 				apply( s )
@@ -684,9 +684,9 @@ class Evaluator extends Types
 							argList
 						else
 						{
-							enterEnvironment( c, c.module )
+							enterActivation( c, c.module )
 							occur( argList )
-							exitEnvironment
+							exitActivation
 						}
 					case b: Function =>
 						push( b(argList.toVector) )
@@ -789,24 +789,6 @@ class Evaluator extends Types
 				val buf = new ListBuffer[Any]
 
 				forLoop( g, buf += eval(e), None )
-// 				val o = teval( t )
-// 				
-// 				enterScope
-// 
-// 				o.foreach
-// 				{ elem =>
-// 					clear( localScope, p )
-// 
-// 					if (!unify( localScope, deref(elem), p ))
-// 						RuntimeException( "unification error in list comprehension" )
-// 
-// 					if (f == None || beval(f.get))
-// 						buf += eval( e )
-// 				}
-// 
-// 				exitScope
-
-				
 				push( buf.toList )
 			case ListExprAST( l ) =>
 				apply( l )
