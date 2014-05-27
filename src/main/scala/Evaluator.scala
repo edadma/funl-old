@@ -55,8 +55,8 @@ class Evaluator extends Types
 
 	class ContinueThrowable extends Throwable
 
-	case class Environment( stack: Int, activations: Int, scope: Int )
-		
+	case class State( stack: Int, activations: Int, scope: Int )
+	
 	val symbols = new SymbolMap
 	val sysvars = new SymbolMap
 	val datatypes = new HashSet[String]
@@ -215,13 +215,13 @@ class Evaluator extends Types
 	
 	def exitEnvironment = activations.pop
 
-	def getEnvironment = Environment( stack.size, activations.size, activations.top.scope.size )
+	def getState = State( stack.size, activations.size, activations.top.scope.size )
 
-	def restoreEnvironment( env: Environment )
+	def restoreState( st: State )
 	{
-		stack reduceToSize env.stack
-		activations reduceToSize env.activations
-		activations.top.scope reduceToSize env.scope
+		stack reduceToSize st.stack
+		activations reduceToSize st.activations
+		activations.top.scope reduceToSize st.scope
 	}
 	
 	def enterScope = activations.top.scope push new SymbolMap
@@ -314,7 +314,7 @@ class Evaluator extends Types
 		{
 			enterScope
 
-		val env = getEnvironment
+		val st = getState
 
 			try
 			{
@@ -342,7 +342,7 @@ class Evaluator extends Types
 							catch
 							{
 								case _: ContinueThrowable =>
-									restoreEnvironment( env )
+									restoreState( st )
 							}
 						}
 					}
@@ -356,7 +356,7 @@ class Evaluator extends Types
 			catch
 			{
 				case _: BreakThrowable =>
-					restoreEnvironment( env )
+					restoreState( st )
 			}
 
 			exitScope
@@ -866,7 +866,7 @@ class Evaluator extends Types
 			case ForeverExprAST( body ) =>
 				enterScope
 				
-				val env = getEnvironment
+				val st = getState
 
 				void
 
@@ -884,7 +884,7 @@ class Evaluator extends Types
 						catch
 						{
 							case _: ContinueThrowable =>
-								restoreEnvironment( env )
+								restoreState( st )
 								void
 						}
 					}
@@ -892,7 +892,7 @@ class Evaluator extends Types
 				catch
 				{
 					case _: BreakThrowable =>
-						restoreEnvironment( env )
+						restoreState( st )
 						void
 				}
 
@@ -900,7 +900,7 @@ class Evaluator extends Types
 			case WhileExprAST( cond, body, e ) =>
 				enterScope
 				
-				val env = getEnvironment
+				val st = getState
 
 				void
 
@@ -917,7 +917,7 @@ class Evaluator extends Types
 						catch
 						{
 							case _: ContinueThrowable =>
-								restoreEnvironment( env )
+								restoreState( st )
 								void
 						}
 					}
@@ -931,7 +931,7 @@ class Evaluator extends Types
 				catch
 				{
 					case _: BreakThrowable =>
-						restoreEnvironment( env )
+						restoreState( st )
 						void
 				}
 
@@ -939,7 +939,7 @@ class Evaluator extends Types
 			case DoWhileExprAST( body, cond, e ) =>
 				enterScope
 
-				val env = getEnvironment
+				val st = getState
 
 				void
 
@@ -957,7 +957,7 @@ class Evaluator extends Types
 						catch
 						{
 							case _: ContinueThrowable =>
-								restoreEnvironment( env )
+								restoreState( st )
 								void
 						}
 					}
@@ -972,7 +972,7 @@ class Evaluator extends Types
 				catch
 				{
 					case _: BreakThrowable =>
-						restoreEnvironment( env )
+						restoreState( st )
 						void
 				}
 
@@ -980,7 +980,7 @@ class Evaluator extends Types
 			case RepeatExprAST( body, cond, e ) =>
 				enterScope
 
-				val env = getEnvironment
+				val st = getState
 
 				void
 
@@ -998,7 +998,7 @@ class Evaluator extends Types
 						catch
 						{
 							case _: ContinueThrowable =>
-								restoreEnvironment( env )
+								restoreState( st )
 								void
 						}
 					}
@@ -1013,7 +1013,7 @@ class Evaluator extends Types
 				catch
 				{
 					case _: BreakThrowable =>
-						restoreEnvironment( env )
+						restoreState( st )
 						void
 				}
 
