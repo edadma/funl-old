@@ -591,20 +591,31 @@ class Evaluator extends Types
 						push( Math(op, l, eval(right)) )
 				}
 			case BooleanConnectiveExprAST( left, op, right ) =>
+				val l = eval( left )
+				
 				op match
 				{
 					case 'or =>
-						if (beval( left ))
-							push( true )
+						if (l.isInstanceOf[Boolean])
+							if (l.asInstanceOf[Boolean])
+								push( true )
+							else
+								push( beval(right) )
 						else
-							push( beval(right) )
+							push( Math(op, l, eval(right)) )
 					case 'xor =>
-						push( beval(left) ^ beval(right) )
-					case 'and =>
-						if (!beval( left ))
-							push( false )
+						if (l.isInstanceOf[Boolean])
+							push( l.asInstanceOf[Boolean] ^ beval(right) )
 						else
-							push( beval(right) )
+							push( Math(op, l, eval(right)) )
+					case 'and =>
+						if (l.isInstanceOf[Boolean])
+							if (!l.asInstanceOf[Boolean])
+								push( false )
+							else
+								push( beval(right) )
+						else
+							push( Math(op, l, eval(right)) )
 				}
 			case NotExprAST( e ) => push( !beval(e) )
 			case VariableExprAST( v ) => push( vars(v).get )
