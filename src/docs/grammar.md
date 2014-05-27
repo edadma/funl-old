@@ -135,7 +135,7 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		expr22
 
 	expr22 =
-		expr26 ~ ("==" | "/=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" | "|" | "/|") ~ expr26 |
+		expr26 ~ ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" | "|" | "/|") ~ expr26 |
 		expr26
 
 	expr26 =
@@ -226,8 +226,8 @@ The reserved words in the language are:
 				`not`, `null`, `of`, `or`, `otherwise`, `repeat`, `return`, `then`, `true`, `until`,
 				`val`, `var`, `while`, `xor`, `yield`.
 
-The special delimiters are: `+`, `*`, `-`, `/`, `^`, `(`, `)`, `[`, `]`, `|`, `{`, `}`, `,`, `=`, `==`, `/=`, `<`, `$`,
-`>`, `<-`, `<=`, `>=`, `--`, `++`, `.`, `..`, `<-`, `->`, `=>`, `+=`, `-=`, `*=`, `^=`, `:`, `\\`, `::`, `@`, `?`.
+The special delimiters are: `+`, `*`, `-`, `/`, `^`, `(`, `)`, `[`, `]`, `|`, `{`, `}`, `,`, `=`, `==`, `!=`, `<`, `$`,
+`>`, `<-`, `<=`, `>=`, `--`, `++`, `.`, `..`, `<-`, `->`, `=>`, `+=`, `-=`, `*=`, `/=`, `^=`, `:`, `\\`, `::`, `@`, `?`.
 
 	decimalParser =
 		rep1(digit) ~ optFraction ~ optExponent |
