@@ -1,9 +1,10 @@
 native java.io.{PrintWriter, InputStreamReader, BufferedReader, StringReader}
 
-input = BufferedReader( StringReader('line1\nline2') )
+input = BufferedReader( InputStreamReader(socket.getInputStream()) )
 
-while (line = input.readLine()) != null
+while (line = input.readLine()) != ''
 	println( line )
+
 
 
 
