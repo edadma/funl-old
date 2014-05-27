@@ -11,7 +11,7 @@ import java.io.PrintWriter
 
 import jline.console.ConsoleReader
 
-import funl.interp.{Evaluator, Module}
+import funl.interp.{Environment, Evaluator, Module}
 import funl.interp.Interpreter._
 
 
@@ -24,6 +24,7 @@ object REPL extends App
 	var line: String = null
 	val eval = new Evaluator
 	var count = 1
+	implicit val env = new Environment
 
 	reader.setBellEnabled( false )
 	reader.setPrompt( "FunL> " )

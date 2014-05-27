@@ -149,7 +149,8 @@ object Interpreter
 	def statement( m: String, s: String ): Any =
 	{
 	val eval = new Evaluator
-
+	implicit val env = new Environment
+	
 		eval.enterActivation( null, eval.module(m) )
 		statement( m, s, eval )
 	}
@@ -157,6 +158,8 @@ object Interpreter
 	def statement( m: String, s: String, eval: Evaluator ) =
 	{
 	val parser = new Parser( m )
+	implicit val env = new Environment
+
 
 		parser.parseStatement( new CharSequenceReader(s) ) match
 		{
@@ -174,6 +177,7 @@ object Interpreter
 	{
 	val eval = new Evaluator
 	val parser = new Parser( "module" )
+	implicit val env = new Environment
 
 		parser.parseSnippet( new CharSequenceReader(s) ) match
 		{
@@ -189,6 +193,7 @@ object Interpreter
 	{
 	val eval = new Evaluator
 	val parser = new Parser( "module" )
+	implicit val env = new Environment
 
 		parser.parseExpression( new CharSequenceReader(s) ) match
 		{

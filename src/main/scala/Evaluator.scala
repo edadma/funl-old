@@ -55,14 +55,11 @@ class Evaluator extends Types
 
 	class ContinueThrowable extends Throwable
 
-	case class State( stack: Int, activations: Int, scope: Int )
-	
+	class State( val stack: Int, val activations: Int, val scope: Int )
+
 	val symbols = new SymbolMap
 	val sysvars = new SymbolMap
 	val datatypes = new HashSet[String]
-	val stack = new StackArray[Any]
-	val activations = new StackArray[Activation]
-	
 	var last: Option[Any] = None
 
 	def sysvar( k: String )( v: => Any )
@@ -92,41 +89,10 @@ class Evaluator extends Types
 		}
 
 	def loaded( m: String ) = symbols.contains( m ) && symbols(m).isInstanceOf[Module]
-
-	def load( m: String ) =
-		if (!loaded( m ))
-		{
-		val ast = parse( m )
-
-			apply( ast )
-      exitActivation
-		}
 	
 	def symbol( m: String, key: String ) = module( m ).symbols(key)
 
 	def symbolExists( m: String, key: String ) = module( m ).symbols contains key
-
-	def declarationMap =
-		if (topLevel)
-			activations.top.module.symbols
-		else
-			localScope
-
-	def declare( key: String, value: Any ) =
-	{
-	val syms = declarationMap
-
-		if (syms contains key)
-			RuntimeException( "already declared: " + key )
-		else
-			syms(key) = value
-
-		export( key )
-	}
-
-	def export( sym: String ) =
-		if (topLevel)
-			activations.top.module.exports.add( sym )
 
 	def assign( m: String, key: String, value: Any )
 	{
@@ -148,33 +114,37 @@ class Evaluator extends Types
 	
 	def function( m: String, n: String, f: Function ) = assign( m, n, f )
 
-	def eval( t: AST ) =
+	def eval( t: AST )( implicit env: Environment ) =
 	{
 		apply( t )
 		pop
 	}
 
-	def exec( t: AST )
+	def pop( implicit env: Environment ) = deref( env.stack.pop )
+
+	def exec( t: AST )( implicit env: Environment )
 	{
 		apply( t )
-		stack.pop
+		env.stack.pop
 	}
 	
-	def neval( t: AST ) = eval( t ).asInstanceOf[Number]
+	def neval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Number]
 	
-	def ieval( t: AST ) = eval( t ).asInstanceOf[Int]
+	def ieval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Int]
 	
-	def deval( t: AST ) = eval( t ).asInstanceOf[Number].doubleValue
+	def deval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Number].doubleValue
 	
-	def beval( t: AST ) = eval( t ).asInstanceOf[Boolean]
+	def beval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Boolean]
 	
-	def reval( t: AST ) =
+	def reval( t: AST )( implicit env: Environment ) =
 	{
-		apply( t, creatvars = true )
+		apply( t, createvars = true )
 		rpop
 	}
 
-	def teval( t: AST ) =
+	def rpop( implicit env: Environment ) = env.stack.pop.asInstanceOf[Reference]
+
+	def teval( t: AST )( implicit env: Environment ) =
 		eval( t ) match
 		{
 			case tr: TraversableOnce[Any] => tr
@@ -182,55 +152,6 @@ class Evaluator extends Types
 			case a: Array[Any] => a.iterator
 			case o => 	RuntimeException( "non traversable object: " + o )
 		}
-	
-	def pop = deref( stack.pop )
-
-	def long2bigint( v: Any ) = if (v.isInstanceOf[Long]) BigInt(v.asInstanceOf[Long]) else v
-	
-	def push( v: Any ) = stack.push( long2bigint(v) )
-	
-	def rpop = stack.pop.asInstanceOf[Reference]
-	
-	def dpop = pop.asInstanceOf[Double]
-	
-	def bpop = pop.asInstanceOf[Boolean]
-	
-	def void = stack push ()
-	
-	def list( len: Int ) =
-	{
-	val buf = new ListBuffer[Any]
-	
-		for (i <- 1 to len)
-			buf prepend pop
-			
-		buf.toList
-	}
-	
-	def enterActivation( closure: Closure, module: Module )
-	{
-		activations push new Activation( closure, module )
-		enterScope
-	}
-	
-	def exitActivation = activations.pop
-
-	def getState = State( stack.size, activations.size, activations.top.scope.size )
-
-	def restoreState( st: State )
-	{
-		stack reduceToSize st.stack
-		activations reduceToSize st.activations
-		activations.top.scope reduceToSize st.scope
-	}
-	
-	def enterScope = activations.top.scope push new SymbolMap
-
-	def localScope = activations.top.scope.top
-	
-	def exitScope = activations.top.scope pop
-
-	def topLevel = activations.top.scope.length ==1 && activations.top.closure == null
 	
 	def assignOperation( r: Reference, op: Symbol, n: Number ) =
 	{
@@ -240,7 +161,28 @@ class Evaluator extends Types
 		v
 	}
 
-	def loadPredef( m: String )
+	def long2bigint( v: Any ) = if (v.isInstanceOf[Long]) BigInt(v.asInstanceOf[Long]) else v
+
+	def enterActivation( closure: Closure, module: Module )( implicit env: Environment )
+	{
+		env.activations push new Activation( closure, module )
+		enterScope
+	}
+
+	def exitActivation( implicit env: Environment ) = env.activations.pop
+
+	def enterScope( implicit env: Environment ) = env.activations.top.scope push new SymbolMap
+
+	def load( m: String )( implicit env: Environment ) =
+		if (!loaded( m ))
+		{
+		val ast = parse( m )
+
+			apply( ast )
+			exitActivation
+		}
+
+	def loadPredef( m: String )( implicit env: Environment )
 	{
 		load( PREDEF )
 
@@ -248,11 +190,11 @@ class Evaluator extends Types
 			assign( m, k -> v )
 	}
 	
-	def apply( l: List[AST] ): Any =
+	def apply( l: List[AST] )( implicit env: Environment ): Any =
 		for (s <- l)
 			apply( s )
 
-	def apply( t: AST, creatvars: Boolean = false ): Any =
+	def apply( t: AST, createvars: Boolean = false )( implicit env: Environment ): Any =
 	{
 // 		def vars( m: String, name: String ) =
 // 		{
@@ -265,7 +207,7 @@ class Evaluator extends Types
 // 							vars( a.closure.referencing )
 // 						else if (symbolExists( m, name ))
 // 							symbol( m, name )
-// 						else if (creatvars)
+// 						else if (createvars)
 // 							newVar( name )
 // 						else
 // 							RuntimeException( "unknown variable: " + name )
@@ -285,10 +227,10 @@ class Evaluator extends Types
 						if (a.closure != null && a.closure.referencing != null)
 							vars( a.closure.referencing )
 						else
-							activations.top.module.symbols.get( name ) match
+							env.activations.top.module.symbols.get( name ) match
 							{
 								case None =>
-									if (creatvars)
+									if (createvars)
 										Some( newVar(name) )
 									else
 										RuntimeException( "unknown variable: " + name )
@@ -298,7 +240,7 @@ class Evaluator extends Types
 				}
 			}
 
-			vars( activations.top )
+			vars( env.activations.top )
 		}
 		
 		def newVar( name: String ) =
@@ -309,6 +251,61 @@ class Evaluator extends Types
 			
 			ref
 		}
+
+		def declare( key: String, value: Any ) =
+		{
+		val syms = declarationMap
+
+			if (syms contains key)
+				RuntimeException( "already declared: " + key )
+			else
+				syms(key) = value
+
+			export( key )
+		}
+
+		def export( sym: String ) =
+			if (topLevel)
+				env.activations.top.module.exports.add( sym )
+
+		def declarationMap =
+			if (topLevel)
+				env.activations.top.module.symbols
+			else
+				localScope
+
+		def push( v: Any ) = env.stack.push( long2bigint(v) )
+
+		def dpop = pop.asInstanceOf[Double]
+
+		def bpop = pop.asInstanceOf[Boolean]
+
+		def void = env.stack push ()
+
+		def list( len: Int ) =
+		{
+		val buf = new ListBuffer[Any]
+
+			for (i <- 1 to len)
+				buf prepend pop
+
+			buf.toList
+		}
+
+		def getState = new State( env.stack.size, env.activations.size, env.activations.top.scope.size )
+
+		def restoreState( st: State )
+		{
+			env.stack reduceToSize st.stack
+			env.activations reduceToSize st.activations
+			env.activations.top.scope reduceToSize st.scope
+		}
+
+		def localScope = env.activations.top.scope.top
+
+		def exitScope = env.activations.top.scope pop
+
+		def topLevel = env.activations.top.scope.length == 1 && env.activations.top.closure == null
 
 		def forLoop( gen: List[GeneratorAST], body: =>Unit, elseClause: Option[ExprAST] )
 		{
@@ -460,8 +457,8 @@ class Evaluator extends Types
 			case DefAST( name, func ) =>
 				declarationMap.get(name) match
 				{
-					case None => declarationMap(name) = new Closure( if (topLevel) null else activations.top, module(func.module), List(func) )
-					case Some( c: Closure ) => declarationMap(name) = new Closure( if (topLevel) null else activations.top, module(func.module), c.funcs :+ func )
+					case None => declarationMap(name) = new Closure( if (topLevel) null else env.activations.top, module(func.module), List(func) )
+					case Some( c: Closure ) => declarationMap(name) = new Closure( if (topLevel) null else env.activations.top, module(func.module), c.funcs :+ func )
 					case _ => RuntimeException( "already declared: " + name )
 				}
 
@@ -619,8 +616,8 @@ class Evaluator extends Types
 				}
 			case NotExprAST( e ) => push( !beval(e) )
 			case VariableExprAST( v ) => push( vars(v).get )
-			case CaseFunctionExprAST( m, cases ) => push( new Closure(activations.top, module(m), cases) )
-			case f@FunctionExprAST( m, _, _ ) => push( new Closure(activations.top, module(m), List(f)) )
+			case CaseFunctionExprAST( m, cases ) => push( new Closure(env.activations.top, module(m), cases) )
+			case f@FunctionExprAST( m, _, _ ) => push( new Closure(env.activations.top, module(m), List(f)) )
 			case ApplyExprAST( f, args, tailrecursive ) =>
 				apply( f )
 				apply( args )
