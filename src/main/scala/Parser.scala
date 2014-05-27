@@ -65,8 +65,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				"native", "not", "null", "of", "or", "otherwise", "return", "then", "true", "until",
 				"val", "var", "while", "xor", "yield"
 				)
-			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", "=", "==", "/=", "<", "$", "?",
-				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "^=", ":", "\\", "::", "@")
+			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", "=", "==", "!=", "<", "$", "?",
+				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "/=", "^=", ":", "\\", "::", "@")
 		}
 
 	import lexical.{Newline, Indent, Dedent}
@@ -247,7 +247,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		expr22
 
 	lazy val expr22: PackratParser[ExprAST] =
-		expr26 ~ ("==" | "/=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" | "|" | "/|") ~ expr26 ^^
+		expr26 ~ ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" | "|" | "/|") ~ expr26 ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
 		expr26 ~ "is" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
 		expr26

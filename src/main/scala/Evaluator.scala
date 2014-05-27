@@ -580,7 +580,7 @@ class Evaluator extends Types
 						}
 						else
 							push( Math(op, l, r) )
-					case '== | '/= =>
+					case '== | '!= =>
 						val r = eval( right )
 
 						if (l.isInstanceOf[Number] && r.isInstanceOf[Number])
@@ -717,7 +717,8 @@ class Evaluator extends Types
 
 									t.getName == "int" && cls.getName == "java.lang.Integer" ||
 										t.getName == "double" && cls.getName == "java.lang.Double" ||
-										t.isAssignableFrom( cls )
+										t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
+									t.isAssignableFrom( cls )
 								}) ) match
 							{
 								case None => RuntimeException( "no constructor with matching signatures for: " + argList )
