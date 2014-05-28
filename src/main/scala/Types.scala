@@ -7,10 +7,11 @@
 
 package funl.interp
 
+import collection.mutable.HashMap
 
-// class Activation( val closure: Closure, val module: Module ) extends Types
-// {
-// 	val scope = new StackArray[SymbolMap]
-// 
-// 	override def toString = "Activation( " + closure + ", " + scope + " )"
-// }
+
+trait Types
+{
+	type SymbolMap = HashMap[String, Any]
+	type Function = Vector[Any] => Any
+}

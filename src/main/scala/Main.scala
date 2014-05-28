@@ -10,7 +10,7 @@ package funl
 // import pickling._
 // import binary._
 
-import funl.interp.{Environment, Evaluator}
+import funl.interp.Evaluator
 import funl.interp.Interpreter._
 
 
@@ -30,13 +30,18 @@ object Main extends App
 	{
 	val m = opts('input)
 	val l = parse( m )
-	implicit val env = new Environment
 	
 		if (opts contains 'b)
 		{
 			println( "binary" )
 		}
 		else
-			new Evaluator().assign( m, "args" -> args.toIndexedSeq )( l )
+		{
+		val eval = new Evaluator
+		implicit val env = new eval.Environment
+
+			eval.assign( m, "args" -> args.toIndexedSeq )
+			eval( l )
+		}
 	}
 }

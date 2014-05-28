@@ -21,6 +21,24 @@ import Interpreter._
 
 class Evaluator extends Types
 {
+	class Closure( val referencing: Activation, val module: Module, val funcs: List[FunctionExprAST] )
+	{
+		override def toString = "<closure>"
+	}
+
+	class Activation( val closure: Closure, val module: Module )
+	{
+		val scope = new StackArray[SymbolMap]
+
+		override def toString = "Activation( " + closure + ", " + scope + " )"
+	}
+
+	class Environment
+	{
+		val stack = new StackArray[Any]
+		val activations = new StackArray[Activation]
+	}
+
 	class Datatype( name: String )
 	
 	case class Constructor( module: Module, datatype: String, name: String, fields: List[String] )
@@ -100,12 +118,10 @@ class Evaluator extends Types
 			syms(key) = value
 	}
 	
-	def assign( module: String, vs: (String, Any)* ): Evaluator =
+	def assign( module: String, vs: (String, Any)* )
 	{
 		for ((k, v) <- vs)
 			assign( module, k, v )
-
-		this
 	}
 	
 	def function( m: String, n: String, f: Function ) = assign( m, n, f )

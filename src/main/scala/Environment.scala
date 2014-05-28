@@ -8,8 +8,8 @@
 package funl.interp
 
 
-class Environment
-{
-	val stack = new StackArray[Any]
-	val activations = new StackArray[Activation]
-}
+// class Environment
+// {
+// 	val stack = new StackArray[Any]
+// 	val activations = new StackArray[Activation]
+// }
