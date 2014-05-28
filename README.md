@@ -50,9 +50,9 @@ Here is an example program in FunL.  It's a simple static file web server (in un
       socket.shutdownOutput()
       socket.close()
 
-forever
-	socket = listener.accept()
-	thread( connection, socket ).start()
+    forever
+      socket = listener.accept()
+      thread( connection, socket ).start()
 
 ## License
 
