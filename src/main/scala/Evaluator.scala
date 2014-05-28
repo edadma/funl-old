@@ -23,6 +23,15 @@ class Evaluator extends Types
 {
 	class Closure( val referencing: Activation, val module: Module, val funcs: List[FunctionExprAST] )
 	{
+		def runnable =
+			new Runnable
+			{
+				def run
+				{
+					call( Closure.this, Nil )( new Environment )
+				}
+			}
+		
 		override def toString = "<closure>"
 	}
 

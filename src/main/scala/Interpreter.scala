@@ -155,11 +155,9 @@ object Interpreter
 		statement( m, s, eval )
 	}
 
-	def statement( m: String, s: String, eval: Evaluator ) =
+	def statement( m: String, s: String, eval: Evaluator )( implicit env: eval.Environment ) =
 	{
 	val parser = new Parser( m )
-	implicit val env = new eval.Environment
-
 
 		parser.parseStatement( new CharSequenceReader(s) ) match
 		{

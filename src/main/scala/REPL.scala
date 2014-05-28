@@ -70,7 +70,7 @@ object REPL extends App
 				catch
 				{
 					case e: Exception =>
-//						e.printStackTrace( out )
+					e.printStackTrace( out )
 						out.println( e )
 						out.println
 				}
