@@ -10,10 +10,5 @@ package funl.interp
 
 class Closure( val referencing: Activation, val module: Module, val funcs: List[FunctionExprAST] )
 {
-	def runnable =
-	{
-		
-	}
-	
 	override def toString = "<closure>"
 }

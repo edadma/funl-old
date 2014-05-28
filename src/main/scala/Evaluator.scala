@@ -185,6 +185,51 @@ class Evaluator extends Types
 		for ((k, v) <- module( PREDEF ).iterator)
 			assign( m, k -> v )
 	}
+
+	def localScope( implicit env: Environment ) = env.activations.top.scope.top
+
+	def call( c: Closure, argList: List[Any] )( implicit env: Environment )
+	{
+		def occur( argList: List[Any] )
+		{
+			def findPart: Option[FunctionPartExprAST] =
+			{
+				for (alt <- c.funcs)
+					if (pattern( localScope, argList, alt.parms ))
+					{
+						for (part <- alt.parts)
+							part.cond match
+							{
+								case None => return Some( part )
+								case Some( cond ) =>
+									if (beval( cond ))
+										return Some( part )
+							}
+
+						localScope.clear
+					}
+
+				None
+			}
+
+			findPart match
+			{
+				case None => RuntimeException( "function application failure: " + c.funcs + " applied to " + argList )
+				case Some( part ) =>
+					apply( part.body ) match
+					{
+						case a: List[Any] =>
+							localScope.clear
+							occur( a )
+						case _ =>
+					}
+			}
+		}
+
+		enterActivation( c, c.module )
+		occur( argList )
+		exitActivation
+	}
 	
 	def apply( l: List[AST] )( implicit env: Environment ): Any =
 		for (s <- l)
@@ -299,8 +344,6 @@ class Evaluator extends Types
 			env.activations.top.scope reduceToSize st.scope
 		}
 
-		def localScope = env.activations.top.scope.top
-
 		def exitScope = env.activations.top.scope pop
 
 		def topLevel = env.activations.top.scope.length == 1 && env.activations.top.closure == null
@@ -355,57 +398,6 @@ class Evaluator extends Types
 			}
 
 			exitScope
-		}
-
-		def call( c: Closure, argList: List[Any] )
-		{
-			def occur( argList: List[Any] )
-			{
-				def findPart: Option[FunctionPartExprAST] =
-				{
-					for (alt <- c.funcs)
-						if (pattern( localScope, argList, alt.parms ))
-						{
-							for (part <- alt.parts)
-								part.cond match
-								{
-									case None => return Some( part )
-									case Some( cond ) =>
-										if (beval( cond ))
-											return Some( part )
-								}
-
-							localScope.clear
-						}
-
-					None
-				}
-
-				findPart match
-				{
-					case None => RuntimeException( "function application failure: " + c.funcs + " applied to " + argList )
-					case Some( part ) =>
-// 									part.locals match
-// 									{
-// 										case None =>
-// 										case Some( l ) =>
-// 											for (k <- l)
-// 												localScope(k) = new VariableReference
-// 									}
-
-						apply( part.body ) match
-						{
-							case a: List[Any] =>
-								localScope.clear
-								occur( a )
-							case _ =>
-						}
-				}
-			}
-
-			enterActivation( c, c.module )
-			occur( argList )
-			exitActivation
 		}
 		
 		t match
