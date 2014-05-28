@@ -23,12 +23,21 @@ class Evaluator extends Types
 {
 	class Closure( val referencing: Activation, val module: Module, val funcs: List[FunctionExprAST] )
 	{
-		def runnable =
+		def runnable = _runnable( Nil )
+		
+		def runnable( arg: Any ) =
+			arg match
+			{
+				case arg: List[Any] => _runnable( arg )
+				case _ => _runnable( List(arg) )
+			}
+
+		private def _runnable( args: List[Any] ) =
 			new Runnable
 			{
 				def run
 				{
-					call( Closure.this, Nil )( new Environment )
+					call( Closure.this, args )( new Environment )
 				}
 			}
 		
@@ -502,7 +511,7 @@ class Evaluator extends Types
 			case FunctionAST( cls, names ) =>
 				for ((n, a) <- names)
 				{
-				val method = Class.forName( cls ).getMethod( n, classOf[Vector[Any]] )
+				val method = Class.forName( cls ).getMethod( n, classOf[List[Any]] )
 
 					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) RuntimeException( "function method must be static" )
 
@@ -708,7 +717,7 @@ class Evaluator extends Types
 						else
 							call( c, argList )
 					case b: Function =>
-						push( b(argList.toVector) )
+						push( b(argList) )
 					case Constructor( m, t, n, fields ) =>
 						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 

@@ -13,5 +13,5 @@ import collection.mutable.HashMap
 trait Types
 {
 	type SymbolMap = HashMap[String, Any]
-	type Function = Vector[Any] => Any
+	type Function = List[Any] => Any
 }

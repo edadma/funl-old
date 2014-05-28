@@ -15,15 +15,20 @@ import funl.interp.RuntimeException
 
 object ModulePredef
 {
-	def println( a: Vector[Any] ) = Console.println( a map (display(_)) mkString(", ") )
+	def println( a: List[Any] ) = Console.println( a map (display(_)) mkString(", ") )
 	
-	def print( a: Vector[Any] ) = Console.print( a map (display(_)) mkString(", ") )
+	def print( a: List[Any] ) = Console.print( a map (display(_)) mkString(", ") )
 
-	def printf( a: Vector[Any] ) = Console.printf( a.head.asInstanceOf[String], a.tail: _* )
+	def printf( a: List[Any] ) = Console.printf( a.head.asInstanceOf[String], a.tail: _* )
 
-	def readLine( a: Vector[Any] ) = Console.readLine
-	
-	def error( a: Vector[Any] ) {error( a.head.toString )}
+	def readLine( a: List[Any] ) =
+		a match
+		{
+			case Nil => Console.readLine
+//			List( text: String )
+		}
+
+	def error( a: List[Any] ) {error( a.head.toString )}
 
 	def error( msg: String )
 	{
@@ -32,28 +37,28 @@ object ModulePredef
 // 		sys.exit( 1 )
 	}
 	
-	def require( a: Vector[Any] ) =
+	def require( a: List[Any] ) =
 		if (!a.head.asInstanceOf[Boolean])
 			error( a.last.toString )
 
-	def array( a: Vector[Any] ) =
+	def array( a: List[Any] ) =
 		a match
 		{
-			case NIL => new ArrayBuffer[Any]
-			case Vector( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
-			case Vector( init: Array[Any] ) => ArrayBuffer[Any]( init: _* )
-			case Vector( init: Seq[Any] ) => ArrayBuffer[Any]( init: _* )
+			case Nil => new ArrayBuffer[Any]
+			case List( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
+			case List( init: Array[Any] ) => ArrayBuffer[Any]( init: _* )
+			case List( init: Seq[Any] ) => ArrayBuffer[Any]( init: _* )
 		}
 
-	def list( a: Vector[Any] ) =
+	def list( a: List[Any] ) =
 		a match
 		{
-			case NIL => Nil
-			case Vector( init: Array[Any] ) => List[Any]( init: _* )
-			case Vector( init: Seq[Any] ) => List[Any]( init: _* )
+			case Nil => Nil
+			case List( init: Array[Any] ) => List[Any]( init: _* )
+			case List( init: Seq[Any] ) => List[Any]( init: _* )
 		}
 
-	def set( a: Vector[Any] ) =
+	def set( a: List[Any] ) =
 		if (a isEmpty)
 			new HashSet[Any]
 		else if (a.head.isInstanceOf[Seq[Any]])
@@ -61,24 +66,24 @@ object ModulePredef
 		else
 			HashSet( a: _* )
 	
-	def dict( a: Vector[Any] ) =
+	def dict( a: List[Any] ) =
 		if (a isEmpty)
 			new HashMap[Any, Any]
 		else
-			HashMap( a.head.asInstanceOf[collection.Map[Any, Any]].toArray: _* )
+			HashMap( a.head.asInstanceOf[collection.Map[Any, Any]].toSeq: _* )
 
-	def tuple( a: Vector[Any] ) =
+	def tuple( a: List[Any] ) =
 		a match
 		{
-			case NIL => ()
-			case Vector( c: Iterable[_] ) => c.toVector
-			case Vector( a: Array[_] ) => a.toVector
+			case Nil => ()
+			case List( c: Iterable[_] ) => c.toList
+			case List( a: Array[_] ) => a.toList
 		}
 
-	def int( a: Vector[Any] ) =
+	def int( a: List[Any] ) =
 		a match
 		{
-			case Vector( n: Number ) => n.intValue
-			case Vector( s: String ) => s.toInt
+			case List( n: Number ) => n.intValue
+			case List( s: String ) => s.toInt
 		}
 }

@@ -14,10 +14,10 @@ import funl.interp.RuntimeException
 
 object ModuleMath
 {
-	def sqrt( a: Vector[Any] ) =
+	def sqrt( a: List[Any] ) =
 		a match
 		{
-			case Vector( n: Number ) => Math.squareRoot( n )
+			case List( n: Number ) => Math.squareRoot( n )
 		}
 
 // 	def choose( a: Vector[Any] ): Any =

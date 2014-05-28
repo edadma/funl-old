@@ -19,7 +19,6 @@ object Interpreter
 {
 	val PREDEF = "-predef-"
 	val VERSION = "0.6-SNAPSHOT"
-	val NIL = Vector.empty[Any]
 	
 	def markTailRecursion( m: ModuleAST )
 	{

@@ -14,18 +14,18 @@ import funl.interp.Interpreter._
 
 object ModuleUtil
 {
-	def rnd( a: Vector[Any] ): Any =
+	def rnd( a: List[Any] ): Any =
 		a match
 		{
-			case NIL => nextDouble
-			case Vector( n: Int ) => nextInt( n )
-			case Vector( l: Int, u: Int ) if l <= u => nextInt( u - l ) + l
-			case Vector( r: collection.immutable.Range ) => nextInt( r.last + 1 - r.start ) + r.start
+			case Nil => nextDouble
+			case List( n: Int ) => nextInt( n )
+			case List( l: Int, u: Int ) if l <= u => nextInt( u - l ) + l
+			case List( r: collection.immutable.Range ) => nextInt( r.last + 1 - r.start ) + r.start
 		}
 
-	def sleep( a: Vector[Any] ) =
+	def sleep( a: List[Any] ) =
 		a match
 		{
-			case Vector( n: Int ) => Thread.sleep( n )
+			case List( n: Int ) => Thread.sleep( n )
 		}
 }
