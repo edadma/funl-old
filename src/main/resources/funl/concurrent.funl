@@ -1,0 +1,16 @@
+/*     ______            __                                      *\
+**    / ____/_  __ ___  / /     FunL Programming Language        **
+**   / __/ / / / / __ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
+** /_/    \____/_/ /_/____/                                      **
+\*                                                               */
+
+// function funl.modules.Thread.{
+//
+// }
+
+native java.lang.Thread
+
+def thread( task ) = Thread( task.runnable() )
+
+def thread( task, a ) = Thread( task.runnable(a) )
