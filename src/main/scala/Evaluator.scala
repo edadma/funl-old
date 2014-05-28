@@ -71,7 +71,8 @@ class Evaluator extends Types
 	sysvar( "date" ) {new java.util.Date}
 	sysvar( "os" ) {System.getProperty( "os.name" )}
 	
-	def module( m: String ) =
+	def module( m: String ) = synchronized
+	{
 		symbols.get(m) match
 		{
 			case None =>
@@ -81,14 +82,15 @@ class Evaluator extends Types
 				res
 			case Some( res ) => res.asInstanceOf[Module]
 		}
+	}
 
-	def loaded( m: String ) = symbols.contains( m ) && symbols(m).isInstanceOf[Module]
+	def loaded( m: String ) = synchronized {symbols.contains( m ) && symbols(m).isInstanceOf[Module]}
 	
-	def symbol( m: String, key: String ) = module( m ).symbols(key)
+	def symbol( m: String, key: String ) = module( m )( key )
 
-	def symbolExists( m: String, key: String ) = module( m ).symbols contains key
+	def symbolExists( m: String, key: String ) = module( m ) contains key
 
-	def assign( m: String, key: String, value: Any )
+	def assign( m: String, key: String, value: Any ) = synchronized
 	{
 	val syms = module(m).symbols
 	
@@ -180,7 +182,7 @@ class Evaluator extends Types
 	{
 		load( PREDEF )
 
-		for ((k, v) <- module( PREDEF ).symbols)
+		for ((k, v) <- module( PREDEF ).iterator)
 			assign( m, k -> v )
 	}
 	
@@ -221,7 +223,7 @@ class Evaluator extends Types
 						if (a.closure != null && a.closure.referencing != null)
 							vars( a.closure.referencing )
 						else
-							currentModule.symbols.get( name ) match
+							currentModule.get( name ) match
 							{
 								case None =>
 									if (createvars)
@@ -380,8 +382,10 @@ class Evaluator extends Types
 				{
 					load( qual )
 
+				val m = module( qual )
+				
 					if (names eq null)
-						for ((k, v) <- module(qual).symbols if module(qual).exports contains k)
+						for ((k, v) <- m.iterator if synchronized (m.exports contains k))
 							declare( k, v )
 					else
 						for ((s, a) <- names)
@@ -469,7 +473,7 @@ class Evaluator extends Types
 				if (!unify( declarationSymbolMap, eval(e), p ))
 					RuntimeException( "unification failure" )
 			case SysvarExprAST( s ) =>
-				sysvars.get( s ) match
+				synchronized (sysvars.get( s )) match
 				{
 					case None => RuntimeException( s + " not a system variable" )
 					case Some( v ) => push( v )
@@ -1029,7 +1033,7 @@ class Evaluator extends Types
 						else
 							push( NativeMethod(null, methods) )
 					case m: Module =>
-						m.symbols.get( f ) match
+						m.get( f ) match
 						{
 							case None => RuntimeException( "'" + f + "' not found in module '" + m.name + "'" )
 							case Some( elem ) => push( new ConstantReference("module symbol '" + f + "'", elem) )

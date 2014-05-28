@@ -15,4 +15,12 @@ class Module( val name: String ) extends Types
 	val symbols = new SymbolMap
 	val datatypes = new HashSet[String]
 	val exports = new HashSet[String]
+
+	def apply( key: String ) = synchronized (symbols( key ))
+	
+	def get( key: String ) = synchronized (symbols get key)
+
+	def contains( key: String ) = synchronized (symbols contains key)
+
+	def iterator = synchronized (symbols.iterator)
 }
