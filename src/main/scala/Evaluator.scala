@@ -19,21 +19,15 @@ import funl.lia.{Complex, Math}
 import Interpreter._
 
 
-trait Types
-{
-	type SymbolMap = HashMap[String, Any]
-	type Function = Vector[Any] => Any
-}
-
 class Evaluator extends Types
 {
 	class Datatype( name: String )
 	
-	case class Constructor( datatype: String, name: String, fields: List[String] )
+	case class Constructor( module: Module, datatype: String, name: String, fields: List[String] )
 
 	case class NativeMethod( o: Any, m: List[Method] )
 	
-	class Record( val datatype: String, val name: String, val fields: List[String], val args: List[Any] )
+	class Record( val module: Module, val datatype: String, val name: String, val fields: List[String], val args: List[Any] )
 	{
 		private val map = ListMap[String, Any]( (fields zip args): _* )
 
@@ -44,7 +38,7 @@ class Evaluator extends Types
 		override def equals( o: Any ) =
 			o match
 			{
-				case r: Record => name == r && args == r.args
+				case r: Record => module == r.module && name == r.name && args == r.args
 				case _ => false
 			}
 			
@@ -59,7 +53,6 @@ class Evaluator extends Types
 
 	val symbols = new SymbolMap
 	val sysvars = new SymbolMap
-	val datatypes = new HashSet[String]
 	var last: Option[Any] = None
 
 	def sysvar( k: String )( v: => Any )
@@ -69,10 +62,11 @@ class Evaluator extends Types
 
 	sysvar( "time" ) {compat.Platform.currentTime}
 	sysvar( "timeZone" ) {java.util.TimeZone.getDefault}
-	sysvar( "timeZoneOffset" ) {
+	sysvar( "timeZoneOffset" )
+		{
 		val tz = java.util.TimeZone.getDefault
 
-		tz.getRawOffset + tz.getDSTSavings
+			tz.getRawOffset + tz.getDSTSavings
 		}
 	sysvar( "date" ) {new java.util.Date}
 	sysvar( "os" ) {System.getProperty( "os.name" )}
@@ -227,7 +221,7 @@ class Evaluator extends Types
 						if (a.closure != null && a.closure.referencing != null)
 							vars( a.closure.referencing )
 						else
-							env.activations.top.module.symbols.get( name ) match
+							currentModule.symbols.get( name ) match
 							{
 								case None =>
 									if (createvars)
@@ -254,7 +248,7 @@ class Evaluator extends Types
 
 		def declare( key: String, value: Any ) =
 		{
-		val syms = declarationMap
+		val syms = declarationSymbolMap
 
 			if (syms contains key)
 				RuntimeException( "already declared: " + key )
@@ -268,9 +262,11 @@ class Evaluator extends Types
 			if (topLevel)
 				env.activations.top.module.exports.add( sym )
 
-		def declarationMap =
+		def currentModule = env.activations.top.module
+		
+		def declarationSymbolMap =
 			if (topLevel)
-				env.activations.top.module.symbols
+				currentModule.symbols
 			else
 				localScope
 
@@ -445,20 +441,22 @@ class Evaluator extends Types
 			case VarAST( n, v ) =>
 				declare( n, new VariableReference(if (v == None) null else eval(v.get)) )
 			case DataAST( n, cs ) =>
-				if (datatypes contains n) RuntimeException( "already declared: " + n )
+				if (!topLevel) RuntimeException( "data declarations are only allowed as module level declarations" )
+				
+				if (currentModule.datatypes contains n) RuntimeException( "already declared: " + n )
 
-				datatypes.add( n )
+				currentModule.datatypes.add( n )
 
 				for ((name, fields) <- cs)
 					if (fields isEmpty)
-						declare( name, new Record(n, name, Nil, Nil) )
+						declare( name, new Record(currentModule, n, name, Nil, Nil) )
 					else
-						declare( name, Constructor(n, name, fields) )
+						declare( name, Constructor(currentModule, n, name, fields) )
 			case DefAST( name, func ) =>
-				declarationMap.get(name) match
+				declarationSymbolMap.get(name) match
 				{
-					case None => declarationMap(name) = new Closure( if (topLevel) null else env.activations.top, module(func.module), List(func) )
-					case Some( c: Closure ) => declarationMap(name) = new Closure( if (topLevel) null else env.activations.top, module(func.module), c.funcs :+ func )
+					case None => declarationSymbolMap(name) = new Closure( if (topLevel) null else env.activations.top, module(func.module), List(func) )
+					case Some( c: Closure ) => declarationSymbolMap(name) = new Closure( if (topLevel) null else env.activations.top, module(func.module), c.funcs :+ func )
 					case _ => RuntimeException( "already declared: " + name )
 				}
 
@@ -466,9 +464,9 @@ class Evaluator extends Types
 			case ExpressionStatementAST( e ) =>
 				last = Some( eval(e) )
 			case ValAST( p, e ) =>
-				clear( declarationMap, p ) foreach export
+				clear( declarationSymbolMap, p ) foreach export
 
-				if (!unify( declarationMap, eval(e), p ))
+				if (!unify( declarationSymbolMap, eval(e), p ))
 					RuntimeException( "unification failure" )
 			case SysvarExprAST( s ) =>
 				sysvars.get( s ) match
@@ -687,10 +685,10 @@ class Evaluator extends Types
 						}
 					case b: Function =>
 						push( b(argList.toVector) )
-					case Constructor( t, n, fields ) =>
+					case Constructor( m, t, n, fields ) =>
 						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 
-						push( new Record(t, n, fields, argList) )
+						push( new Record(m, t, n, fields, argList) )
 					case NativeMethod( o, m ) =>
 						m.filter( _.getParameterTypes.length == argList.length ).
 							find( cm =>
@@ -1094,7 +1092,7 @@ class Evaluator extends Types
 			case "Seq" => a.isInstanceOf[Seq[_]]
 			case "List" => a.isInstanceOf[List[_]]
 			case "Array" => a.isInstanceOf[Array[_]] || a.isInstanceOf[ArrayBuffer[_]]
-			case _ if datatypes.contains( t ) => a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == t
+			case _ /*if datatypes.contains( t )*/ => a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == t
 			case _ => RuntimeException( "unknown type: " + t )
 		}
 	

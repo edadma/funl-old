@@ -7,12 +7,12 @@
 
 package funl.interp
 
-import collection.mutable.{HashMap, HashSet}
+import collection.mutable.HashSet
 
 
 class Module( val name: String ) extends Types
 {
 	val symbols = new SymbolMap
-
+	val datatypes = new HashSet[String]
 	val exports = new HashSet[String]
 }
