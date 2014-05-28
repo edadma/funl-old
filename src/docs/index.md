@@ -11,7 +11,7 @@ If you haven't yet done so, please download the software by clicking on the *Dow
 
 After executing the above command to run the REPL, you shoud see
 
-	Welcome to FunL version 0.6-SNAPSHOT
+	Welcome to FunL version 0.7-SNAPSHOT
 	Type in expressions to have them evaluated.
 	Type :help for more information.
 
