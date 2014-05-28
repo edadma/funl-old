@@ -2,22 +2,57 @@
 
 *FunL* (pronounced "funnel") is a functional dynamically typed scripting language. The name FunL stands for "fun language", but it can also stand for "functional language".
 
-Here is an example program in FunL
+Here is an example program in FunL.  It's a simple static file web server (in under 50 lines).
 
-    def
-      qsort( [] )             = []
-      qsort( p:xs )           =
-        def
-          filter( p, [] )     = []
-          filter( p, x:xs )
-            | p( x )          = x : filter( p, xs )
-            | otherwise       = filter( p, xs )
+    native java.io.{File, InputStreamReader, BufferedReader, PrintStream}
+    native java.net.ServerSocket
+    import concurrent.thread
+    import io.readFile
 
-        qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
+    val port = 8080
+    val listener = ServerSocket( port )
+    val dir = File( '.' ).getCanonicalPath()
+    val types = {
+      'txt': 'text/plain', 'html': 'text/html', 'css': 'text/css', 'js': 'application/javascript',
+      'png': 'image/png', 'gif': 'image/gif', 'jpeg': 'image/jpeg'}
 
-    println( qsort([4, 2, 1, 3, 0, 2]) )
-    println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )
+    def connection( socket ) =
+      input = BufferedReader( InputStreamReader(socket.getInputStream(), 'UTF-8') )
+      output = PrintStream( socket.getOutputStream(), true )
 
+      def response( code, type ) =
+        output.println( 'HTTP/1.1 ' + code )
+        output.println( 'Content-Type: ' + (if (type != null) then type else 'text/html') )
+        output.println()
+        if (type == null) then output.println( '<!DOCTYPE html><html><header><title>' + code + '</title><body><h1>' + code + '</h1></body></html>' )
+
+      val line = input.readLine()
+
+      if line != null
+        val (request, url, _) = tuple( line.split(' +') )
+        val file = File( dir + '/' + url ).getCanonicalFile()
+
+        if request == 'GET'
+          if file.getPath().startsWith( dir ) and file.exists() and file.isFile() and file.canRead()
+            ext = list( file.getPath().split('\\.') ).last()
+            if (ext in types)
+              response( '200 OK', types(ext) )
+              output.write( readFile(file) )
+              output.flush()
+            else
+              response( '415 Unsupported Media Type', null )
+          else
+            response( '404 Not Found', null )
+        else
+          response( '405 Method Not Allowed', null )
+
+      socket.shutdownInput()
+      socket.shutdownOutput()
+      socket.close()
+
+forever
+	socket = listener.accept()
+	thread( connection, socket ).start()
 
 ## License
 

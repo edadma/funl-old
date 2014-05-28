@@ -622,8 +622,12 @@ class Evaluator extends Types
 				op match
 				{
 					case 'in | 'notin =>
-						val r = teval( right )
-						val res = r exists (_ == l)
+						val r = eval( right )
+						val res =
+							if (r.isInstanceOf[collection.Map[Any, Any]])
+								r.asInstanceOf[collection.Map[Any, Any]].contains( l )
+							else
+								r.asInstanceOf[TraversableOnce[Any]] exists (_ == l)
 
 						push( (op == 'notin)^res )
 					case '+ =>
@@ -1068,6 +1072,8 @@ class Evaluator extends Types
 							case Some( elem ) => push( new ConstantReference("module symbol '" + f + "'", elem) )
 						}
 					case o =>
+						if (o == null) RuntimeException( "'" + f + "' not a field of null" )
+						
 						val c = o.getClass
 						val methods = c.getMethods.toList.filter( m => m.getName == f && (m.getModifiers&Modifier.STATIC) != Modifier.STATIC )
 						

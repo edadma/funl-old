@@ -19,13 +19,17 @@ object Predef
 	
 	def print( a: List[Any] ) = Console.print( a map (display(_)) mkString(", ") )
 
-	def printf( a: List[Any] ) = Console.printf( a.head.asInstanceOf[String], a.tail: _* )
+	def printf( a: List[Any] ) =
+		a match
+		{
+			case (text: String) :: args => Console.printf( text, args: _* )
+		}
 
 	def readLine( a: List[Any] ) =
 		a match
 		{
 			case Nil => Console.readLine
-//			List( text: String )
+			case (text: String) :: args => Console.readLine( text, args: _* )
 		}
 
 	def error( a: List[Any] ) {error( a.head.toString )}
@@ -75,9 +79,9 @@ object Predef
 	def tuple( a: List[Any] ) =
 		a match
 		{
-			case Nil => ()
-			case List( c: Iterable[_] ) => c.toList
-			case List( a: Array[_] ) => a.toList
+			case Nil => Vector()
+			case List( c: Iterable[_] ) => c.toVector
+			case List( a: Array[_] ) => a.toVector
 		}
 
 	def int( a: List[Any] ) =

@@ -1,11 +1,5 @@
-import concurrent.thread
 
-def task( label, start ) =
-	for i <- start..start + 3
-		println( label + i )
 
-thread( task, ['index ', 3] ).start()
-readLine()
 
 
 
