@@ -356,6 +356,57 @@ class Evaluator extends Types
 
 			exitScope
 		}
+
+		def call( c: Closure, argList: List[Any] )
+		{
+			def occur( argList: List[Any] )
+			{
+				def findPart: Option[FunctionPartExprAST] =
+				{
+					for (alt <- c.funcs)
+						if (pattern( localScope, argList, alt.parms ))
+						{
+							for (part <- alt.parts)
+								part.cond match
+								{
+									case None => return Some( part )
+									case Some( cond ) =>
+										if (beval( cond ))
+											return Some( part )
+								}
+
+							localScope.clear
+						}
+
+					None
+				}
+
+				findPart match
+				{
+					case None => RuntimeException( "function application failure: " + c.funcs + " applied to " + argList )
+					case Some( part ) =>
+// 									part.locals match
+// 									{
+// 										case None =>
+// 										case Some( l ) =>
+// 											for (k <- l)
+// 												localScope(k) = new VariableReference
+// 									}
+
+						apply( part.body ) match
+						{
+							case a: List[Any] =>
+								localScope.clear
+								occur( a )
+							case _ =>
+						}
+				}
+			}
+
+			enterActivation( c, c.module )
+			occur( argList )
+			exitActivation
+		}
 		
 		t match
 		{
@@ -635,58 +686,10 @@ class Evaluator extends Types
 					case s: ImmutableSeq[_] => push( new ImmutableSeqReference(s, argList.head.asInstanceOf[Int]) )
 					case s: collection.Set[Any] => push( s(argList.head) )
 					case c: Closure =>
-						def occur( argList: List[Any] )
-						{
-							def findPart: Option[FunctionPartExprAST] =
-							{
-								for (alt <- c.funcs)
-									if (pattern( localScope, argList, alt.parms ))
-									{
-										for (part <- alt.parts)
-											part.cond match
-											{
-												case None => return Some( part )
-												case Some( cond ) =>
-													if (beval( cond ))
-														return Some( part )
-											}
-
-										localScope.clear
-									}
-
-								None
-							}
-
-							findPart match
-							{
-								case None => RuntimeException( "function application failure: " + c.funcs + " applied to " + argList )
-								case Some( part ) =>
-// 									part.locals match
-// 									{
-// 										case None =>
-// 										case Some( l ) =>
-// 											for (k <- l)
-// 												localScope(k) = new VariableReference
-// 									}
-
-									apply( part.body ) match
-									{
-										case a: List[Any] =>
-											localScope.clear
-											occur( a )
-										case _ =>
-									}
-							}
-						}
-
- 						if (tailrecursive)
+						if (tailrecursive)
 							argList
 						else
-						{
-							enterActivation( c, c.module )
-							occur( argList )
-							exitActivation
-						}
+							call( c, argList )
 					case b: Function =>
 						push( b(argList.toVector) )
 					case Constructor( m, t, n, fields ) =>
