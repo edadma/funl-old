@@ -15,9 +15,9 @@ As an example, here is a tail-recursive version of the well known factorial func
 
     println( factorial(100) )
 
-Here is the same calculation expressed more concisely (but not tail-recursive) using a list comprehension:
+Here is the same calculation expressed more concisely, but not tail-recursively.
 
-    println( product([i | i <- 1..100]) )
+    println( product(1..100) )
 
 ## Installing
 
