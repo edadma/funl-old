@@ -19,6 +19,8 @@ Here is the same calculation expressed more concisely, but not tail-recursively.
 
     println( product(1..100) )
 
+Another goal in creating FunL was to have a scripting language that is highly Java and Scala interoperable.  FunL is implemented in Scala and therefore relies upon both the Java and Scala runtime support libraries.
+
 To give a small example of a complete program in FunL that does something useful, here is a simple static file web server (in under 50 lines).
 
     native java.io.{File, InputStreamReader, BufferedReader, PrintStream}
