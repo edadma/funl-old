@@ -1,9 +1,6 @@
-def
-	qsort( [] )   = []
-	qsort( p:xs ) = qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
+import io.readFile
 
-println( qsort([4, 2, 1, 3, 0, 2]) )
-println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )
+println( readFile('build.sbt') )
 
 
 // 	cg

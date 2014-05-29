@@ -9,7 +9,7 @@ If the interpreter is to run a program or import a module, the input is refered 
 
 	source = Newline | statements
 
-	statement = statement+
+	statements = statement+
 	
 A `source` is just a list of statements that are execute one after the other.  If a source file is empty, the lexer will still emit a `Newline` token.
 
@@ -19,7 +19,7 @@ A `source` is just a list of statements that are execute one after the other.  I
 A statement in FunL is either an expression or a declaration:
 
 	statement =
-		|	expr <~ Newline
+		|	expression Newline
 			declaration
 
 Expressions return a value and declarations don't.  The value returned by an expression statement may or may not be discarding depending on whether it occurs at the end of a block or not.

@@ -22,6 +22,7 @@ object IO
 		val data = new Array[Byte](file.length.toInt)
 		
 		file.readFully( data )
+		file.close
 		data
 	}
 }

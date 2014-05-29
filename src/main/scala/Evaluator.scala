@@ -174,8 +174,10 @@ class Evaluator extends Types
 
 	def rpop( implicit env: Environment ) = env.stack.pop.asInstanceOf[Reference]
 
-	def teval( t: AST )( implicit env: Environment ) =
-		eval( t ) match
+	def teval( t: AST )( implicit env: Environment ) = traversable( eval(t) )
+
+	def traversable( x: Any ) =
+		x match
 		{
 			case tr: TraversableOnce[Any] => tr
 			case s: String => s.map( _.toString ).iterator
@@ -627,7 +629,7 @@ class Evaluator extends Types
 							if (r.isInstanceOf[collection.Map[Any, Any]])
 								r.asInstanceOf[collection.Map[Any, Any]].contains( l )
 							else
-								r.asInstanceOf[TraversableOnce[Any]] exists (_ == l)
+								traversable( r ) exists (_ == l)
 
 						push( (op == 'notin)^res )
 					case '+ =>
