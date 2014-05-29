@@ -1,21 +1,11 @@
-/*     ______            __                                      *\
-**    / ____/_  __ ___  / /     FunL Programming Language        **
-**   / __/ / / / / __ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
-**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
-** /_/    \____/_/ /_/____/                                      **
-\*                                                               */
-
 native java.io.{File, InputStreamReader, BufferedReader, PrintStream}
 native java.net.ServerSocket
 import concurrent.thread
 import io.readFile
 
-val port = 8080
-val listener = ServerSocket( port )
+val listener = ServerSocket( 8080 )
 val dir = File( '.' ).getCanonicalPath()
-val types = {
-	'txt': 'text/plain', 'html': 'text/html', 'css': 'text/css', 'js': 'application/javascript',
-	'png': 'image/png', 'gif': 'image/gif', 'jpeg': 'image/jpeg'}
+val types = {'txt': 'text/plain', 'html': 'text/html', 'css': 'text/css', 'js': 'application/javascript', 'png': 'image/png', 'gif': 'image/gif', 'jpeg': 'image/jpeg'}
 
 def connection( socket ) =
 	input = BufferedReader( InputStreamReader(socket.getInputStream(), 'UTF-8') )
@@ -25,17 +15,19 @@ def connection( socket ) =
 		output.println( 'HTTP/1.1 ' + code )
 		output.println( 'Content-Type: ' + (if (type != null) then type else 'text/html') )
 		output.println()
+    
 		if (type == null) then output.println( '<!DOCTYPE html><html><header><title>' + code + '</title><body><h1>' + code + '</h1></body></html>' )
 
 	val line = input.readLine()
 
 	if line != null
 		val (request, url, _) = tuple( line.split(' +') )
-		val file = File( dir + '/' + url ).getCanonicalFile()
+		val file = File( dir + url + (if url == '/' then 'index.html' else '') ).getCanonicalFile()
 
 		if request == 'GET'
 			if file.getPath().startsWith( dir ) and file.exists() and file.isFile() and file.canRead()
 				ext = list( file.getPath().split('\\.') ).last()
+        
 				if (ext in types)
 					response( '200 OK', types(ext) )
 					output.write( readFile(file) )

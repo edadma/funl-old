@@ -12,8 +12,7 @@ Here is an example program in FunL.  It's a simple static file web server (in un
     val port = 8080
     val listener = ServerSocket( port )
     val dir = File( '.' ).getCanonicalPath()
-    val types = {
-      'txt': 'text/plain', 'html': 'text/html', 'css': 'text/css', 'js': 'application/javascript',
+    val types = {'txt': 'text/plain', 'html': 'text/html', 'css': 'text/css', 'js': 'application/javascript',
       'png': 'image/png', 'gif': 'image/gif', 'jpeg': 'image/jpeg'}
 
     def connection( socket ) =
@@ -30,11 +29,12 @@ Here is an example program in FunL.  It's a simple static file web server (in un
 
       if line != null
         val (request, url, _) = tuple( line.split(' +') )
-        val file = File( dir + '/' + url ).getCanonicalFile()
+        val file = File( dir + url + (if url == '/' then 'index.html' else '') ).getCanonicalFile()
 
         if request == 'GET'
           if file.getPath().startsWith( dir ) and file.exists() and file.isFile() and file.canRead()
             ext = list( file.getPath().split('\\.') ).last()
+            
             if (ext in types)
               response( '200 OK', types(ext) )
               output.write( readFile(file) )
