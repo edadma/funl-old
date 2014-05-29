@@ -36,7 +36,7 @@ at the prompt, you should see
 
 	res1: funl.lia.Rational = 7/6
 
-The example highlights FunL's *exact arithmetic* capability.  The type `lia.Rational` is the rational or fraction type. The REPL creates a new variable for every result.  In this case, the result variable is `res1`.  The following code
+The example highlights FunL's *exact arithmetic* capability.  The type `funl.lia.Rational` is the rational or fraction type. The REPL creates a new variable for every result.  In this case, the result variable is `res1`.  The following code
 
 	res1^-1
 	
@@ -55,8 +55,7 @@ should produce the expected result of `2`.  Also, the *dot notation* can be used
 
 We will now look at running small scripts.  Two examples will be given in this sub-section.  The next major section presents a complete language tutorial.  The first example script is the obligatory "hello world" program in FunL.  Create a text file called `hello.funl` with the following contents:
 
-	main
-	  println( 'Hello World' )
+	println( 'Hello World' )
 
 Now, open a command window (shell) and change to the directory that contains `hello.funl` and type the command
 
@@ -68,19 +67,12 @@ The keyword `main` indicates the entry point of the program.  `println` means "p
 
 As a more interesting example, here is an (not fairly efficient) implementation of the Quick Sort.  Create a file called `quicksort.funl` with the following contents:
 
-    def
-      qsort( [] )             = []
-      qsort( p:xs )           =
-        def
-          filter( p, [] )     = []
-          filter( p, x:xs )
-            | p( x )          = x : filter( p, xs )
-            | otherwise       = filter( p, xs )
+	def
+	  qsort( [] )   = []
+	  qsort( p:xs ) = qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
 
-        qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
-
-    println( qsort([4, 2, 1, 3, 0, 2]) )
-    println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )
+	println( qsort([4, 2, 1, 3, 0, 2]) )
+	println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )
 
 Run the program by typing
 

@@ -7,7 +7,7 @@ Here is the actual grammar (without parser actions and other source code boilerp
 
 	snippet = statements
 	
-	source = rep(statement)
+	source = Newline | statements
 
 	declaration = imports | natives | constants | variables | data | definitions
 
@@ -138,6 +138,8 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		expr26 ~ ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" | "|" | "/|") ~ expr26 |
 		expr26
 
+	listComprehensionExpr = expr26
+	
 	expr26 =
 		expr27 ~ (":" ~> expr26) |
 		expr27
@@ -188,6 +190,7 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		("true" | "false") |
 		"(" ~ ")" |
 		("(" ~> expr <~ ",") ~ (rep1sep(expr, ",") <~ ")") |
+		("[" ~> listComprehensionExpr) ~ ("|" ~> generators <~ "]") |
 		("[" ~> repsep(expr, ",") <~ "]") |
 		"null" |
 		"{" ~> repsep(jsonExpr, ",") <~ "}" |

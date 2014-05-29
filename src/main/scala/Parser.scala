@@ -84,7 +84,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		
 	lazy val source: PackratParser[ModuleAST] =
 		Newline ^^^ (ModuleAST( module, Nil )) |
-		rep(statement) ^^ {case l => ModuleAST( module, l )}
+		statements ^^ {case l => ModuleAST( module, l )}
 
 	lazy val declaration: PackratParser[DeclStatementAST] = imports | natives | constants | variables | data | definitions
 

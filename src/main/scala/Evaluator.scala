@@ -735,6 +735,7 @@ class Evaluator extends Types
 
 										t.getName == "int" && cls.getName == "java.lang.Integer" ||
 											t.getName == "double" && cls.getName == "java.lang.Double" ||
+											t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
 											t.isAssignableFrom( cls )
 									})
 							) match
