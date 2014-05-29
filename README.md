@@ -9,11 +9,10 @@ Here is an example program in FunL.  It's a simple static file web server (in un
     import concurrent.thread
     import io.readFile
 
-    val port = 8080
     val listener = ServerSocket( port )
     val dir = File( '.' ).getCanonicalPath()
-    val types = {'txt': 'text/plain', 'html': 'text/html', 'css': 'text/css', 'js': 'application/javascript',
-      'png': 'image/png', 'gif': 'image/gif', 'jpeg': 'image/jpeg'}
+    val types = {'txt': 'text/plain', 'html': 'text/html', 'css': 'text/css',
+      'js': 'application/javascript', 'png': 'image/png', 'gif': 'image/gif', 'jpeg': 'image/jpeg'}
 
     def connection( socket ) =
       input = BufferedReader( InputStreamReader(socket.getInputStream(), 'UTF-8') )
@@ -23,6 +22,7 @@ Here is an example program in FunL.  It's a simple static file web server (in un
         output.println( 'HTTP/1.1 ' + code )
         output.println( 'Content-Type: ' + (if (type != null) then type else 'text/html') )
         output.println()
+        
         if (type == null) then output.println( '<!DOCTYPE html><html><header><title>' + code + '</title><body><h1>' + code + '</h1></body></html>' )
 
       val line = input.readLine()
@@ -50,9 +50,7 @@ Here is an example program in FunL.  It's a simple static file web server (in un
       socket.shutdownOutput()
       socket.close()
 
-    forever
-      socket = listener.accept()
-      thread( connection, socket ).start()
+    forever thread( connection, listener.accept() ).start()
 
 ## License
 

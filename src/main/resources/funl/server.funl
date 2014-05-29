@@ -5,7 +5,8 @@ import io.readFile
 
 val listener = ServerSocket( 8080 )
 val dir = File( '.' ).getCanonicalPath()
-val types = {'txt': 'text/plain', 'html': 'text/html', 'css': 'text/css', 'js': 'application/javascript', 'png': 'image/png', 'gif': 'image/gif', 'jpeg': 'image/jpeg'}
+val types = {'txt': 'text/plain', 'html': 'text/html', 'css': 'text/css',
+  'js': 'application/javascript', 'png': 'image/png', 'gif': 'image/gif', 'jpeg': 'image/jpeg'}
 
 def connection( socket ) =
 	input = BufferedReader( InputStreamReader(socket.getInputStream(), 'UTF-8') )
@@ -43,6 +44,4 @@ def connection( socket ) =
 	socket.shutdownOutput()
 	socket.close()
 
-forever
-	socket = listener.accept()
-	thread( connection, socket ).start()
+forever thread( connection, listener.accept() ).start()
