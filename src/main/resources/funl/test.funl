@@ -1,15 +1,3 @@
-def factorial( n )
-	| n >= 0 =
-	  def
-	    fact( acc, 0 ) = acc
-	    fact( acc, n ) = fact( acc*n, n - 1 )
-
-	  fact( 1, n )
-	| otherwise = error "factorial: n should be non-negative"
-
-println( factorial(100) )
-
-println( product([i | i <- 1..100]) )
 
 // 	cg
 // 	start = time()
