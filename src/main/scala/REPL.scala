@@ -27,7 +27,15 @@ object REPL extends App
 	implicit val env = new eval.Environment
 
 	reader.setBellEnabled( false )
-	reader.setPrompt( "FunL> " )
+	reader.setPrompt( "> " )
+
+	for {line <- """	|    ______            __                                     
+									|   / ____/_  __ ___  / /     FunL Programming Language       
+									|  / __/ / / / / __ \/ /      Copyright (c) 2014, Edward A. Maxedon, Sr. 
+									| / /   / /_/ / / / / /__     http://funl-lang.org/           
+									|/_/    \____/_/ /_/____/                                     
+									|                                                                        """.stripMargin.lines}
+		out.println( line )
 
 	out.println( "Welcome to FunL version " + VERSION )
 	out.println( "Type in expressions to have them evaluated." )
