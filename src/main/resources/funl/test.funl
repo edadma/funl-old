@@ -1,6 +1,8 @@
-def f( x ) = (() -> x + 4).callable()
+def from( n ) = n # from( n + 1 )
 
-println( f(3).call() )
+for i <- from(1)
+	if i > 5 then break
+	println( i )
 
 // 	cg
 // 	start = time()

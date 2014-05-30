@@ -66,7 +66,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				"val", "var", "while", "xor", "yield"
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", "=", "==", "!=", "<", "$", "?",
-				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "/=", "^=", ":", "\\", "::", "@")
+				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "/=", "^=", ":", "#", "\\", "::", "@")
 		}
 
 	import lexical.{Newline, Indent, Dedent}
@@ -256,6 +256,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	
 	lazy val expr26: PackratParser[ExprAST] =
 		expr27 ~ (":" ~> expr26) ^^ {case h ~ t => ConsExprAST( h, t )} |
+		expr27 ~ ("#" ~> expr26) ^^ {case h ~ t => StreamExprAST( h, t )} |
 		expr27
 
 	lazy val jsonExpr = expr27

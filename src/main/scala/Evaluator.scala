@@ -456,6 +456,8 @@ class Evaluator extends Types
 
 			exitScope
 		}
+
+		def thunk( t: ExprAST ) = new Closure( env.activations.top, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )
 		
 		t match
 		{
@@ -858,6 +860,18 @@ class Evaluator extends Types
 						hd.asInstanceOf[Int] until r.start by r.end
 					case _ => RuntimeException( "not a valid slice or list: " + hd + ":" + tl )
 				} )
+			case StreamExprAST( head, tail ) =>
+				def stream( a: Any ): Stream[Any] =
+					a match
+					{
+						case Nil => Stream.empty
+						case s: Stream[Any] => s
+						case _ => RuntimeException( "not a valid stream: " + tail )
+					}
+					
+				val callable = thunk( tail ).callable
+				
+				push( eval(head) #:: stream(callable.call) )
 			case SetExprAST( l ) =>
 				apply( l )
 				push( list(l.length).toSet )

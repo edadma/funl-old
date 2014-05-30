@@ -48,6 +48,7 @@ case class VectorExprAST( l: List[ExprAST] ) extends ExprAST
 case class TupleExprAST( l: ExprAST, r: ExprAST ) extends ExprAST
 case class ListExprAST( l: List[ExprAST] ) extends ExprAST
 case class ConsExprAST( head: ExprAST, tail: ExprAST ) extends ExprAST
+case class StreamExprAST( head: ExprAST, tail: ExprAST ) extends ExprAST
 case class SetExprAST( l: List[ExprAST] ) extends ExprAST
 case class MapExprAST( l: List[TupleExprAST] ) extends ExprAST
 case object UnitExprAST extends ExprAST
