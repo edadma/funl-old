@@ -85,6 +85,14 @@ object Interpreter
 		{
 			case a: Array[_] => a.map( display(_) ).mkString( "Array(", ", ", ")" )
 			case l: List[_] => l.map( display(_) ).mkString( "[", ", ", "]" )
+			case s: Stream[_] =>
+				val howMany = 100
+				val bunch = s take (howMany + 1)
+
+				if (bunch.length <= howMany)
+					display( bunch toList )
+				else
+					bunch take howMany map (display(_)) mkString( "[", ", ", ", ...]" )
 			case s: collection.Set[_] => s.map( display(_) ).mkString( "{", ", ", "}" )
 			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => displayQuoted(k) + ": " + display(v)} ).mkString( "{", ", ", "}" )
 			case t: Vector[_] => t.map( display(_) ).mkString( "(", ", ", ")" )

@@ -864,7 +864,7 @@ class Evaluator extends Types
 				def stream( a: Any ): Stream[Any] =
 					a match
 					{
-						case Nil => Stream.empty
+						case l: List[Any] => l.toStream
 						case s: Stream[Any] => s
 						case _ => RuntimeException( "not a valid stream: " + tail )
 					}
