@@ -123,7 +123,7 @@ object Interpreter
 	}
 
 //		val r = new PagedSeqReader( PagedSeq fromFile (args.head + ".fun") )
-	def parse( module: String ): AST =
+	def parse( module: String, name: Option[String] = None ): AST =
 	{
 	val filename = module + ".funl"
 	val resource = funl.Main.getClass.getResourceAsStream( filename )
@@ -140,7 +140,7 @@ object Interpreter
 		else
 			resource
 	
-		parse( module, input )
+		parse( name.getOrElse(module), input )
 	}
 
 	case class PARSE_FAILURE( message: String )
@@ -168,7 +168,7 @@ object Interpreter
 		}
 	}
 
-	def statement( s: String ): Any = statement( "module", s )
+	def statement( s: String ): Any = statement( "-test-", s )
 
 	def snippet( s: String ) =
 	{

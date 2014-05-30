@@ -1,4 +1,4 @@
-println( args )
+println( _name_ )
 
 // 	cg
 // 	start = time()

@@ -32,7 +32,7 @@ object Main extends App
 	{
 //	val m = opts('input)
   val m = args(0)
-	val l = parse( m )
+	val l = parse( m, Some("-main-") )
 	
 // 		if (opts contains 'b)
 // 		{

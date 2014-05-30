@@ -442,11 +442,8 @@ class Evaluator extends Types
 				if (m != PREDEF)
 					loadPredef( m )
 
-// 				assign( m,
-// 					'i -> Complex( 0, 1 ),
-// 					'sys -> this
-// 					)
 				enterActivation( null, module(m) )
+        currentModule.symbols( "_name_" ) = m
 				apply( s )
 			case DeclStatementAST( s ) =>
 				apply( s )
