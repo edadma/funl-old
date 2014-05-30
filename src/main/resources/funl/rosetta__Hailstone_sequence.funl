@@ -9,10 +9,3 @@ if _name_ == '-main-'
 	val (n, len) = maxBy( snd, [(i, hailstone( i ).length()) | i <- 1:100000] )
 
 	println( n, len )
-
-// 	cg
-// 	start = time()
-//
-// 	for i <- 1..10000000 do 0
-//
-// 	println time() - start

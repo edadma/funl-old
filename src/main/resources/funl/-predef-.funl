@@ -7,23 +7,28 @@
 
 function funl.modules.Predef.{
 	print, println, printf, readLine,
-	error, require,
+	error, require, assert,
 	array, list, dict, set, tuple,
 	int
 	}
 
 def
 	compose( f, g ) = x -> f( g(x) )
+
+	fst( (a, _) ) = a
+
+	snd( (_, b) ) = b
 	
 	map( f, [] )                = []
+//	map( f, (x:xs)::Stream )    = f( x ) # map( f, xs )
 	map( f, x:xs )              = f( x ) : map( f, xs )
 	map( f, (a::Array|a::Seq) ) = map( f, list(a) )
 
-	filter( p, [] )                 = []
-	filter( p, x:xs	)
-		| p( x )                      = x : filter( p, xs )
-		| otherwise                   = filter( p, xs )
-	filter( p, (a::Array|a::Seq) )  = filter( p, list(a) )
+	filter( p, [] )                       = []
+//	filter( p, (x:xs)::Stream	) | p( x ) = x # filter( p, xs )
+	filter( p, x:xs	) | p( x )           = x : filter( p, xs )
+	filter( p, _:xs	)                    = filter( p, xs )
+	filter( p, (a::Array|a::Seq) )        = filter( p, list(a) )
 
 	foldl( f, z, [] )                 = z
 	foldl( f, z, x:xs )               = foldl( f, f(z, x), xs )
@@ -39,5 +44,7 @@ def
 	max( a, b )							= if a <= b then b else a
 	max( xs )								= foldl1( max, xs )
 
+	maxBy( f, xs ) = foldl1( (a, b) -> if f(a) <= f(b) then b else a, xs )
+	
 	min( a, b )							= if a >= b then b else a
 	min( xs )								= foldl1( min, xs )

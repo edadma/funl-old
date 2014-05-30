@@ -1165,6 +1165,7 @@ class Evaluator extends Types
 			case "Float" => a.isInstanceOf[Double]
 			case "Seq" => a.isInstanceOf[Seq[_]]
 			case "List" => a.isInstanceOf[List[_]]
+			case "Stream" => a.isInstanceOf[Stream[_]]
 			case "Array" => a.isInstanceOf[Array[_]] || a.isInstanceOf[ArrayBuffer[_]]
 			case _ /*if datatypes.contains( t )*/ => a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == t
 			case _ => RuntimeException( "unknown type: " + t )

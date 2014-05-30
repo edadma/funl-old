@@ -41,9 +41,19 @@ object Predef
 // 		sys.exit( 1 )
 	}
 	
+	def assert( a: List[Any] ) =
+		a match
+		{
+			case List( b: Boolean ) => if (!b) error( "assertion failed" )
+			case List( b: Boolean, s: String ) => if (!b) error( s )
+		}
+
 	def require( a: List[Any] ) =
-		if (!a.head.asInstanceOf[Boolean])
-			error( a.last.toString )
+		a match
+		{
+			case List( b: Boolean ) => if (!b) error( "requirement failed" )
+			case List( b: Boolean, s: String ) => if (!b) error( s )
+		}
 
 	def array( a: List[Any] ) =
 		a match
