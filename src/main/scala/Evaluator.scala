@@ -37,10 +37,31 @@ class Evaluator extends Types
 			{
 				def run
 				{
-					call( Closure.this, args )( new Environment )
+					invoke( Closure.this, args )( new Environment )
 				}
 			}
-		
+
+		def callable = _callable( Nil )
+
+		def callable( arg: Any ) =
+			arg match
+			{
+				case arg: List[Any] => _callable( arg )
+				case _ => _callable( List(arg) )
+			}
+
+		private def _callable( args: List[Any] ) =
+			new java.util.concurrent.Callable[Any]
+			{
+			implicit val env = new Environment
+			
+				def call =
+				{
+					invoke( Closure.this, args )
+					pop
+				}
+			}
+
 		override def toString = "<closure>"
 	}
 
@@ -224,7 +245,7 @@ class Evaluator extends Types
 
 	def localScope( implicit env: Environment ) = env.activations.top.scope.top
 
-	def call( c: Closure, argList: List[Any] )( implicit env: Environment )
+	def invoke( c: Closure, argList: List[Any] )( implicit env: Environment )
 	{
 		def occur( argList: List[Any] )
 		{
@@ -718,7 +739,7 @@ class Evaluator extends Types
 						if (tailrecursive)
 							argList
 						else
-							call( c, argList )
+							invoke( c, argList )
 					case b: Function =>
 						push( b(argList) )
 					case Constructor( m, t, n, fields ) =>

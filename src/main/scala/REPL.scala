@@ -34,7 +34,7 @@ object REPL extends App
 									|  / __/ / / / / __ \/ /      Copyright (c) 2014 by Edward A. Maxedon, Sr.
 									| / /   / /_/ / / / / /__     http://funl-lang.org/
 									|/_/    \____/_/ /_/____/                                     
-									|""".stripMargin.lines}
+									|                                                                          """.stripMargin.lines}
 		out.println( line )
 
 	out.println( "Welcome to FunL version " + VERSION )
