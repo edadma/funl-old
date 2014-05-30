@@ -13,11 +13,9 @@ As an example, here is a tail-recursive version of the well known factorial func
         fact( 1, n )
       | otherwise = error "factorial: n should be non-negative"
 
-    println( factorial(100) )
-
 Here is the same calculation expressed more concisely, but not tail-recursively.
 
-    println( product(1..100) )
+    def factorial( n ) = product( 1..n )
 
 Another goal in creating FunL was to have a scripting language that is highly Java and Scala interoperable.  FunL is implemented in Scala and therefore relies upon both the Java and Scala runtime support libraries.
 
