@@ -14,4 +14,5 @@ trait Types
 {
 	type SymbolMap = HashMap[String, Any]
 	type Function = List[Any] => Any
+	type LSeq = collection.LinearSeq[Any]
 }

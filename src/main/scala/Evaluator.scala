@@ -1216,19 +1216,19 @@ class Evaluator extends Types
 					case r: Record => r.name == n && r.args.length == l.length && (r.args zip l).forall( pair => unify(map, pair._1, pair._2) )
 					case _ => false
 				}
-			case ListPatternAST( f ) =>
+			case ListPatternAST( ps ) =>
 				a match
 				{
-					case Nil => f == Nil
-					case l: List[Any] if l.length == f.length =>
-						(l take f.length zip f).forall( pair => unify(map, pair._1, pair._2) )
+					case Nil => ps == Nil
+					case l: LSeq if !l.isDefinedAt(ps.length) && l.length == ps.length =>
+						(l zip ps).forall( pair => unify(map, pair._1, pair._2) )
 					case _ => false
 				}
 			case ConsPatternAST( head, tail ) =>
 				a match
 				{
 					case Nil => false
-					case l: List[Any] => unify( map, l.head, head ) && unify( map, l.tail, tail )
+					case l: LSeq => unify( map, l.head, head ) && unify( map, l.tail, tail )
 					case _ => false
 				}
 			case AltPatternAST( alts ) =>
