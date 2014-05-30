@@ -54,10 +54,10 @@ object Interpreter
 					case VariableExprAST( v ) =>
 						if (v == n)
 							a.tailrecursive = true
-					case CaseFunctionExprAST( _, cases ) =>
+					case CaseFunctionExprAST( cases ) =>
 						for (c <- cases)
 							markTailRecursion( n, c.parts.head.body )
-					case FunctionExprAST( _, _, parts ) =>
+					case FunctionExprAST( _, parts ) =>
 						markTailRecursion( n, parts.head.body )
 					case _ =>
 				}

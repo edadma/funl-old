@@ -1,4 +1,6 @@
-println( _name_ )
+def f( x ) = (() -> x + 4).callable()
+
+println( f(3).call() )
 
 // 	cg
 // 	start = time()

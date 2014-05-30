@@ -556,8 +556,8 @@ class Evaluator extends Types
 			case DefAST( name, func ) =>
 				declarationSymbolMap.get(name) match
 				{
-					case None => declarationSymbolMap(name) = new Closure( if (topLevel) null else env.activations.top, module(func.module), List(func) )
-					case Some( c: Closure ) => declarationSymbolMap(name) = new Closure( if (topLevel) null else env.activations.top, module(func.module), c.funcs :+ func )
+					case None => declarationSymbolMap(name) = new Closure( if (topLevel) null else env.activations.top, currentModule, List(func) )
+					case Some( c: Closure ) => declarationSymbolMap(name) = new Closure( if (topLevel) null else env.activations.top, currentModule, c.funcs :+ func )
 					case _ => RuntimeException( "already declared: " + name )
 				}
 
@@ -719,8 +719,8 @@ class Evaluator extends Types
 				}
 			case NotExprAST( e ) => push( !beval(e) )
 			case VariableExprAST( v ) => push( vars(v).get )
-			case CaseFunctionExprAST( m, cases ) => push( new Closure(env.activations.top, module(m), cases) )
-			case f@FunctionExprAST( m, _, _ ) => push( new Closure(env.activations.top, module(m), List(f)) )
+			case CaseFunctionExprAST( cases ) => push( new Closure(env.activations.top, currentModule, cases) )
+			case f@FunctionExprAST( _, _ ) => push( new Closure(env.activations.top, currentModule, List(f)) )
 			case ApplyExprAST( f, args, tailrecursive ) =>
 				apply( f )
 				apply( args )
