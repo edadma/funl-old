@@ -1,7 +1,6 @@
-// import lists.take
-// 
-// def sieve( x:xs ) = x # sieve( filter(a -> x/|a, xs) )
-// def from( n ) = n # from( n + 1 )
-// val primes = sieve( from(2) )
-// 
-// println( take(1, primes) )
+import concurrent.{scheduleAtFixedRate, schedule, scheduler}
+
+def whatToDo = println( 'asdf' )
+
+future = scheduleAtFixedRate( whatToDo, 0, 1000 )
+schedule( () -> scheduler().shutdown(), 3000 )

@@ -5,9 +5,9 @@
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
 
-// function funl.modules.Thread.{
-//
-// }
+native funl.module.Concurrent.{
+	scheduleAtFixedRate, schedule, scheduler
+	}
 
 native java.lang.Thread
 

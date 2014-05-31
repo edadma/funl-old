@@ -25,7 +25,7 @@ def
 	map( f, (a::Array|a::Seq) ) = map( f, list(a) )
 
 	filter( p, [] )                       = []
-//	filter( p, (x:xs)::Stream	) | p( x ) = x # filter( p, xs )
+	filter( p, x:xs::Stream	) | p( x )   = x # filter( p, xs )
 	filter( p, x:xs	) | p( x )           = x : filter( p, xs )
 	filter( p, _:xs	)                    = filter( p, xs )
 	filter( p, (a::Array|a::Seq) )        = filter( p, list(a) )

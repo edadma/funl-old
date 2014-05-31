@@ -9,8 +9,6 @@ package funl.modules
 
 import util.Random.{nextInt, nextDouble}
 
-import funl.interp.Interpreter._
-
 
 object Util
 {

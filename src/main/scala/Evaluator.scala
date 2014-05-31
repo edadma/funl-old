@@ -773,7 +773,8 @@ class Evaluator extends Types
 											case None => RuntimeException( "no class methods with matching signatures for: " + argList.mkString(", ") )
 											case Some( cm ) => push( cm.invoke(o, argList) )
 										}
-								case Some( cm ) => push( cm.invoke(o, argList.asInstanceOf[List[Object]]: _*) )
+								case Some( cm ) =>
+									push( cm.invoke(o, argList.asInstanceOf[List[Object]]: _*) )
 							}
 					case c: Class[Any] =>
 						c.getConstructors.toList.filter( _.getParameterTypes.length == argList.length ).
