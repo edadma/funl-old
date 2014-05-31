@@ -351,11 +351,16 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"?" ~> ident ^^
 			(TestExprAST( _ ))
 			
-	lazy val pattern =
-		(ident <~ "@") ~ pattern5 ^^
+	lazy val pattern: PackratParser[PatternAST] =
+		(ident <~ "@") ~ pattern3 ^^
 			{case alias ~ pat => AliasPatternAST( alias, pat )} |
+		pattern3
+
+	lazy val pattern3: PackratParser[PatternAST] =
+		pattern5 ~ ("::" ~> ident) ^^
+			{case pat ~ typename => TypePatternAST( pat, typename )} |
 		pattern5
-			
+		
 	lazy val pattern5: PackratParser[PatternAST] =
 		pattern10 ~ (":" ~> pattern5) ^^ {case h ~ t => ConsPatternAST( h, t )} |
 		pattern10
@@ -384,8 +389,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			NullPatternAST |
 		ident ~ ("(" ~> repsep(pattern, ",") <~ ")") ^^
 			{case n ~ l => RecordPatternAST( n, l )} |
-		ident ~ opt("::" ~> ident) ^^
-			{case v ~ t => VariablePatternAST( v, t )} |
+		ident ^^
+			{case v => VariablePatternAST( v )} |
 		("(" ~> pattern <~ ",") ~ (rep1sep(pattern, ",") <~ ")") ^^
 			{case e ~ l => TuplePatternAST( e +: l )} |
 		"[" ~> repsep(pattern, ",") <~ "]" ^^

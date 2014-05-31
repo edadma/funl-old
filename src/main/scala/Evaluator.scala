@@ -1134,7 +1134,9 @@ class Evaluator extends Types
 					map remove alias
 					vars = alias :: vars
 					clear( pat )
-				case VariablePatternAST( n, _ ) =>
+				case TypePatternAST( pat, _ ) =>
+					clear( pat )
+				case VariablePatternAST( n ) =>
 					vars = n :: vars
 					map remove n
 				case TuplePatternAST( t ) =>
@@ -1190,19 +1192,16 @@ class Evaluator extends Types
 					else
 						false
 				}
-			case VariablePatternAST( "_", t ) => t == None || typecheck( a, t.get )
-			case VariablePatternAST( n, t ) =>
+			case TypePatternAST( pat, typename ) =>
+				unify( map, a, pat ) && typecheck( a, typename )
+			case VariablePatternAST( "_" ) => true
+			case VariablePatternAST( n ) =>
 				if (map contains n)
 					a == deref( map(n) )
 				else
 				{
-					if (t == None || typecheck( a, t.get ))
-					{
-						map(n) = new ConstantReference( n, a )
-						true
-					}
-					else
-						false
+					map(n) = new ConstantReference( n, a )
+					true
 				}
 			case TuplePatternAST( t ) =>
 				a match

@@ -51,8 +51,8 @@ def
 
   zip3( xs, ys, zs )        =  zipWith3( (a, b, c) -> (a, b, c), xs, ys, zs )
 
-  zipWith( f, (a:as)::Stream, b:bs )  =  f( a, b ) # zipWith( f, as, bs )
-  zipWith( f, a:as, (b:bs)::Stream )  =  f( a, b ) # zipWith( f, as, bs )
+//   zipWith( f, (a:as)::Stream, b:bs )  =  f( a, b ) # zipWith( f, as, bs )
+//   zipWith( f, a:as, (b:bs)::Stream )  =  f( a, b ) # zipWith( f, as, bs )
   zipWith( f, a:as, b:bs )  =  f( a, b ) : zipWith( f, as, bs )
   zipWith( _, _, _ )        =  []
 

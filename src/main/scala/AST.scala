@@ -70,8 +70,9 @@ case class NotExprAST( exp: ExprAST ) extends ExprAST
 
 trait PatternAST extends AST
 case class AliasPatternAST( alias: String, pat: PatternAST ) extends PatternAST
+case class TypePatternAST( pat: PatternAST, typename: String ) extends PatternAST
 case class LiteralPatternAST( v: Any ) extends PatternAST
-case class VariablePatternAST( v: String, t: Option[String] ) extends PatternAST
+case class VariablePatternAST( v: String ) extends PatternAST
 case class TuplePatternAST( l: List[PatternAST] ) extends PatternAST
 case class AltPatternAST( l: List[PatternAST] ) extends PatternAST
 case class RecordPatternAST( n: String, l: List[PatternAST] ) extends PatternAST
