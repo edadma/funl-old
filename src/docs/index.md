@@ -13,7 +13,7 @@ As an example, here is a tail-recursive version of the well known factorial func
         fact( 1, n )
       | otherwise = error "factorial: n should be non-negative"
 
-Here is the same calculation expressed more concisely, but not tail-recursively.
+Here is the same calculation expressed more concisely (which is also tail-recursive internally).
 
     def factorial( n ) = product( 1..n )
 
