@@ -76,11 +76,6 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	def parseExpression( r: Reader[Char] ) = phrase( expression )( lexical.read(r) )
 
 	def parseStatement( r: Reader[Char] ) = phrase( statement )( lexical.read(r) )
-
-	def parseSnippet( r: Reader[Char] ) = phrase( snippet )( lexical.read(r) )
-
-	lazy val snippet: PackratParser[BlockExprAST] =
-		statements ^^ (BlockExprAST( _ ))
 		
 	lazy val source: PackratParser[ModuleAST] =
 		Newline ^^^ (ModuleAST( module, Nil )) |

@@ -13,6 +13,6 @@ class Statements extends FreeSpec with PropertyChecks with Matchers
 		snippet( """
 a = 3
 b = 4
-a + b	""" ) shouldBe 7
+a + b	""" ) shouldBe Some(7)
 	}
 }

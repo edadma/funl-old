@@ -5,8 +5,6 @@ Here is the actual grammar (without parser actions and other source code boilerp
 
 ## Syntactic Grammar
 
-	snippet = statements
-	
 	source = Newline | statements
 
 	declaration = imports | natives | constants | variables | data | definitions
@@ -200,9 +198,13 @@ Here is the actual grammar (without parser actions and other source code boilerp
 		"?" ~> ident
 
 	pattern =
-		(ident <~ "@") ~ pattern5 |
-		pattern5
+		(ident <~ "@") ~ pattern3 |
+		pattern3
 
+	pattern3 =
+		pattern5 ~ ("::" ~> ident) |
+		pattern5
+		
 	pattern5: PackratParser[PatternAST] =
 		pattern10 ~ (":" ~> pattern5) |
 		pattern10

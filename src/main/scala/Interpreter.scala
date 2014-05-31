@@ -18,7 +18,7 @@ import io.Source
 object Interpreter
 {
 	val PREDEF = "-predef-"
-	val VERSION = "0.7-SNAPSHOT"
+	val VERSION = "0.8-SNAPSHOT"
 	
 	def markTailRecursion( m: ModuleAST )
 	{
@@ -176,24 +176,27 @@ object Interpreter
 		}
 	}
 
-	def statement( s: String ): Any = statement( "-test-", s )
+	def statement( s: String ): Any = statement( "-statement-", s )
 
-	def snippet( s: String ) =
+	def snippet( code: String, module: String = "-snippet-" ) =
 	{
 	val eval = new Evaluator
-	val parser = new Parser( "module" )
+	val parser = new Parser( module )
 	implicit val env = new eval.Environment
 
-		parser.parseSnippet( new CharSequenceReader(s) ) match
+		parser.parseSource( new CharSequenceReader(code) ) match
 		{
 			case parser.Success( l, _ ) =>
-				eval.enterActivation( null, eval.module("module") )
-				eval.eval( l )
+				eval.enterActivation( null, eval.module(module) )
+				eval.apply( l )
+				eval.last
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
 			case parser.Error( m, r ) => PARSE_FAILURE( m )
 		}
 	}
 
+	def snippetWithMargin( code: String, module: String = "-snippet-" ) = snippet( code.stripMargin, module )
+	
 	def expression( s: String, vs: (String, Any)* ) =
 	{
 	val eval = new Evaluator
