@@ -1,0 +1,303 @@
+--------------------
+100_doors
+--------------------
+
+=={{header|FunL}}==
+=== Unoptimized ===
+<lang funl>for i <- 1..100
+  r = foldl1( (a, b) -> a xor b, [(a|i) | a <- 1..100] )
+  println( i + ' ' + (if r then 'open' else 'closed') )</lang>
+
+=== Optimized ===
+<lang funl>import math.sqrt
+
+for i <- 1..100
+  println( i + ' ' + (if sqrt(i) is Integer then 'open' else 'closed') )</lang>
+
+--------------------
+99_Bottles_of_Beer
+--------------------
+
+=={{header|FunL}}==
+<lang funl>val
+  numbers = {1:'one', 2:'two', 3:'three', 4:'four', 5:'five', 6:'six', 7:'seven',
+    8:'eight', 9:'nine', 10:'ten', 11:'eleven', 12:'twelve'}
+  alt = {3:'thir', 5:'fif'}
+
+def
+  suffix( a, b ) = (if a.endsWith( 't' ) then a.substring( 0, a.length()-1 ) else a) + b
+
+  number( n@(13 | 15) ) = suffix( alt(n%10), 'teen' )
+  number( 20 ) = 'twenty'
+  number( n@(30 | 50) ) = suffix( alt(n\10), 'ty' )
+  number( n )
+    | n <= 12 = numbers(n)
+    | n <= 19 = suffix( numbers(n%10), 'teen' )
+    | 10|n = suffix( numbers(n\10), 'ty' )
+    | otherwise = number( n\10*10 ) + '-' + number( n%10 )
+
+  cap( s ) = s.substring( 0, 1 ).toUpperCase() + s.substring( 1, s.length() )
+
+  bottles( 0 ) = 'no more bottles'
+  bottles( 1 ) = 'one bottle'
+  bottles( n ) = number( n ) + ' bottles'
+
+  verse( 0 )   = ('No more bottles of beer on the wall, no more bottles of beer.\n'
+                  + 'Go to the store and buy some more, ninety-nine bottles of beer on the wall.')
+  verse( n )   = (cap( bottles(n) ) + ' of beer on the wall, ' + bottles( n ) + ' of beer.\n'
+                  + 'Take one down and pass it around, ' + bottles( n-1 )
+                  + ' of beer on the wall.\n')
+
+for i <- 99..0 by -1 do println( verse(i) )</lang>
+
+--------------------
+A%2BB
+--------------------
+
+=={{header|FunL}}==
+<lang funl>println( sum(map(int, readLine().split(' +'))) )</lang>
+
+--------------------
+Ackermann_function
+--------------------
+
+=={{header|FunL}}==
+<lang funl>def
+  ackermann( 0, n ) = n + 1
+  ackermann( m, 0 ) = ackermann( m - 1, 1 )
+  ackermann( m, n ) = ackermann( m - 1, ackermann(m, n - 1) )
+
+for m <- 0..3, n <- 0..4
+  println( m, n, ackermann(m, n) )</lang>
+
+--------------------
+Command-line_arguments
+--------------------
+
+=={{header|FunL}}==
+<lang funl>println( args )</lang>
+
+--------------------
+Dot_product
+--------------------
+
+=={{header|FunL}}==
+<lang funl>import lists.zipWith
+
+def dot( a, b )
+  | a.length() == b.length() = sum( zipWith((x, y) -> x*y, a, b) )
+  | otherwise = error( "Vector sizes must match" )
+
+println( dot([1, 3, -5], [4, -2, -1]) )</lang>
+{{out}}<pre>3</pre>
+
+--------------------
+Draw_a_clock
+--------------------
+
+=={{header|FunL}}==
+
+<lang funl>import concurrent.{scheduleAtFixedRate, scheduler}
+
+val ROW = 10
+val COL = 20
+val digits = array( [
+  "   __",
+  " /  /",
+  "/__/ ",
+  "     ",
+  "    /",
+  "   / ",
+  "   __",
+  "  __/",
+  "/__  ",
+  "   __",
+  "  __/",
+  " __/ ",
+  "     ",
+  " /__/",
+  "   / ",
+  "   __",
+  " /__ ",
+  " __/ ",
+  "   __",
+  " /__ ",
+  "/__/ ",
+  "   __",
+  "    /",
+  "   / ",
+  "   __",
+  " /__/",
+  "/__/ ",
+  "   __",
+  " /__/",
+  " __/ "
+  ] )
+val colon = array( [
+  "  ",
+  " .",
+  ". "
+  ] )
+
+def displayTime =
+  def pad( n ) = if n < 10 then '0' + n else n
+
+  t = $time
+  s = (t + $timeZoneOffset)\1000%86400
+  time = pad( s\3600 ) + ':' + pad( s%3600\60 ) + ':' + pad( s%60 )
+
+  for row <- 0:3
+    print( if $os.startsWith('Windows') then '\n' else '\u001B[' + (ROW + row) + ';' + COL + 'H' )
+
+    for ch <- time
+      print( if ch == ':' then colon(row) else digits(int(ch)*3 + row) )
+
+  println()
+  t
+
+if not $os.startsWith( 'Windows' )
+  print( '\u001B[2J\u001B[?25l' )
+
+scheduleAtFixedRate( displayTime, 1000 - displayTime()%1000, 1000 )
+readLine()
+scheduler().shutdown()
+
+if not $os.startsWith( 'Windows' )
+  print( '\u001B[?25h' )</lang>
+
+{{out}}
+<pre>
+  __   __     __   __          __
+  __/ /  / .  __/    / . /__/    /
+/__  /__/ . /__     / .    /    /
+</pre>
+
+--------------------
+Factorial
+--------------------
+
+=={{header|FunL}}==
+=== Procedural ===
+<lang funl>def factorial( n ) =
+  if n < 0
+    error( "factorial: n should be non-negative" )
+  else
+    res = 1
+
+    for i <- 1..n
+      res *= i
+
+    res</lang>
+
+=== Recursive ===
+<lang funl>def
+  factorial( (0|1) ) = 1
+  factorial( n )
+    | n > 0 = n*factorial( n - 1 )
+    | otherwise = error( "factorial: n should be non-negative" )</lang>
+
+=== Tail-recursive ===
+<lang funl>def factorial( n )
+  | n >= 0 =
+    def
+      fact( acc, 0 ) = acc
+      fact( acc, n ) = fact( acc*n, n - 1 )
+
+    fact( 1, n )
+  | otherwise = error( "factorial: n should be non-negative" )</lang>
+
+=== Using a library function (which uses folding) ===
+<lang funl>def factorial( n )
+  | n >= 0 = product( 1..n )
+  | otherwise = error( "factorial: n should be non-negative" )</lang>
+
+--------------------
+Greatest_element_of_a_list
+--------------------
+
+=={{header|FunL}}==
+Using the pre-defined function <code>max</code>:
+<lang funl>println( max([1,2,3,-1,0]) )</lang>
+{{out}}
+<pre>
+3
+</pre>
+
+It can be implemented as:
+<lang funl>def
+  maximum( xs ) =
+    def
+      max( a, b )             = if a <= b then b else a
+
+      foldl( f, z, [] )       = z
+      foldl( f, z, x:xs )     = foldl( f, f(z, x), xs )
+
+      foldl1( f, x:xs )       = foldl( f, x, xs )
+      foldl1( _, [] )         = error( "foldl1: empty list" )
+
+    foldl1( max, xs )</lang>
+
+--------------------
+Hailstone_sequence
+--------------------
+
+=={{header|FunL}}==
+<lang funl>def
+  hailstone( 1 ) = [1]
+  hailstone( n ) = n # hailstone( if 2|n then n/2 else n*3 + 1 )
+
+if _name_ == '-main-'
+  h27 = hailstone( 27 )
+  assert( h27.length() == 112 and h27.startsWith([27, 82, 41, 124]) and h27.endsWith([8, 4, 2, 1]) )
+
+  val (n, len) = maxBy( snd, [(i, hailstone( i ).length()) | i <- 1:100000] )
+
+  println( n, len )</lang>
+
+{{out}}
+
+<pre>
+77031, 351
+</pre>
+
+--------------------
+Hello_world/Graphical
+--------------------
+
+=={{header|FunL}}==
+<lang funl>native javax.swing.{SwingUtilities, JPanel, JLabel, JFrame}
+native java.awt.Font
+
+def createAndShowGUI( msg ) =
+  f = JFrame()
+  f.setTitle( msg )
+  f.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE )
+  p = JPanel()
+  l = JLabel( msg )
+  l.setFont( Font.decode(Font.SERIF + ' 150') )
+  p.add( l )
+  f.add( p )
+  f.pack()
+  f.setResizable( false )
+  f.setVisible( true )
+
+SwingUtilities.invokeLater( createAndShowGUI.runnable('Goodbye, World!') )</lang>
+
+--------------------
+Hello_world/Web_server
+--------------------
+
+=={{header|FunL}}==
+<lang funl>native java.io.PrintWriter
+native java.net.ServerSocket
+
+val port = 8080
+val listener = ServerSocket( port )
+
+printf( 'Listening at port %1$d\n', port )
+
+forever
+  socket = listener.accept()
+  PrintWriter( socket.getOutputStream(), true ).println( 'hello world' )
+  socket.shutdownOutput()
+  socket.close()</lang>
