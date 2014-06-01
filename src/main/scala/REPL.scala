@@ -1,9 +1,9 @@
-/*     ______            __                                                  *\
-**    / ____/_  __ ___  / /     FunL Programming Language                    **
-**   / __/ / / / / __ \/ /      Copyright (c) 2014 by Edward A. Maxedon, Sr. **
-**  / /   / /_/ / / / / /__     http://funl-lang.org/                        **
-** /_/    \____/_/ /_/____/                                                  **
-\*                                                                           */
+/*     ______            __                                      *\
+**    / ____/_  __ ___  / /     FunL Programming Language        **
+**   / __/ / / / / __ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
+** /_/    \____/_/ /_/____/                                      **
+\*                                                               */
 
 package funl
 
@@ -31,10 +31,10 @@ object REPL extends App
 
 	for {line <- """	|    ______            __
 									|   / ____/_  __ ___  / /     FunL Programming Language
-									|  / __/ / / / / __ \/ /      Copyright (c) 2014 by Edward A. Maxedon, Sr.
+									|  / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr.
 									| / /   / /_/ / / / / /__     http://funl-lang.org/
 									|/_/    \____/_/ /_/____/                                     
-									|                                                                          """.stripMargin.lines}
+									|                                                             """.stripMargin.lines}
 		out.println( line )
 
 	out.println( "Welcome to FunL version " + VERSION )

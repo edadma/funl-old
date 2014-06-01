@@ -1,9 +1,9 @@
-/*     ______            __                                      *\
-**    / ____/_  __ ___  / /     FunL Programming Language        **
-**   / __/ / / / / __ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
-**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
-** /_/    \____/_/ /_/____/                                      **
-\*                                                               */
+/*     ______            __                                     *\
+**    / ____/_  __ ___  / /     FunL Programming Language       **
+**   / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/           **
+** /_/    \____/_/ /_/____/                                     **
+\*                                                              */
 
 function funl.modules.Math.{
 	sqrt
@@ -17,8 +17,8 @@ def
 
 def sigma( range, f ) = sum( [f(x) | x <- range] )
 
-def even( n::Integer ) = n%2 == 0
+def even( n ) = 2|n
 
-def odd( n::Integer ) = n%2 == 1
+def odd( n ) = 2/|n
 
 def B( n::Integer ) | n >= 0 = sigma( 0..n, k -> 1/(k + 1)*sigma(0..k, r -> (if even(r) then 1 else -1)*choose(k, r)*(r^n)) )

@@ -426,7 +426,6 @@ class Evaluator extends Types
 							RuntimeException( "unification error in for loop" )
 
 						if (g.head.filter == None || beval(g.head.filter.get))
-						{
 							try
 							{
 								if (g.tail != Nil)
@@ -439,7 +438,6 @@ class Evaluator extends Types
 								case _: ContinueThrowable =>
 									restoreState( st )
 							}
-						}
 					}
 				}
 				
@@ -869,10 +867,8 @@ class Evaluator extends Types
 						case s: Stream[Any] => s
 						case _ => RuntimeException( "not a valid stream: " + tail )
 					}
-					
-				val callable = thunk( tail ).callable
-				
-				push( eval(head) #:: stream(callable.call) )
+
+				push( eval(head) #:: stream(thunk( tail ).callable.call) )
 			case SetExprAST( l ) =>
 				apply( l )
 				push( list(l.length).toSet )
