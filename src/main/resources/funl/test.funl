@@ -1,1 +1,10 @@
-println( 'asdf' )
+def f =
+	a = 3
+
+	def g =
+		a++
+		a
+
+	g
+
+println( f()() )

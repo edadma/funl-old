@@ -470,7 +470,7 @@ class Evaluator
 			exitScope
 		}
 
-		def thunk( t: ExprAST ) = new Closure( env.activations.top, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )
+		def thunk( t: ExprAST ) = new Closure( env.activations.top.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )
 		
 		t match
 		{
@@ -571,8 +571,8 @@ class Evaluator
 			case DefAST( name, func ) =>
 				declarationSymbolMapContainer.get(name) match
 				{
-					case None => declarationSymbolMapContainer(name) = new Closure( if (topLevel) null else env.activations.top, currentModule, List(func) )
-					case Some( c: Closure ) => declarationSymbolMapContainer(name) = new Closure( if (topLevel) null else env.activations.top, currentModule, c.funcs :+ func )
+					case None => declarationSymbolMapContainer(name) = new Closure( if (topLevel) null else env.activations.top.copy, currentModule, List(func) )
+					case Some( c: Closure ) => declarationSymbolMapContainer(name) = new Closure( if (topLevel) null else env.activations.top.copy, currentModule, c.funcs :+ func )
 					case _ => RuntimeException( "already declared: " + name )
 				}
 
@@ -734,8 +734,8 @@ class Evaluator
 				}
 			case NotExprAST( e ) => push( !beval(e) )
 			case VariableExprAST( v ) => push( vars(v).get )
-			case CaseFunctionExprAST( cases ) => push( new Closure(env.activations.top, currentModule, cases) )
-			case f@FunctionExprAST( _, _ ) => push( new Closure(env.activations.top, currentModule, List(f)) )
+			case CaseFunctionExprAST( cases ) => push( new Closure(env.activations.top.copy, currentModule, cases) )
+			case f@FunctionExprAST( _, _ ) => push( new Closure(env.activations.top.copy, currentModule, List(f)) )
 			case ApplyExprAST( f, args, tailrecursive ) =>
 				apply( f )
 				apply( args )
