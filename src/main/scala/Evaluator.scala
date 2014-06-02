@@ -84,10 +84,15 @@ class Evaluator
 		override def toString = "Activation( " + closure + ", " + scope + " )"
 	}
 
-	class Environment
+	class Environment( private[interp] var stack: StackArray[Any] = new StackArray, private[interp] var activations: StackArray[Activation] = new StackArray )
 	{
-		val stack = new StackArray[Any]
-		val activations = new StackArray[Activation]
+		def copy =
+		{
+		val a = activations.copy
+
+//			a.top( a.top.copy )
+			new Environment( stack.copy, a )
+		}
 	}
 
 	class Datatype( name: String )
@@ -405,13 +410,10 @@ class Evaluator
 			buf.toList
 		}
 
-		def getState = new State( env.stack.size, env.activations.size, env.activations.top.scope.size )
-
-		def restoreState( st: State )
+		def restoreEnvironment( st: Environment )
 		{
-			env.stack reduceToSize st.stack
-			env.activations reduceToSize st.activations
-			env.activations.top.scope reduceToSize st.scope
+			env.stack = st.stack
+			env.activations = st.activations
 		}
 
 		def exitScope = env.activations.top.scope pop
@@ -422,7 +424,7 @@ class Evaluator
 		{
 			enterScope
 
-		val st = getState
+		val st = env.copy
 
 			try
 			{
@@ -449,7 +451,7 @@ class Evaluator
 							catch
 							{
 								case _: ContinueThrowable =>
-									restoreState( st )
+									restoreEnvironment( st )
 							}
 					}
 				}
@@ -462,7 +464,7 @@ class Evaluator
 			catch
 			{
 				case _: BreakThrowable =>
-					restoreState( st )
+					restoreEnvironment( st )
 			}
 
 			exitScope
@@ -925,7 +927,7 @@ class Evaluator
 			case ForeverExprAST( body ) =>
 				enterScope
 				
-				val st = getState
+				val st = env.copy
 
 				void
 
@@ -943,7 +945,7 @@ class Evaluator
 						catch
 						{
 							case _: ContinueThrowable =>
-								restoreState( st )
+								restoreEnvironment( st )
 								void
 						}
 					}
@@ -951,7 +953,7 @@ class Evaluator
 				catch
 				{
 					case _: BreakThrowable =>
-						restoreState( st )
+						restoreEnvironment( st )
 						void
 				}
 
@@ -959,7 +961,7 @@ class Evaluator
 			case WhileExprAST( cond, body, e ) =>
 				enterScope
 				
-				val st = getState
+				val st = env.copy
 
 				void
 
@@ -976,7 +978,7 @@ class Evaluator
 						catch
 						{
 							case _: ContinueThrowable =>
-								restoreState( st )
+								restoreEnvironment( st )
 								void
 						}
 					}
@@ -990,7 +992,7 @@ class Evaluator
 				catch
 				{
 					case _: BreakThrowable =>
-						restoreState( st )
+						restoreEnvironment( st )
 						void
 				}
 
@@ -998,7 +1000,7 @@ class Evaluator
 			case DoWhileExprAST( body, cond, e ) =>
 				enterScope
 
-				val st = getState
+				val st = env.copy
 
 				void
 
@@ -1016,7 +1018,7 @@ class Evaluator
 						catch
 						{
 							case _: ContinueThrowable =>
-								restoreState( st )
+								restoreEnvironment( st )
 								void
 						}
 					}
@@ -1031,7 +1033,7 @@ class Evaluator
 				catch
 				{
 					case _: BreakThrowable =>
-						restoreState( st )
+						restoreEnvironment( st )
 						void
 				}
 
@@ -1039,7 +1041,7 @@ class Evaluator
 			case RepeatExprAST( body, cond, e ) =>
 				enterScope
 
-				val st = getState
+				val st = env.copy
 
 				void
 
@@ -1057,7 +1059,7 @@ class Evaluator
 						catch
 						{
 							case _: ContinueThrowable =>
-								restoreState( st )
+								restoreEnvironment( st )
 								void
 						}
 					}
@@ -1072,7 +1074,7 @@ class Evaluator
 				catch
 				{
 					case _: BreakThrowable =>
-						restoreState( st )
+						restoreEnvironment( st )
 						void
 				}
 

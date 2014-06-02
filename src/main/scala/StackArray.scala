@@ -10,7 +10,7 @@ package funl.interp
 
 class StackArray[T]
 {
-	private[funl.interp] var stack: List[T] = Nil
+	private[interp] var stack: List[T] = Nil
 
 	private def check = require( !stack.isEmpty, "stack empty" )
 	
