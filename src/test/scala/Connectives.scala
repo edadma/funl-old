@@ -4,10 +4,9 @@ import org.scalatest._
 import prop.PropertyChecks
 
 import funl.interp.Interpreter._
-import funl.interp.Types
 
 
-class Connectives extends FreeSpec with PropertyChecks with Matchers with Types
+class Connectives extends FreeSpec with PropertyChecks with Matchers
 {
 	val p =
 	Table( "p", true, false )
