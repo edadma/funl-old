@@ -7,34 +7,47 @@
 
 package funl.interp
 
-import collection.mutable.ArrayBuffer
 
-
-class StackArray[T] extends ArrayBuffer[T]
+class StackArray[T]
 {
+	private[funl.interp] var stack: List[T] = Nil
+
+	private def check = require( !stack.isEmpty, "stack empty" )
+	
 	def push( a: T )
 	{
-		append( a )
+		stack = a :: stack
 	}
 
 	def pop: T =
 	{
 	val res = top
-
-		reduceToSize( size - 1 )
+	
+		stack = stack.tail
 		res
 	}
 
 	def top =
 	{
-		require( !isEmpty, "stack underflow" )
-		apply( size - 1 )
+		check
+		stack.head
 	}
 
+	def top( a: T )
+	{
+		check
+		stack = a :: stack.tail
+	}
+	
 	def copy =
 	{
 	val res = new StackArray[T]
 
-		
+		res.stack = stack
+		res
 	}
+
+	def find( p: T => Boolean ) = stack find p
+
+	def size = stack.size
 }

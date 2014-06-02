@@ -19,7 +19,7 @@ import funl.lia.{Complex, Math}
 import Interpreter._
 
 
-class Evaluator extends Types
+class Evaluator
 {
 	class Closure( val referencing: Activation, val module: Module, val funcs: List[FunctionExprAST] )
 	{
@@ -65,9 +65,21 @@ class Evaluator extends Types
 		override def toString = "<closure>"
 	}
 
-	class Activation( val closure: Closure, val module: Module, val scope: StackArray[SymbolMap] = new StackArray )
+	class Activation( val closure: Closure, val module: Module, val scope: StackArray[SymbolMap] = new StackArray ) extends SymbolMapContainer
 	{
-//		def copy =
+		def copy = new Activation( closure, module, scope.copy )
+		
+		def apply( key: String ) = synchronized (scope.top( key ))
+
+		def get( key: String ) = synchronized (scope.top.get( key ))
+
+		def update( key: String, value: Any ) = synchronized (scope.top( scope.top + (key -> value) ))
+
+		def contains( key: String ) = synchronized (scope.top contains key)
+
+		def remove( key: String ) = synchronized (scope.top( scope.top - key ))
+
+		def clear = synchronized (scope.top( symbolMap ))
 		
 		override def toString = "Activation( " + closure + ", " + scope + " )"
 	}
@@ -108,13 +120,14 @@ class Evaluator extends Types
 
 	class State( val stack: Int, val activations: Int, val scope: Int )
 
-	val symbols = new SymbolMap
-	val sysvars = new SymbolMap
+	private var symbols = symbolMap
+	private var sysvars = symbolMap
+	
 	var last: Option[Any] = None
 
 	def sysvar( k: String )( v: => Any )
 	{
-		sysvars(k) = new SystemReference( k )( v )
+		sysvars += k -> new SystemReference( k )( v )
 	}
 
 	sysvar( "time" ) {compat.Platform.currentTime}
@@ -135,7 +148,7 @@ class Evaluator extends Types
 			case None =>
 				val res = new Module( m )
 			
-				symbols(m) = res
+				symbols += m -> res
 				res
 			case Some( res ) => res.asInstanceOf[Module]
 		}
@@ -149,7 +162,7 @@ class Evaluator extends Types
 
 	def assign( m: String, key: String, value: Any ) = synchronized
 	{
-	val syms = module(m).symbols
+	val syms = module(m)
 	
 		if (syms contains key)
 			RuntimeException( "already declared: " + key )
@@ -224,7 +237,7 @@ class Evaluator extends Types
 
 	def exitActivation( implicit env: Environment ) = env.activations.pop
 
-	def enterScope( implicit env: Environment ) = env.activations.top.scope push new SymbolMap
+	def enterScope( implicit env: Environment ) = env.activations.top.scope push symbolMap
 
 	def load( m: String )( implicit env: Environment ) =
 		if (!loaded( m ))
@@ -243,7 +256,7 @@ class Evaluator extends Types
 			assign( m, k -> v )
 	}
 
-	def localScope( implicit env: Environment ) = env.activations.top.scope.top
+	def localScope( implicit env: Environment ): SymbolMapContainer = env.activations.top
 
 	def invoke( c: Closure, argList: List[Any] )( implicit env: Environment )
 	{
@@ -319,7 +332,7 @@ class Evaluator extends Types
 		{
 			def vars( a: Activation ): Option[Any] =
 			{
-				a.scope.reverseIterator find (_ contains name) match
+				a.scope find (_ contains name) match
 				{
 					case None =>
 						if (a.closure != null && a.closure.referencing != null)
@@ -352,7 +365,7 @@ class Evaluator extends Types
 
 		def declare( key: String, value: Any ) =
 		{
-		val syms = declarationSymbolMap
+		val syms = declarationSymbolMapContainer
 
 			if (syms contains key)
 				RuntimeException( "already declared: " + key )
@@ -368,9 +381,9 @@ class Evaluator extends Types
 
 		def currentModule = env.activations.top.module
 		
-		def declarationSymbolMap =
+		def declarationSymbolMapContainer =
 			if (topLevel)
-				currentModule.symbols
+				currentModule
 			else
 				localScope
 
@@ -403,7 +416,7 @@ class Evaluator extends Types
 
 		def exitScope = env.activations.top.scope pop
 
-		def topLevel = env.activations.top.scope.length == 1 && env.activations.top.closure == null
+		def topLevel = env.activations.top.scope.size == 1 && env.activations.top.closure == null
 
 		def forLoop( gen: List[GeneratorAST], body: =>Unit, elseClause: Option[ExprAST] )
 		{
@@ -464,7 +477,7 @@ class Evaluator extends Types
 					loadPredef( m )
 
 				enterActivation( null, module(m) )
-        currentModule.symbols( "_name_" ) = m
+        currentModule( "_name_" ) = m
 				apply( s )
 			case DeclStatementAST( s ) =>
 				apply( s )
@@ -554,10 +567,10 @@ class Evaluator extends Types
 					else
 						declare( name, Constructor(currentModule, n, name, fields) )
 			case DefAST( name, func ) =>
-				declarationSymbolMap.get(name) match
+				declarationSymbolMapContainer.get(name) match
 				{
-					case None => declarationSymbolMap(name) = new Closure( if (topLevel) null else env.activations.top, currentModule, List(func) )
-					case Some( c: Closure ) => declarationSymbolMap(name) = new Closure( if (topLevel) null else env.activations.top, currentModule, c.funcs :+ func )
+					case None => declarationSymbolMapContainer(name) = new Closure( if (topLevel) null else env.activations.top, currentModule, List(func) )
+					case Some( c: Closure ) => declarationSymbolMapContainer(name) = new Closure( if (topLevel) null else env.activations.top, currentModule, c.funcs :+ func )
 					case _ => RuntimeException( "already declared: " + name )
 				}
 
@@ -565,9 +578,9 @@ class Evaluator extends Types
 			case ExpressionStatementAST( e ) =>
 				last = Some( eval(e) )
 			case ValAST( p, e ) =>
-				clear( declarationSymbolMap, p ) foreach export
+				clear( declarationSymbolMapContainer, p ) foreach export
 
-				if (!unify( declarationSymbolMap, eval(e), p ))
+				if (!unify( declarationSymbolMapContainer, eval(e), p ))
 					RuntimeException( "unification failure" )
 			case SysvarExprAST( s ) =>
 				synchronized (sysvars.get( s )) match
@@ -1119,7 +1132,7 @@ class Evaluator extends Types
 		}
 	}
 	
-	def clear( map: SymbolMap, p: PatternAST ) =
+	def clear( map: SymbolMapContainer, p: PatternAST ) =
 	{
 	var vars: List[String] = Nil
 	
@@ -1170,7 +1183,7 @@ class Evaluator extends Types
 			case _ => RuntimeException( "unknown type: " + t )
 		}
 	
-	def unify( map: SymbolMap, a: Any, p: PatternAST ): Boolean =
+	def unify( map: SymbolMapContainer, a: Any, p: PatternAST ): Boolean =
 		p match
 		{
 			case LiteralPatternAST( v ) => a == v
@@ -1232,7 +1245,7 @@ class Evaluator extends Types
 				alts exists (unify( map, a, _ ))
 		}
 
-	def pattern( map: SymbolMap, args: List[Any], parms: List[PatternAST] ) =
+	def pattern( map: SymbolMapContainer, args: List[Any], parms: List[PatternAST] ) =
 	{
 		def pattern( ah: Any, at: List[Any], ph: PatternAST, pt: List[PatternAST] ): Boolean =
 		{

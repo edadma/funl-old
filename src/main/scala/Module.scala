@@ -10,9 +10,9 @@ package funl.interp
 import collection.mutable.HashSet
 
 
-class Module( val name: String ) extends Types
+class Module( val name: String ) extends SymbolMapContainer
 {
-	val symbols = new SymbolMap
+	private var symbols = symbolMap
 	val datatypes = new HashSet[String]
 	val exports = new HashSet[String]
 
@@ -23,4 +23,10 @@ class Module( val name: String ) extends Types
 	def contains( key: String ) = synchronized (symbols contains key)
 
 	def iterator = synchronized (symbols.iterator)
+
+	def update( k: String, v: Any ) = synchronized (symbols += (k -> v))
+
+	def remove( key: String ) = synchronized (symbols -= key)
+
+	def clear = synchronized (symbols = symbolMap)
 }
