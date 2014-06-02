@@ -30,4 +30,11 @@ class StackArray[T] extends ArrayBuffer[T]
 		require( !isEmpty, "stack underflow" )
 		apply( size - 1 )
 	}
+
+	def copy =
+	{
+	val res = new StackArray[T]
+
+		
+	}
 }

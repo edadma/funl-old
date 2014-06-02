@@ -65,10 +65,10 @@ class Evaluator extends Types
 		override def toString = "<closure>"
 	}
 
-	class Activation( val closure: Closure, val module: Module )
+	class Activation( val closure: Closure, val module: Module, val scope: StackArray[SymbolMap] = new StackArray )
 	{
-		val scope = new StackArray[SymbolMap]
-
+//		def copy =
+		
 		override def toString = "Activation( " + closure + ", " + scope + " )"
 	}
 
