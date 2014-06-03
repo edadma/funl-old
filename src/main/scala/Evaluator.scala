@@ -883,7 +883,9 @@ class Evaluator
 						case _ => RuntimeException( "not a valid stream: " + tail )
 					}
 
-				push( eval(head) #:: stream(thunk( tail ).callable.call) )
+				val callable = thunk( tail ).callable
+				
+				push( eval(head) #:: stream(callable.call) )
 			case SetExprAST( l ) =>
 				apply( l )
 				push( list(l.length).toSet )
