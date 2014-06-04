@@ -11,7 +11,7 @@ As an example, here is a tail-recursive version of the well known factorial func
           fact( acc, n ) = fact( acc*n, n - 1 )
 
         fact( 1, n )
-      | otherwise = error "factorial: n should be non-negative"
+      | otherwise = error( "factorial: n should be non-negative" )
 
 Here is the same calculation expressed more concisely (which is also tail-recursive internally).
 
