@@ -243,7 +243,7 @@ class Evaluator
 
 	def exitActivation( implicit env: Environment ) = env.activations.pop
 
-	def enterScope( implicit env: Environment ) = env.activations.top.scope push symbolMap
+	def enterScope( implicit env: Environment ) = currentActivation.scope push symbolMap
 
 	def load( m: String )( implicit env: Environment ) =
 		if (!loaded( m ))
@@ -262,7 +262,9 @@ class Evaluator
 			assign( m, k -> v )
 	}
 
-	def localScope( implicit env: Environment ): SymbolMapContainer = env.activations.top
+	def currentActivation( implicit env: Environment ) = env.activations.top
+
+	def currentModule( implicit env: Environment ) = env.activations.top.module
 
 	def invoke( c: Closure, argList: List[Any] )( implicit env: Environment )
 	{
@@ -271,7 +273,7 @@ class Evaluator
 			def findPart: Option[FunctionPartExprAST] =
 			{
 				for (alt <- c.funcs)
-					if (pattern( localScope, argList, alt.parms ))
+					if (pattern( currentActivation, argList, alt.parms ))
 					{
 						for (part <- alt.parts)
 							part.cond match
@@ -282,7 +284,7 @@ class Evaluator
 										return Some( part )
 							}
 
-						localScope.clear
+						currentActivation.clear
 					}
 
 				None
@@ -295,7 +297,7 @@ class Evaluator
 					apply( part.body ) match
 					{
 						case a: List[Any] =>
-							localScope.clear
+							currentActivation.clear
 							occur( a )
 						case _ =>
 					}
@@ -364,7 +366,7 @@ class Evaluator
 		{
 		val ref = new VariableReference
 			
-			localScope(name) = ref
+			currentActivation(name) = ref
 			
 			ref
 		}
@@ -384,14 +386,12 @@ class Evaluator
 		def export( sym: String ) =
 			if (topLevel)
 				env.activations.top.module.exports.add( sym )
-
-		def currentModule = env.activations.top.module
 		
 		def declarationSymbolMapContainer =
 			if (topLevel)
 				currentModule
 			else
-				localScope
+				currentActivation
 
 		def push( v: Any ) = env.stack.push( long2bigint(v) )
 
@@ -434,11 +434,11 @@ class Evaluator
 					teval( g.head.traversable ).foreach
 					{ elem =>
 						if (g eq gen)
-							localScope.clear
+							currentActivation.clear
 						else
-							clear( localScope, g.head.pattern )
+							clear( currentActivation, g.head.pattern )
 
-						if (!unify( localScope, deref(elem), g.head.pattern ))
+						if (!unify( currentActivation, deref(elem), g.head.pattern ))
 							RuntimeException( "unification error in for loop" )
 
 						if (g.head.filter == None || beval(g.head.filter.get))
@@ -471,8 +471,58 @@ class Evaluator
 			exitScope
 		}
 
-		def thunk( t: ExprAST ) = new Closure( env.activations.top.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )
-		
+		def thunk( t: ExprAST ) = new Closure( currentActivation.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )
+
+		def iterator( e: ExprAST, gs: List[GeneratorAST] ) =
+			new Iterator[Any]
+			{
+				val ps = gs map (_.pattern) toVector
+				val ts = gs map (g => teval(g.traversable)) toVector
+				val fs = gs map (_.filter) toVector
+				val is = ts map (_.toIterator) toArray
+				val len = is.length
+				val itenv = new Environment
+			// 						var hasNext_ = true
+			// 						var next_: Option[Any] = None
+
+				enterActivation( null, currentActivation, currentModule )( itenv )
+
+				def hasNext =
+				{
+					is.head.hasNext
+				}
+			// 							for (i <- len - 1 to 0 by -1)
+			// 							{
+			// 								if (is(i).hasNext)
+			// 								{
+			// 									it(i).next
+			// 								}
+			// 								else
+			// 							}
+			//						}
+
+				def next =
+				{
+					def _next: Any =
+						if (hasNext)
+						{
+							clear( currentActivation(itenv), ps.head )
+
+							if (!unify( currentActivation(itenv), deref(is.head.next), ps.head ))
+								RuntimeException( "unification error in iterator" )
+
+							if (fs.head == None || beval( fs.head.get )( itenv ))
+								eval( e )( itenv )
+							else
+								_next
+						}
+						else
+							RuntimeException( "iterator empty" )
+
+					_next
+				}
+			}
+
 		t match
 		{
 			case ModuleAST( m, s ) =>
@@ -856,58 +906,9 @@ class Evaluator
 			case TupleExprAST( l, r ) =>
 				push( (eval(l), eval(r)) )
 			case IteratorExprAST( e, gs ) =>
-				val res =
-					new Iterator[Any]
-					{
-						val ps = gs map (_.pattern) toVector
-						val ts = gs map (g => teval(g.traversable)) toVector
-						val fs = gs map (_.filter) toVector
-						val is = ts map (_.toIterator) toArray
-						val len = is.length
-						val itenv = new Environment
-// 						var hasNext_ = true
-// 						var next_: Option[Any] = None
-						
-						enterActivation( null, env.activations.top, currentModule )( itenv )
-
-						def hasNext =
-						{
-							is.head.hasNext
-						}
-// 							for (i <- len - 1 to 0 by -1)
-// 							{
-// 								if (is(i).hasNext)
-// 								{
-// 									it(i).next
-// 								}
-// 								else
-// 							}
-//						}
-
-						def next =
-						{
-							def _next: Any =
-								if (hasNext)
-								{
-									clear( localScope(itenv), ps.head )
-
-									if (!unify( localScope(itenv), deref(is.head.next), ps.head ))
-										RuntimeException( "unification error in iterator" )
-
-									if (fs.head == None || beval( fs.head.get )( itenv ))
-										eval( e )( itenv )
-									else
-										_next
-								}
-								else
-									RuntimeException( "iterator empty" )
-									
-							_next
-						}
-					}
-
-				push( res )
+				push( iterator(e, gs) )
 			case ListComprehensionExprAST( IteratorExprAST(e, gs) ) =>
+				push( iterator(e, gs).toStream )
 // 				val buf = new ListBuffer[Any]
 // 
 // 				forLoop( gs, buf += eval(e), None )
@@ -990,7 +991,7 @@ class Evaluator
 				{
 					while (true)
 					{
-						localScope.clear
+						currentActivation.clear
 						pop
 
 						try
@@ -1022,7 +1023,7 @@ class Evaluator
 
 				try
 				{
-					while ({	localScope.clear; beval( cond )})
+					while ({	currentActivation.clear; beval( cond )})
 					{
 						pop
 
@@ -1063,7 +1064,7 @@ class Evaluator
 				{
 					do
 					{
-						localScope.clear
+						currentActivation.clear
 						pop
 
 						try
@@ -1104,7 +1105,7 @@ class Evaluator
 				{
 					do
 					{
-						localScope.clear
+						currentActivation.clear
 						pop
 
 						try
