@@ -169,12 +169,6 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val expression: PackratParser[ExprAST] = expr <~ Newline
 	
 	lazy val statement: PackratParser[StatementAST] =
-// 		ident ~ rep1sep( expr, "," ) <~ Newline ^^
-// 			{case f ~ args =>
-// 				if (args == List(UnitExprAST))
-// 					ExpressionStatementAST( ApplyExprAST(VariableExprAST(Symbol(f)), Nil, false) )
-// 				else
-// 					ExpressionStatementAST( ApplyExprAST(VariableExprAST(Symbol(f)), args, false) )} |
 		expr <~ Newline ^^ (ExpressionStatementAST( _ )) |
 		declaration
 
@@ -242,12 +236,17 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		expr22
 
 	lazy val expr22: PackratParser[ExprAST] =
-		expr26 ~ ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" | "|" | "/|") ~ expr26 ^^
+		expr24 ~ ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" | "|" | "/|") ~ expr24 ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
-		expr26 ~ "is" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
+		expr24 ~ "is" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
+		expr24
+
+	lazy val expr24: PackratParser[ExprAST] =
+		(comprehensionExpr <~ "|") ~ generators ^^
+			{case e ~ gs => IteratorExprAST( e, gs )} |
 		expr26
 
-	lazy val listComprehensionExpr = expr26
+	lazy val comprehensionExpr = expr26
 	
 	lazy val expr26: PackratParser[ExprAST] =
 		expr27 ~ (":" ~> expr26) ^^ {case h ~ t => ConsExprAST( h, t )} |
@@ -306,6 +305,10 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val entry =
 		jsonExpr ~ (":" ~> expr) ^^ {case k ~ v => TupleExprAST( k, v )}
 
+	lazy val iteratorExpr =
+		comprehensionExpr ~ ("|" ~> generators) ^^
+			{case e ~ g => IteratorExprAST( e, g )}
+	
 	lazy val expr40: PackratParser[ExprAST] =
 		numericLit ^^
 			(n =>
@@ -331,8 +334,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			UnitExprAST |
 		("(" ~> nonassignmentExpr <~ ",") ~ (rep1sep(nonassignmentExpr, ",") <~ ")") ^^
 			{case e ~ l => VectorExprAST( e +: l )} |
-		("[" ~> listComprehensionExpr) ~ ("|" ~> generators <~ "]") ^^
-			{case e ~ g => ListComprehensionExprAST( e, g )} |
+		"[" ~> iteratorExpr <~ "]" ^^
+			(ListComprehensionExprAST( _ )) |
 		"[" ~> repsep(nonassignmentExpr, ",") <~ "]" ^^
 			{case l => ListExprAST( l )} |
 		"null" ^^

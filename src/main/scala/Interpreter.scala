@@ -158,7 +158,7 @@ object Interpreter
 	val eval = new Evaluator
 	implicit val env = new eval.Environment
 	
-		eval.enterActivation( null, eval.module(m) )
+		eval.enterActivation( null, null, eval.module(m) )
 		statement( m, s, eval )
 	}
 
@@ -187,7 +187,7 @@ object Interpreter
 		parser.parseSource( new CharSequenceReader(code) ) match
 		{
 			case parser.Success( l, _ ) =>
-				eval.enterActivation( null, eval.module(module) )
+				eval.enterActivation( null, null, eval.module(module) )
 				eval.apply( l )
 				eval.last
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
@@ -206,7 +206,7 @@ object Interpreter
 		parser.parseExpression( new CharSequenceReader(s) ) match
 		{
 			case parser.Success( l, _ ) =>
-				eval.enterActivation( null, eval.module("module") )
+				eval.enterActivation( null, null, eval.module("module") )
 				eval.assign( "module", vs: _* )
 				eval.eval( l )
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )

@@ -8,7 +8,7 @@
 package funl.interp
 
 
-class StackArray[T]
+class ListStack[T]
 {
 	private[interp] var stack: List[T] = Nil
 
@@ -41,7 +41,7 @@ class StackArray[T]
 	
 	def copy =
 	{
-	val res = new StackArray[T]
+	val res = new ListStack[T]
 
 		res.stack = stack
 		res

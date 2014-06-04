@@ -65,9 +65,10 @@ class Evaluator
 		override def toString = "<closure>"
 	}
 
-	class Activation( val closure: Closure, val module: Module, val scope: StackArray[SymbolMap] = new StackArray ) extends SymbolMapContainer
+	class Activation( val closure: Closure, val referencing: Activation, val module: Module, val scope: ListStack[SymbolMap] = new ListStack ) extends SymbolMapContainer
 	{
-		def copy = new Activation( closure, module, scope.copy )
+		// think about copying referencing too
+		def copy = new Activation( closure, referencing, module, scope.copy )
 		
 		def apply( key: String ) = synchronized (scope.top( key ))
 
@@ -84,7 +85,7 @@ class Evaluator
 		override def toString = "Activation( " + closure + ", " + scope + " )"
 	}
 
-	class Environment( private[interp] var stack: StackArray[Any] = new StackArray, private[interp] var activations: StackArray[Activation] = new StackArray )
+	class Environment( private[interp] var stack: ListStack[Any] = new ListStack, private[interp] var activations: ListStack[Activation] = new ListStack )
 	{
 		def copy =
 		{
@@ -234,9 +235,9 @@ class Evaluator
 
 	def long2bigint( v: Any ) = if (v.isInstanceOf[Long]) BigInt(v.asInstanceOf[Long]) else v
 
-	def enterActivation( closure: Closure, module: Module )( implicit env: Environment )
+	def enterActivation( closure: Closure, referencing: Activation, module: Module )( implicit env: Environment )
 	{
-		env.activations push new Activation( closure, module )
+		env.activations push new Activation( closure, referencing, module )
 		enterScope
 	}
 
@@ -301,7 +302,7 @@ class Evaluator
 			}
 		}
 
-		enterActivation( c, c.module )
+		enterActivation( c, c.referencing, c.module )
 		occur( argList )
 		exitActivation
 	}
@@ -340,8 +341,8 @@ class Evaluator
 				a.scope find (_ contains name) match
 				{
 					case None =>
-						if (a.closure != null && a.closure.referencing != null)
-							vars( a.closure.referencing )
+						if (a.referencing != null)
+							vars( a.referencing )
 						else
 							currentModule.get( name ) match
 							{
@@ -478,7 +479,7 @@ class Evaluator
 				if (m != PREDEF)
 					loadPredef( m )
 
-				enterActivation( null, module(m) )
+				enterActivation( null, null, module(m) )
         currentModule( "_name_" ) = m
 				apply( s )
 			case DeclStatementAST( s ) =>
@@ -854,11 +855,63 @@ class Evaluator
 				push( list(l.length).toVector )
 			case TupleExprAST( l, r ) =>
 				push( (eval(l), eval(r)) )
-			case ListComprehensionExprAST( e, g ) =>
-				val buf = new ListBuffer[Any]
+			case IteratorExprAST( e, gs ) =>
+				val res =
+					new Iterator[Any]
+					{
+						val ps = gs map (_.pattern) toVector
+						val ts = gs map (g => teval(g.traversable)) toVector
+						val fs = gs map (_.filter) toVector
+						val is = ts map (_.toIterator) toArray
+						val len = is.length
+						val itenv = new Environment
+// 						var hasNext_ = true
+// 						var next_: Option[Any] = None
+						
+						enterActivation( null, env.activations.top, currentModule )( itenv )
 
-				forLoop( g, buf += eval(e), None )
-				push( buf.toList )
+						def hasNext =
+						{
+							is.head.hasNext
+						}
+// 							for (i <- len - 1 to 0 by -1)
+// 							{
+// 								if (is(i).hasNext)
+// 								{
+// 									it(i).next
+// 								}
+// 								else
+// 							}
+//						}
+
+						def next =
+						{
+							def _next: Any =
+								if (hasNext)
+								{
+									clear( localScope(itenv), ps.head )
+
+									if (!unify( localScope(itenv), deref(is.head.next), ps.head ))
+										RuntimeException( "unification error in iterator" )
+
+									if (fs.head == None || beval( fs.head.get )( itenv ))
+										eval( e )( itenv )
+									else
+										_next
+								}
+								else
+									RuntimeException( "iterator empty" )
+									
+							_next
+						}
+					}
+
+				push( res )
+			case ListComprehensionExprAST( IteratorExprAST(e, gs) ) =>
+// 				val buf = new ListBuffer[Any]
+// 
+// 				forLoop( gs, buf += eval(e), None )
+// 				push( buf.toList )
 			case ListExprAST( l ) =>
 				apply( l )
 				push( list(l.length) )

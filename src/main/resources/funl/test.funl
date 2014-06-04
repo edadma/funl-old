@@ -6,4 +6,6 @@
 // 
 // println( f(3)() )
 
-
+a = 2
+it = i + a | i <- 1..3
+println( it.toStream() )

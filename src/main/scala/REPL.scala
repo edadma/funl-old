@@ -43,7 +43,7 @@ object REPL extends App
 	out.println
 
 	eval.loadPredef( "REPL" )
-	eval.enterActivation( null, eval.module("REPL") )
+	eval.enterActivation( null, null, eval.module("REPL") )
 	
 	while ({line = reader.readLine; line != null})
 	{
