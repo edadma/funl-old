@@ -12,6 +12,8 @@ function funl.modules.Predef.{
 	int
 	}
 
+native java.lang.System.gc
+
 def
 	compose( f, g ) = x -> f( g(x) )
 
@@ -20,7 +22,7 @@ def
 	snd( (_, b) ) = b
 	
 	map( f, [] )                = []
-//	map( f, (x:xs)::Stream )    = f( x ) # map( f, xs )
+	map( f, x:xs::Stream )      = f( x ) # map( f, xs )
 	map( f, x:xs )              = f( x ) : map( f, xs )
 	map( f, (a::Array|a::Seq) ) = map( f, list(a) )
 

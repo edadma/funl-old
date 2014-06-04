@@ -62,8 +62,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			reserved += (
 				"and", "break", "by", "case", "class", "continue", "data", "def", "do", "elif",
 				"else", "false", "for", "forever", "function", "if", "import", "in", "is", "mod",
-				"native", "not", "null", "of", "or", "otherwise", "return", "then", "true", "until",
-				"val", "var", "while", "xor", "yield"
+				"native", "not", "null", "of", "or", "otherwise", "private", "return", "then", "true",
+				"until", "val", "var", "while", "xor", "yield"
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", "=", "==", "!=", "<", "$", "?",
 				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "/=", "^=", ":", "#", "\\", "::", "@")
@@ -76,7 +76,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	def parseExpression( r: Reader[Char] ) = phrase( expression )( lexical.read(r) )
 
 	def parseStatement( r: Reader[Char] ) = phrase( statement )( lexical.read(r) )
-		
+
 	lazy val source: PackratParser[ModuleAST] =
 		Newline ^^^ (ModuleAST( module, Nil )) |
 		statements ^^ {case l => ModuleAST( module, l )}

@@ -6,6 +6,42 @@
 // 
 // println( f(3)() )
 
-a = 2
-it = i + a | i <- 1..3
-println( it )
+// a = 2
+// it = i + a | i <- 1..3
+// println( it )
+import integers.factorial
+import timing.*
+
+def bc( n, k ) = product( (n - k + 1)..n )/factorial( k )
+
+def
+  binomial( n, k ) | k < 0 or k > n = 0
+  binomial( n, k ) = factorial( n )/factorial( n - k )/factorial( k )
+
+def
+  choose( n, k ) | k < 0 or k > n = 0
+  choose( n, 0 ) = 1
+  choose( n, n ) = 1
+  choose( n, k ) = product( [(n - i)/(i + 1) | i <- 0:min( k, n - k )] )
+
+start( 'bc' )
+
+for _ <- 1..1000 do bc(5, 3)
+
+time()
+
+//
+
+start( 'choose' )
+
+for _ <- 1..1000 do choose(5, 3)
+
+time()
+
+//
+
+start( 'binomial' )
+
+for _ <- 1..1000 do binomial(5, 3)
+
+time()

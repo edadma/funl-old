@@ -1,0 +1,20 @@
+/*     ______            __                                      *\
+**    / ____/_  __ ___  / /     FunL Programming Language        **
+**   / __/ / / / / __ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
+** /_/    \____/_/ /_/____/                                      **
+\*                                                               */
+
+def
+	choose( n, k ) | k < 0 or k > n = 0
+	choose( n, 0 ) = 1
+	choose( n, n ) = 1
+	choose( n, k ) = product( [(n - i)/(i + 1) | i <- 0:min( k, n - k )] )
+
+	even( n ) = 2|n
+
+	odd( n ) = 2/|n
+
+	B( n::Integer ) | n >= 0 = sigma( 0..n, k -> 1/(k + 1)*sigma(0..k, r -> (if even(r) then 1 else -1)*choose(k, r)*(r^n)) )
+
+	factorial( n::Integer ) | n >= 0 = product( 1..n )
