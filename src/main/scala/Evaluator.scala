@@ -479,10 +479,12 @@ class Evaluator
 			new Iterator[Any]
 			{
 				val ps = gs map (_.pattern) toVector
-				val ts = gs map (g => teval(g.traversable)) toVector
+				val ts = gs map (_.traversable) toVector
+//				val ts = gs map (g => teval(g.traversable)) toVector
 				val fs = gs map (_.filter) toVector
-				val is = ts map (_.toIterator) toArray
-				val len = is.length
+				val len = fs.length
+				val is = new Array[Iterator[Any]]( len )
+//				val is = ts map (_.toIterator) toArray
 				val itenv = new Environment
 				var avail = false
 
@@ -495,9 +497,13 @@ class Evaluator
 					else
 					{
 						def _hasNext( i: Int ): Boolean =
-							if (is(i).hasNext)
+						{
+							if (is(i) != null && is(i).hasNext)
 							{
-								clear( currentActivation(itenv), ps(i) )
+								if (i == 0)
+									currentActivation(itenv).clear
+								else
+									clear( currentActivation(itenv), ps(i) )
 
 								if (!unify( currentActivation(itenv), deref(is(i).next), ps(i) ))
 									RuntimeException( "unification error in iterator" )
@@ -509,18 +515,20 @@ class Evaluator
 							}
 							else
 							{
-								false
-// 								if (i == 0)
-// 									false
-// 								else if (_hasNext( i - 1 ))
-// 								{
-// 									is(i) = 
-// 									_hasNext( i )
-// 								}
+								if (i == 0 && is(0) != null)
+									false
+								else if (i == 0 || _hasNext( i - 1 ))
+								{
+									is(i) = teval( ts(i) )( itenv ).toIterator
+									_hasNext( i )
+								}
+								else
+									false
 							}
-
-							avail = _hasNext( len - 1 )
-							avail
+						}
+						
+						avail = _hasNext( len - 1 )
+						avail
 					}
 				}
 			// 							for (i <- len - 1 to 0 by -1)
