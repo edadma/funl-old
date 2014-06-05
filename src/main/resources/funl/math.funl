@@ -8,5 +8,3 @@
 function funl.modules.Math.{
 	sqrt
 	}
-
-def sigma( range, f ) = sum( [f(x) | x <- range] )
