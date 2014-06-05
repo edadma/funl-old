@@ -43,6 +43,21 @@ object Interpreter
 		e match
 		{
 			case BlockExprAST( l ) =>
+				for (s <- l)
+					s match
+					{
+						case DeclStatementAST( decls ) =>
+							for (c <- decls)
+								c match
+								{
+									case DefAST( name, func ) =>
+										for (p <- func.parts)
+											markTailRecursion( name, p.body )
+									case _ =>
+								}
+						case _ =>
+					}
+							
 				l.last match
 				{
 					case ExpressionStatementAST( e ) => markTailRecursion( n, e )
@@ -109,7 +124,7 @@ object Interpreter
 		{
 			case parser.Success( l, _ ) =>
 				markTailRecursion( l )
-		println( l )
+//println( l )
 				l
 			case parser.Failure( m, r ) => sys.error( r.pos + ": " + m + '\n' + r.pos.longString )
 			case parser.Error( m, r ) => sys.error( r.pos + ": " + m )
