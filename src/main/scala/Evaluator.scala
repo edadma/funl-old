@@ -423,7 +423,7 @@ class Evaluator
 
 		def topLevel = env.activations.top.scope.size == 1 && env.activations.top.closure == null
 
-		def forLoop( gen: List[GeneratorAST], body: =>Unit, elseClause: Option[ExprAST] )
+		def forLoop( gen: List[GeneratorAST], body: =>Unit, els: Option[ExprAST] )
 		{
 			enterScope
 
@@ -461,8 +461,8 @@ class Evaluator
 				
 				loop( gen )
 
-				if (elseClause != None)
-					exec( elseClause.get )
+				if (els != None)
+					exec( els.get )
 			}
 			catch
 			{
@@ -484,14 +484,44 @@ class Evaluator
 				val is = ts map (_.toIterator) toArray
 				val len = is.length
 				val itenv = new Environment
-			// 						var hasNext_ = true
-			// 						var next_: Option[Any] = None
+				var avail = false
 
 				enterActivation( null, currentActivation, currentModule )( itenv )
 
 				def hasNext =
 				{
-					is.head.hasNext
+					if (avail)
+						true
+					else
+					{
+						def _hasNext( i: Int ): Boolean =
+							if (is(i).hasNext)
+							{
+								clear( currentActivation(itenv), ps(i) )
+
+								if (!unify( currentActivation(itenv), deref(is(i).next), ps(i) ))
+									RuntimeException( "unification error in iterator" )
+
+								if (fs(i) == None || beval( fs(i).get )( itenv ))
+									true
+								else
+									_hasNext( i )
+							}
+							else
+							{
+								false
+// 								if (i == 0)
+// 									false
+// 								else if (_hasNext( i - 1 ))
+// 								{
+// 									is(i) = 
+// 									_hasNext( i )
+// 								}
+							}
+
+							avail = _hasNext( len - 1 )
+							avail
+					}
 				}
 			// 							for (i <- len - 1 to 0 by -1)
 			// 							{
@@ -504,25 +534,13 @@ class Evaluator
 			//						}
 
 				def next =
-				{
-					def _next: Any =
-						if (hasNext)
-						{
-							clear( currentActivation(itenv), ps.head )
-
-							if (!unify( currentActivation(itenv), deref(is.head.next), ps.head ))
-								RuntimeException( "unification error in iterator" )
-
-							if (fs.head == None || beval( fs.head.get )( itenv ))
-								eval( e )( itenv )
-							else
-								_next
-						}
-						else
-							RuntimeException( "iterator empty" )
-
-					_next
-				}
+					if (hasNext)
+					{
+						avail = false
+						eval( e )( itenv )
+					}
+					else
+						RuntimeException( "iterator empty" )
 			}
 
 		t match

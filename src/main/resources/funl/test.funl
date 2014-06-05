@@ -7,7 +7,7 @@ def fold( f, z, it::Iterator ) =
 
 	iterfold( z )
 
-println( fold((a, b) -> a + b, 0, k | k <- 1..200) )
+println( fold((a, b) -> a + b, 0, k | k <- 3..5) )
 
 //println( sum(k | k <- 2..4) )
 
