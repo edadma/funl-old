@@ -21,8 +21,10 @@ import Interpreter._
 
 class Evaluator
 {
-	class Closure( val referencing: Activation, val module: Module, val funcs: List[FunctionExprAST] )
+	class Closure( _referencing: =>Activation, val module: Module, val funcs: List[FunctionExprAST] )
 	{
+		lazy val referencing = _referencing
+		
 		def runnable = _runnable( Nil )
 		
 		def runnable( arg: Any ) =
@@ -82,7 +84,7 @@ class Evaluator
 
 		def clear = synchronized (scope.top( symbolMap ))
 		
-		override def toString = "Activation( " + closure + ", " + scope + " )"
+		override def toString = "Activation( " + scope + ", " + referencing + " )"
 	}
 
 	class Environment( private[interp] var stack: ListStack[Any] = new ListStack, private[interp] var activations: ListStack[Activation] = new ListStack )
@@ -620,13 +622,15 @@ class Evaluator
 					else
 						declare( name, Constructor(currentModule, n, name, fields) )
 			case DefAST( name, func ) =>
-				declarationSymbolMapContainer.get(name) match
+				val c = declarationSymbolMapContainer.get(name) match
 				{
-					case None => declarationSymbolMapContainer(name) = new Closure( if (topLevel) null else env.activations.top.copy, currentModule, List(func) )
-					case Some( c: Closure ) => declarationSymbolMapContainer(name) = new Closure( if (topLevel) null else env.activations.top.copy, currentModule, c.funcs :+ func )
+					case None => new Closure( if (topLevel) null else env.activations.top.copy, currentModule, List(func) )
+					case Some( c: Closure ) => new Closure( if (topLevel) null else env.activations.top.copy, currentModule, c.funcs :+ func )
 					case _ => RuntimeException( "already declared: " + name )
 				}
 
+				declarationSymbolMapContainer(name) = c
+				c.referencing		// this line should not be removed. it is causing the lazy val to be evaluated
 				export( name )
 			case ExpressionStatementAST( e ) =>
 				last = Some( eval(e) )

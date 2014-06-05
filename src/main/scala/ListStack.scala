@@ -50,4 +50,6 @@ class ListStack[T]
 	def find( p: T => Boolean ) = stack find p
 
 	def size = stack.size
+
+	override def toString = stack.mkString( "ListStack( ", ", ", " )" )
 }
