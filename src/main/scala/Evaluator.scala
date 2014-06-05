@@ -478,15 +478,13 @@ class Evaluator
 		def iterator( e: ExprAST, gs: List[GeneratorAST] ) =
 			new Iterator[Any]
 			{
-				val ps = gs map (_.pattern) toVector
-				val ts = gs map (_.traversable) toVector
-//				val ts = gs map (g => teval(g.traversable)) toVector
-				val fs = gs map (_.filter) toVector
-				val len = fs.length
-				val is = new Array[Iterator[Any]]( len )
-//				val is = ts map (_.toIterator) toArray
-				val itenv = new Environment
-				var avail = false
+				private val ps = gs map (_.pattern) toArray
+				private val ts = gs map (_.traversable) toArray
+				private val fs = gs map (_.filter) toArray
+				private val len = fs.length
+				private val is = new Array[Iterator[Any]]( len )
+				private val itenv = new Environment
+				private var avail = false
 
 				enterActivation( null, currentActivation, currentModule )( itenv )
 
@@ -531,15 +529,6 @@ class Evaluator
 						avail
 					}
 				}
-			// 							for (i <- len - 1 to 0 by -1)
-			// 							{
-			// 								if (is(i).hasNext)
-			// 								{
-			// 									it(i).next
-			// 								}
-			// 								else
-			// 							}
-			//						}
 
 				def next =
 					if (hasNext)
@@ -962,8 +951,8 @@ class Evaluator
 				def stream( a: Any ): Stream[Any] =
 					a match
 					{
-						case l: List[Any] => l.toStream
 						case s: Stream[Any] => s
+						case l: Seq[Any] => l.toStream
 						case _ => RuntimeException( "not a valid stream: " + tail )
 					}
 

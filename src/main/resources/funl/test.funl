@@ -1,18 +1,14 @@
-def fold( f, z, it::Iterator ) =
-	def iterfold( z ) =
-		if it.hasNext()
-			iterfold( f(z, it.next()) )
-		else
-			z
+def from( n ) =
+	println( 'from ' )
+	1 # from( 2 )
 
-	iterfold( z )
+print( from(1) )
 
-//println( fold((a, b) -> a + b, 0, k | k <- 3..5) )
-
-println( [(i, 0) | i <- 1..3] )
-
-//println( sum(k | k <- 2..4) )
-
+//   val (n, len) = maxBy( snd, (i, hailstone( i ).length()) | i <- 1:100000 )
+// 
+//   println( n, len )
+	
+	
 // def f(a) =
 // 	def g(b) =
 // 		if b == 0

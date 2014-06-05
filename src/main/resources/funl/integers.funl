@@ -9,7 +9,7 @@ def
 	choose( n, k ) | k < 0 or k > n = 0
 	choose( n, 0 ) = 1
 	choose( n, n ) = 1
-	choose( n, k ) = product( [(n - i)/(i + 1) | i <- 0:min( k, n - k )] )
+	choose( n, k ) = product( (n - i)/(i + 1) | i <- 0:min( k, n - k ) )
 
 	even( n ) = 2|n
 
