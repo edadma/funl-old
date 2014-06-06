@@ -24,6 +24,12 @@ class Evaluator
 	class Closure( _referencing: =>Activation, val module: Module, val funcs: List[FunctionExprAST] )
 	{
 		lazy val referencing = _referencing
+
+		def computeReferencing =
+		{
+			referencing	// this line should not be removed; forces 'referencing' to be computed
+			this
+		}
 		
 		def runnable = _runnable( Nil )
 		
@@ -473,13 +479,7 @@ class Evaluator
 			exitScope
 		}
 
-		def thunk( t: ExprAST ) =
-		{
-		val c = new Closure( currentActivation.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )
-
-			c.referencing		// this line should not be removed; forces the lazy val to get computed
-			c
-		}
+		def thunk( t: ExprAST ) = (new Closure( currentActivation.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )).computeReferencing
 
 		def iterator( e: ExprAST, gs: List[GeneratorAST] ) =
 			new Iterator[Any]
@@ -810,8 +810,8 @@ class Evaluator
 				}
 			case NotExprAST( e ) => push( !beval(e) )
 			case VariableExprAST( v ) => push( vars(v).get )
-			case CaseFunctionExprAST( cases ) => push( new Closure(env.activations.top.copy, currentModule, cases) )
-			case f@FunctionExprAST( _, _ ) => push( new Closure(env.activations.top.copy, currentModule, List(f)) )
+			case CaseFunctionExprAST( cases ) => push( (new Closure(currentActivation.copy, currentModule, cases)).computeReferencing )
+			case f@FunctionExprAST( _, _ ) => push( (new Closure(currentActivation.copy, currentModule, List(f))).computeReferencing )
 			case ApplyExprAST( f, args, tailrecursive ) =>
 				apply( f )
 				apply( args )
