@@ -1,8 +1,10 @@
-def from( n ) =
-	println( 'from ' )
-	1 # from( 2 )
+def
+  hailstone( 1 ) = [1]
+  hailstone( n ) = n # hailstone( if 2|n then n/2 else n*3 + 1 )
 
-print( from(1) )
+h27 = hailstone( 27 )
+
+print( h27.toList() )
 
 //   val (n, len) = maxBy( snd, (i, hailstone( i ).length()) | i <- 1:100000 )
 // 

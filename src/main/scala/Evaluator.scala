@@ -473,7 +473,13 @@ class Evaluator
 			exitScope
 		}
 
-		def thunk( t: ExprAST ) = new Closure( currentActivation.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )
+		def thunk( t: ExprAST ) =
+		{
+		val c = new Closure( currentActivation.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )
+
+			c.referencing		// this line should not be removed; forces the lazy val to get computed
+			c
+		}
 
 		def iterator( e: ExprAST, gs: List[GeneratorAST] ) =
 			new Iterator[Any]
