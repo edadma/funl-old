@@ -20,6 +20,10 @@ def
 	fst( (a, _) ) = a
 
 	snd( (_, b) ) = b
+
+	head( x:_ )                 = x
+
+	tail( _:xs )                = xs
 	
 	map( f, [] )                = []
 	map( f, x:xs::Stream )      = f( x ) # map( f, xs )
