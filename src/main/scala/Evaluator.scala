@@ -820,6 +820,8 @@ class Evaluator
 
 				pop match
 				{
+					case ms: MutableSeq[MutableSeq[Any]] if argList.length == 2 =>
+						push( new Mutable2DSeqReference(ms, argList.head.asInstanceOf[Int], argList(1).asInstanceOf[Int]) )
 					case ms: MutableSeq[Any] => push( new MutableSeqReference(ms, argList.head.asInstanceOf[Int]) )
 					case a: Array[Any] => push( new MutableSeqReference(a, argList.head.asInstanceOf[Int]) )
 					case m: Map[Any, Any] => push( new ImmutableMapReference(m, argList.head) )

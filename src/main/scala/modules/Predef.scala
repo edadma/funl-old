@@ -7,7 +7,7 @@
 
 package funl.modules
 
-import collection.mutable.{HashSet, HashMap, ArrayBuffer}
+import collection.mutable.{HashSet, HashMap, ArrayBuffer, ArraySeq}
 
 import funl.interp.Interpreter._
 import funl.interp.RuntimeException
@@ -56,6 +56,17 @@ object Predef
 		}
 
 	def array( a: List[Any] ) =
+		a match
+		{
+			case List( n: Int ) => ArraySeq.fill[Any]( n )( null )
+			case List( n1: Int, n2: Int ) => ArraySeq.fill[Any]( n1, n2 )( null )
+			case List( init: Array[Any] ) => ArraySeq[Any]( init: _* )
+			case List( init: Seq[Seq[Any]] ) if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
+				ArraySeq[Any]( (init map (e => ArraySeq[Any](e: _*))): _* )
+			case List( init: Seq[Any] ) => ArraySeq[Any]( init: _* )
+		}
+
+	def seq( a: List[Any] ) =
 		a match
 		{
 			case Nil => new ArrayBuffer[Any]

@@ -36,6 +36,13 @@ class MutableSeqReference( seq: MutableSeq[Any], index: Int ) extends Reference
 	def assign( v: Any ) = seq(index) = v
 }
 
+class Mutable2DSeqReference( seq: MutableSeq[MutableSeq[Any]], row: Int, col: Int ) extends Reference
+{
+	def value = seq( row )( col )
+
+	def assign( v: Any ) = seq(row)(col) = v
+}
+
 class MutableMapReference( map: MutableMap[Any, Any], key: Any ) extends Reference
 {
 	def value = map( key )
