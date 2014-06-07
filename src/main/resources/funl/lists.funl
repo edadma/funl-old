@@ -9,52 +9,51 @@ def
 //   length( [] )							= 0
 //   length( _:t )						= 1 + length( t )
 
-  foldr( f, z, [] )				= z
-  foldr( f, z, x:xs )			= f( x, foldr(f, z, xs) )
+	foldr( f, z, [] )				= z
+	foldr( f, z, x:xs )			= f( x, foldr(f, z, xs) )
 
-  foldr1( f, [x] )					= x
-  foldr1( f, x:xs )				= f( x, foldr1(f, xs) )
-  foldr1( _, [] )					= error( "foldr1: empty list" )
+	foldr1( f, [x] )					= x
+	foldr1( f, x:xs )				= f( x, foldr1(f, xs) )
+	foldr1( _, [] )					= error( "foldr1: empty list" )
 
-  splitAt( n, xs )					= (take( n, xs ), drop( n, xs ))
+	splitAt( n, xs )					= (take( n, xs ), drop( n, xs ))
 
-  take( _, [] )						= []
-  take( n, _ ) | n <= 0		= []
-  take( n, x:xs )					= x : take( n - 1, xs )
+	take( _, [] )						= []
+	take( n, _ ) | n <= 0		= []
+	take( n, x:xs )					= x : take( n - 1, xs )
 
-  drop( n, xs ) | n <= 0		= xs
-  drop( _, [] )						= []
-  drop( n, _:xs )					= drop( n - 1, xs )
+	drop( n, xs ) | n <= 0		= xs
+	drop( _, [] )						= []
+	drop( n, _:xs )					= drop( n - 1, xs )
 
-  concat( xss )           = foldr( (x, y) -> x + y, [], xss )
+	concat( xss )           = foldr( (x, y) -> x + y, [], xss )
 
-  head( x:_ )							= x
-  head( [] )								= error( "head: empty list" )
+	head( x:_ )							= x
+	head( [] )								= error( "head: empty list" )
 
-  tail( _:xs )							= xs
-  tail( [] )								= error( "tail: empty list" )
+	tail( _:xs )							= xs
+	tail( [] )								= error( "tail: empty list" )
 
-  last( [x] )							= x
-  last( _:xs )							= last( xs )
-  last( [] )								= error( "last: empty list" )
+	last( [x] )							= x
+	last( _:xs )							= last( xs )
+	last( [] )								= error( "last: empty list" )
 
-  span( p, [] )             =  ([], [])
-  span( p, xs@(x:xs_) )
-            | p( x )        =
-              val (ys, zs)  =  span( p, xs_ )
-              (x:ys, zs)
-            | otherwise     =  ([], xs)
+	span( p, [] )             =  ([], [])
+	span( p, xs@(x:xs_) )
+						| p( x )        =
+							val (ys, zs)  =  span( p, xs_ )
+							(x:ys, zs)
+						| otherwise     =  ([], xs)
 
-  break_( p, xs )           =  span( x -> not p(x), xs )
+	break_( p, xs )           =  span( x -> not p(x), xs )
 
-  zip( xs, ys )             =  zipWith( (a, b) -> (a, b), xs, ys )
+	zip( xs, ys )             =  zipWith( (a, b) -> (a, b), xs, ys )
 
-  zip3( xs, ys, zs )        =  zipWith3( (a, b, c) -> (a, b, c), xs, ys, zs )
+	zip3( xs, ys, zs )        =  zipWith3( (a, b, c) -> (a, b, c), xs, ys, zs )
 
-  zipWith( f, (a:as)::Stream, b:bs )  =  f( a, b ) # zipWith( f, as, bs )
-  zipWith( f, a:as, (b:bs)::Stream )  =  f( a, b ) # zipWith( f, as, bs )
-  zipWith( f, a:as, b:bs )  =  f( a, b ) : zipWith( f, as, bs )
-  zipWith( _, _, _ )        =  []
+	zipWith( f, a:as::Stream, b:bs::Stream )  = f( a, b ) # zipWith( f, as, bs )
+	zipWith( f, a:as, b:bs )  = f( a, b ) : zipWith( f, as, bs )
+	zipWith( _, _, _ )        = []
 
-  zipWith3( f, a:as, b:bs, c:cs )  =  f( a, b, c ) : zipWith3( f, as, bs, cs )
-  zipWith3( _, _, _, _ )           =  []
+	zipWith3( f, a:as, b:bs, c:cs )  =  f( a, b, c ) : zipWith3( f, as, bs, cs )
+	zipWith3( _, _, _, _ )           =  []

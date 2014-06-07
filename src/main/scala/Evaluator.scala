@@ -955,13 +955,15 @@ class Evaluator
 				} )
 			case StreamExprAST( head, tail ) =>
 				def stream( a: Any ): Stream[Any] =
+				{
 					a match
 					{
 						case s: Stream[Any] => s
 						case l: Seq[Any] => l.toStream
 						case _ => RuntimeException( "not a valid stream: " + tail )
 					}
-
+				}
+				
 				val callable = thunk( tail ).callable
 				
 				push( eval(head) #:: stream(callable.call) )

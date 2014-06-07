@@ -29,7 +29,7 @@ object Predef
 		a match
 		{
 			case Nil => Console.readLine
-			case (text: String) :: args => Console.readLine( text, args: _* )
+			case (text: String) :: args => io.StdIn.readLine( text, args: _* )
 		}
 
 	def error( a: List[Any] ) {error( a.head.toString )}
