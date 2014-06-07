@@ -1,54 +1,16 @@
-// Recursive
-// def
-// 	fib( 0 ) = 0
-// 	fib( 1 ) = 1
-// 	fib( n ) = fib( n - 1 ) + fib( n - 2 )
-
-// Tail recursive
-// def fib( n ) =
-// 	def
-// 		_fib( 0, prev, _ )    = prev
-// 		_fib( 1, _,    next ) = next
-// 		_fib( n, prev, next ) = _fib( n - 1, next, next + prev )
+// import lists.zipWith
 // 
-// 	_fib( n, 0, 1 )
-
-//Lazy list
-
-// def seq( a, b ) = a # seq( b, a + b )
+// def f( a, b ) =
+// 	println( 'here')
+// 	readLine()
+// 	a + b
 // 
-// val fib = seq( 0, 1 )
-
-import lists.zipWith
-
-def f( a, b ) =
-	println( 'here')
-	readLine()
-	a + b
-
-val fib = 0 # 1 # zipWith( f, fib, fib.tail() )
+// val fib = 0 # 1 # zipWith( f, fib, fib.tail() )
 
 for i <- 0..6
 	println( i, fib(i) )
 	
-//println( fib(10000) )
-
-// Iterative
-// def fib( n ) =
-// 	a, b = 0, 1
-// 
-// 	for i <- 1..n
-// 		a, b = b, a+b
-// 
-// 	a
-
-// Binet's Formula
-// import math.sqrt
-// 
-// def fib( n ) =
-// 	sqrt5 = sqrt( 5 )
-// 	phi = (1 + sqrt5)/2
-// 	int( (phi^n - (-phi)^-n)/sqrt5 + .5 )
+println( fib(10000) )
 
 
 // Matrix
