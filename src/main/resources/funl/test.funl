@@ -1,17 +1,26 @@
-// import lists.zipWith
-// 
-// def f( a, b ) =
-// 	println( 'here')
-// 	readLine()
-// 	a + b
-// 
-// val fib = 0 # 1 # zipWith( f, fib, fib.tail() )
+def mul( a, b ) =
+	res = array( a.length(), b(0).length() )
+	
+	for i <- 0:a.length(), j <- 0:b(0).length()
+		res( i, j ) = sum( a(i, k)*b(k, j) | k <- 0:b.length() )
 
-//a = array( [[1, 2], [3, 4]] )
-a = array( 3, 2 )
+	vector( res )
 
-a(2, 1) = 123
-println( a(1, 1) )
+// def pow( m, p ) =
+// 	res = array( m )
+// 
+// 	def
+// 		_pow( 1 ) = res
+// 		_pow( n ) = 
+// 
+// 	_pow( p )
+
+z = vector( [[0, 1], [1, 1]] )
+a = z
+
+for i <- 0..8
+	println( a )
+	a = mul(a, z)
 
 
 // Matrix
@@ -51,9 +60,6 @@ println( a(1, 1) )
 //   return nil if matrix.row_size == 0
 //   return matrix[matrix.row_size - 1, matrix.column_size - 1]
 // end
-//   val (n, len) = maxBy( snd, (i, hailstone( i ).length()) | i <- 1:100000 )
-// 
-//   println( n, len )
 
 
 // def f(a) =

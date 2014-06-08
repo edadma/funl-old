@@ -8,7 +8,7 @@
 function funl.modules.Predef.{
 	print, println, printf, readLine,
 	error, require, assert,
-	array, seq, list, dict, set, tuple,
+	array, seq, list, dict, set, tuple, vector,
 	int
 	}
 

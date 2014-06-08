@@ -66,6 +66,13 @@ class ImmutableSeqReference( seq: ImmutableSeq[Any], index: Int ) extends ReadOn
 	def value = seq( index )
 }
 
+class Immutable2DSeqReference( seq: ImmutableSeq[ImmutableSeq[Any]], row: Int, col: Int ) extends ReadOnlyReference
+{
+	val name = "tried to assign to row " + row + ", column " + col + ", but sequence"
+
+	def value = seq( row )( col )
+}
+
 class ImmutableMapReference( map: ImmutableMap[Any, Any], key: Any ) extends ReadOnlyReference
 {
 	val name = "tried to assign to key '" + key + "', but map"

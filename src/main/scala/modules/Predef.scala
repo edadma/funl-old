@@ -9,6 +9,7 @@ package funl.modules
 
 import collection.mutable.{HashSet, HashMap, ArrayBuffer, ArraySeq}
 
+import funl.interp.Function
 import funl.interp.Interpreter._
 import funl.interp.RuntimeException
 
@@ -64,6 +65,17 @@ object Predef
 			case List( init: Seq[Seq[Any]] ) if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
 				ArraySeq[Any]( (init map (e => ArraySeq[Any](e: _*))): _* )
 			case List( init: Seq[Any] ) => ArraySeq[Any]( init: _* )
+		}
+
+	def vector( a: List[Any] ) =
+		a match
+		{
+// 			case List( n: Int, f: Function ) => Vector.fill[Any]( n )( null )
+// 			case List( n1: Int, n2: Int, f: Function ) => Vector.fill[Any]( n1, n2 )( null )
+			case List( init: Array[Any] ) => Vector[Any]( init: _* )
+			case List( init: Seq[Seq[Any]] ) if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
+				Vector[Any]( (init map (e => Vector[Any](e: _*))): _* )
+			case List( init: Seq[Any] ) => Vector[Any]( init: _* )
 		}
 
 	def seq( a: List[Any] ) =

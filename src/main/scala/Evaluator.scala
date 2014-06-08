@@ -826,6 +826,8 @@ class Evaluator
 					case a: Array[Any] => push( new MutableSeqReference(a, argList.head.asInstanceOf[Int]) )
 					case m: Map[Any, Any] => push( new ImmutableMapReference(m, argList.head) )
 					case mm: MutableMap[Any, Any] => push( new MutableMapReference(mm, argList.head) )
+					case ms: ImmutableSeq[ImmutableSeq[_]] if argList.length == 2 =>
+						push( new Immutable2DSeqReference(ms, argList.head.asInstanceOf[Int], argList(1).asInstanceOf[Int]) )
 					case s: ImmutableSeq[_] => push( new ImmutableSeqReference(s, argList.head.asInstanceOf[Int]) )
 					case s: collection.Set[Any] => push( s(argList.head) )
 					case c: Closure =>
