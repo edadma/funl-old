@@ -6,21 +6,17 @@ def mul( a, b ) =
 
 	vector( res )
 
-// def pow( m, p ) =
-// 	res = array( m )
-// 
-// 	def
-// 		_pow( 1 ) = res
-// 		_pow( n ) = 
-// 
-// 	_pow( p )
+def
+	pow( _, 0 ) = vector( [[1, 0], [0, 1]] )
+	pow( x, 1 ) = x
+	pow( x, n )
+		| 2|n = pow( mul(x, x), n\2 )
+		| otherwise = mul(x, pow( mul(x, x), (n - 1)\2 ) )
 
-z = vector( [[0, 1], [1, 1]] )
-a = z
+def fib( n ) = pow( vector( [[0, 1], [1, 1]] ), n )(0, 1)
 
-for i <- 0..8
-	println( a )
-	a = mul(a, z)
+for i <- 0..10
+	println( fib(i) )
 
 
 // Matrix
