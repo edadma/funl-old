@@ -16,3 +16,12 @@ b = 4
 a + b	""" ) shouldBe Some(7)
 	}
 }
+
+// def f(a) =
+// 	def g(b) =
+// 		if b == 0
+// 			b
+// 		else
+// 			g( b - 1 )
+//
+// 	g(a)
