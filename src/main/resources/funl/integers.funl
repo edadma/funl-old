@@ -18,3 +18,11 @@ def
 	B( n::Integer ) | n >= 0 = sum( 1/(k + 1)*sum((if 2|r then 1 else -1)*choose(k, r)*(r^n) | r <- 0..k) | k <- 0..n )
 
 	factorial( n::Integer ) | n >= 0 = product( 1..n )
+
+	def F( n ) =
+		def
+			fib( 0, prev, _ )    = prev
+			fib( 1, _,    next ) = next
+			fib( n, prev, next ) = fib( n - 1, next, next + prev )
+
+		fib( n, 0, 1 )

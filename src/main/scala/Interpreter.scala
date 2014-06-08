@@ -25,7 +25,7 @@ object Interpreter
 		for (s <- m.statements)
 			s match
 			{
-				case DeclStatementAST( decls ) =>
+				case DeclarationBlockAST( decls ) =>
 					for (c <- decls)
 						c match
 						{
@@ -46,7 +46,7 @@ object Interpreter
 				for (s <- l)
 					s match
 					{
-						case DeclStatementAST( decls ) =>
+						case DeclarationBlockAST( decls ) =>
 							for (c <- decls)
 								c match
 								{

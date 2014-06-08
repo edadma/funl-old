@@ -1,9 +1,9 @@
-/*     ______            __                                      *\
-**    / ____/_  __ ___  / /     FunL Programming Language        **
-**   / __/ / / / / __ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
-**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
-** /_/    \____/_/ /_/____/                                      **
-\*                                                               */
+/*     ______            __                                     *\
+**    / ____/_  __ ___  / /     FunL Programming Language       **
+**   / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/           **
+** /_/    \____/_/ /_/____/                                     **
+\*                                                              */
 
 package funl.interp
 
@@ -14,17 +14,16 @@ case class ModuleAST( module: String, statements: List[StatementAST] ) extends A
 
 trait StatementAST extends AST
 
-case class DeclStatementAST( decls: List[StatementAST] ) extends StatementAST
-case class ImportAST( qual: String, names: List[(String, Option[String])] ) extends StatementAST
-case class NativeAST( pkg: String, name: List[(String, Option[String])] ) extends StatementAST
-// case class ClassAST( pkg: String, name: List[(String, Option[String])] ) extends StatementAST
-// case class MethodAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
-// case class FieldAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
-case class FunctionAST( cls: String, name: List[(String, Option[String])] ) extends StatementAST
-case class ValAST( pat: PatternAST, exp: ExprAST ) extends StatementAST
-case class VarAST( name: String, init: Option[ExprAST] ) extends StatementAST
-case class DataAST( name: String, constructors: List[(String, List[String])] ) extends StatementAST
-case class DefAST( name: String, func: FunctionExprAST ) extends StatementAST
+case class DeclarationBlockAST( decls: List[DeclarationStatementAST] ) extends StatementAST
+
+trait DeclarationStatementAST extends StatementAST
+case class ImportAST( qual: String, names: List[(String, Option[String])] ) extends DeclarationStatementAST
+case class NativeAST( pkg: String, name: List[(String, Option[String])] ) extends DeclarationStatementAST
+case class FunctionAST( cls: String, name: List[(String, Option[String])] ) extends DeclarationStatementAST
+case class ValAST( pat: PatternAST, exp: ExprAST ) extends DeclarationStatementAST
+case class VarAST( name: String, init: Option[ExprAST] ) extends DeclarationStatementAST
+case class DataAST( name: String, constructors: List[(String, List[String])] ) extends DeclarationStatementAST
+case class DefAST( name: String, func: FunctionExprAST ) extends DeclarationStatementAST
 
 case class ExpressionStatementAST( e: ExprAST ) extends StatementAST
 

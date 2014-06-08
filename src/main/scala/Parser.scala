@@ -81,20 +81,20 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		Newline ^^^ (ModuleAST( module, Nil )) |
 		statements ^^ {case l => ModuleAST( module, l )}
 
-	lazy val declaration: PackratParser[DeclStatementAST] = imports | natives | constants | variables | data | definitions
+	lazy val declaration: PackratParser[DeclarationBlockAST] = imports | natives | constants | variables | data | definitions
 
 	lazy val imports =
-		"import" ~> importModule ^^ {case m => DeclStatementAST( List(m) )} |
-		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline ^^ (DeclStatementAST( _ ))
+		"import" ~> importModule ^^ {case m => DeclarationBlockAST( List(m) )} |
+		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline ^^ (DeclarationBlockAST( _ ))
 
 	lazy val importModule =
 		name ^^ {case (qual, names) => ImportAST( qual, names )}
 
 	lazy val natives =
-		"native" ~> name ^^ {case (pkg, names) => DeclStatementAST( List(NativeAST(pkg, names)) )} |
-		"native" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST( cs map {case (pkg, names) => NativeAST( pkg, names )})) |
-		"function" ~> name ^^ {case (cls, names) => DeclStatementAST(List( FunctionAST(cls, names) ))} |
-		"function" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclStatementAST(cs map {case (cls, names) => FunctionAST( cls, names )}))
+		"native" ~> name ^^ {case (pkg, names) => DeclarationBlockAST( List(NativeAST(pkg, names)) )} |
+		"native" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclarationBlockAST( cs map {case (pkg, names) => NativeAST( pkg, names )})) |
+		"function" ~> name ^^ {case (cls, names) => DeclarationBlockAST(List( FunctionAST(cls, names) ))} |
+		"function" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclarationBlockAST(cs map {case (cls, names) => FunctionAST( cls, names )}))
 
 	lazy val dottedName = rep1sep(ident, ".")
 
@@ -111,24 +111,24 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val idents = rep1sep( ident, "," )
 
 	lazy val constants =
-		"val" ~> constant ^^ {case c => DeclStatementAST( List(c) )} |
-		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline ^^ (DeclStatementAST( _ ))
+		"val" ~> constant ^^ {case c => DeclarationBlockAST( List(c) )} |
+		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline ^^ (DeclarationBlockAST( _ ))
 
 	lazy val constant =
 		(pattern <~ "=") ~ nonassignmentExpr <~ Newline ^^
 			{case pat ~ exp => ValAST( pat, exp )}
 
 	lazy val variables =
-		"var" ~> variable ^^ {case v => DeclStatementAST( List(v) )} |
-		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline ^^ (DeclStatementAST( _ ))
+		"var" ~> variable ^^ {case v => DeclarationBlockAST( List(v) )} |
+		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline ^^ (DeclarationBlockAST( _ ))
 
 	lazy val variable =
 		ident ~ opt("=" ~> expr) <~ Newline ^^
 			{case n ~ v => VarAST( n, v )}
 
 	lazy val data =
-		"data" ~> datatype ^^ {case v => DeclStatementAST( List(v) )} |
-		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline ^^ (DeclStatementAST( _ ))
+		"data" ~> datatype ^^ {case v => DeclarationBlockAST( List(v) )} |
+		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline ^^ (DeclarationBlockAST( _ ))
 
 	lazy val datatype =
 		(ident <~ "=") ~ rep1sep(constructor, "|") <~ Newline ^^
@@ -143,8 +143,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case name => (name, Nil)}
 
 	lazy val definitions =
-		"def" ~> definition ^^ {case d => DeclStatementAST(List( d ))} |
-		"def" ~> (Indent ~> rep1(definition) <~ (Dedent ~ Newline)) ^^ (DeclStatementAST( _ ))
+		"def" ~> definition ^^ {case d => DeclarationBlockAST(List( d ))} |
+		"def" ~> (Indent ~> rep1(definition) <~ (Dedent ~ Newline)) ^^ (DeclarationBlockAST( _ ))
 
 	lazy val definition =
 		ident ~ opt("(" ~> repsep(pattern, ",") <~ ")") ~ (part | parts) ^^

@@ -555,7 +555,7 @@ class Evaluator
 				enterActivation( null, null, module(m) )
         currentModule( "_name_" ) = m
 				apply( s )
-			case DeclStatementAST( s ) =>
+			case DeclarationBlockAST( s ) =>
 				apply( s )
 				last = None
 			case ImportAST( qual, names ) =>
