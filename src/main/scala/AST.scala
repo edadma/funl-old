@@ -78,5 +78,6 @@ case class AltPatternAST( l: List[PatternAST] ) extends PatternAST
 case class RecordPatternAST( n: String, l: List[PatternAST] ) extends PatternAST
 case class ListPatternAST( l: List[PatternAST] ) extends PatternAST
 case class ConsPatternAST( head: PatternAST, tail: PatternAST ) extends PatternAST
+case object EmptySetPatternAST extends PatternAST
 case object UnitPatternAST extends PatternAST
 case object NullPatternAST extends PatternAST

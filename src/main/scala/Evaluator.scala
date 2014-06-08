@@ -1267,6 +1267,7 @@ class Evaluator
 			case "Seq" => a.isInstanceOf[Seq[_]]
 			case "List" => a.isInstanceOf[List[_]]
 			case "Stream" => a.isInstanceOf[Stream[_]]
+			case "Iterable" => a.isInstanceOf[Iterable[_]]
 			case "Iterator" => a.isInstanceOf[Iterator[_]]
 			case "Array" => a.isInstanceOf[Array[_]] || a.isInstanceOf[ArrayBuffer[_]]
 			case _ /*if datatypes.contains( t )*/ => a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == t
@@ -1277,6 +1278,7 @@ class Evaluator
 		p match
 		{
 			case LiteralPatternAST( v ) => a == v
+			case EmptySetPatternAST => a == Set.empty
 			case UnitPatternAST => a == ()
 			case NullPatternAST => a == null
 			case AliasPatternAST( alias, pat ) =>

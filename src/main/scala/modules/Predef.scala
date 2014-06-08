@@ -65,6 +65,7 @@ object Predef
 			case List( init: Seq[Seq[Any]] ) if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
 				ArraySeq[Any]( (init map (e => ArraySeq[Any](e: _*))): _* )
 			case List( init: Seq[Any] ) => ArraySeq[Any]( init: _* )
+			case List( init: Iterable[Any] ) => ArraySeq[Any]( init.toSeq: _* )
 		}
 
 	def vector( a: List[Any] ) =
@@ -76,6 +77,7 @@ object Predef
 			case List( init: Seq[Seq[Any]] ) if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
 				Vector[Any]( (init map (e => Vector[Any](e: _*))): _* )
 			case List( init: Seq[Any] ) => Vector[Any]( init: _* )
+			case List( init: Iterable[Any] ) => Vector[Any]( init.toSeq: _* )
 		}
 
 	def seq( a: List[Any] ) =
@@ -85,6 +87,7 @@ object Predef
 			case List( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
 			case List( init: Array[Any] ) => ArrayBuffer[Any]( init: _* )
 			case List( init: Seq[Any] ) => ArrayBuffer[Any]( init: _* )
+			case List( init: Iterable[Any] ) => ArrayBuffer[Any]( init.toSeq: _* )
 		}
 
 	def list( a: List[Any] ) =
@@ -93,6 +96,7 @@ object Predef
 			case Nil => Nil
 			case List( init: Array[Any] ) => List[Any]( init: _* )
 			case List( init: Seq[Any] ) => List[Any]( init: _* )
+			case List( init: Iterable[Any] ) => List[Any]( init.toSeq: _* )
 		}
 
 	def set( a: List[Any] ) =

@@ -28,17 +28,17 @@ def
 	map( f, [] )                = []
 	map( f, x:xs::Stream )      = f( x ) # map( f, xs )
 	map( f, x:xs )              = f( x ) : map( f, xs )
-	map( f, (a::Array|a::Seq) ) = map( f, list(a) )
+	map( f, (a::Array|a::Iterable) ) = map( f, list(a) )
 
 	filter( p, [] )                       = []
 	filter( p, x:xs::Stream	) | p( x )   = x # filter( p, xs )
 	filter( p, x:xs	) | p( x )           = x : filter( p, xs )
 	filter( p, _:xs	)                    = filter( p, xs )
-	filter( p, (a::Array|a::Seq) )        = filter( p, list(a) )
+	filter( p, (a::Array|a::Iterable) )        = filter( p, list(a) )
 
 	foldl( f, z, [] )                 = z
 	foldl( f, z, x:xs )               = foldl( f, f(z, x), xs )
-	foldl( f, z, (a::Array|a::Seq) )  = foldl( f, z, list(a) )
+	foldl( f, z, (a::Array|a::Iterable) )  = foldl( f, z, list(a) )
 	foldl( f, z, it::Iterator )       =
 		def iterfold( z ) =
 			if it.hasNext()

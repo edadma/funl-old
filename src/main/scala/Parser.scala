@@ -342,7 +342,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			(_ => NullExprAST) |
 		"{" ~> repsep(jsonExpr, ",") <~ "}" ^^
 			(SetExprAST( _ )) |
-		"{" ~> repsep(entry, ",") <~ "}" ^^
+		"{" ~> rep1sep(entry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
 		"$" ~> ident ^^
 			(SysvarExprAST( _ )) |
@@ -393,6 +393,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case e ~ l => TuplePatternAST( e +: l )} |
 		"[" ~> repsep(pattern, ",") <~ "]" ^^
 			{case l => ListPatternAST( l )} |
+		"{" ~ "}" ^^^
+			EmptySetPatternAST |
 		("(" ~> pattern <~ "|") ~ (rep1sep(pattern, "|") <~ ")") ^^
 			{case e ~ l => AltPatternAST( e +: l )} |
 		"(" ~> pattern <~ ")"
