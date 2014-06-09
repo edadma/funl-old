@@ -347,8 +347,16 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"$" ~> ident ^^
 			(SysvarExprAST( _ )) |
 		"?" ~> ident ^^
-			(TestExprAST( _ ))
-			
+			(TestExprAST( _ )) |
+		"(" ~> infix <~ ")" ^^
+			(o => SectionExprAST( Symbol(o) )) |
+		"(" ~> expr ~ infix <~ ")" ^^
+			{case e ~ o => LeftSectionExprAST( e, Symbol(o) )} |
+		"(" ~> infix ~ expr <~ ")" ^^
+			{case o ~ e => RightSectionExprAST( Symbol(o), e )}
+
+	lazy val infix = "+" | "-" | "<" | ">" | "<=" | ">="
+	
 	lazy val pattern: PackratParser[PatternAST] =
 		(ident <~ "@") ~ pattern3 ^^
 			{case alias ~ pat => AliasPatternAST( alias, pat )} |

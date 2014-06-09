@@ -672,6 +672,18 @@ class Evaluator
 				throw new BreakThrowable
 			case ContinueExprAST =>
 				throw new ContinueThrowable
+			case SectionExprAST( op ) =>
+				push( new Closure(null, currentModule,
+					List(FunctionExprAST(List(VariablePatternAST("a"), VariablePatternAST("b")),
+						List(FunctionPartExprAST(None, BinaryExprAST(VariableExprAST("a"), op, VariableExprAST("b"))))))) )
+			case LeftSectionExprAST( e, op ) =>
+				push( (new Closure(currentActivation.copy, currentModule,
+					List(FunctionExprAST(List(VariablePatternAST("a")),
+						List(FunctionPartExprAST(None, BinaryExprAST(e, op, VariableExprAST("a")))))))).computeReferencing )
+			case RightSectionExprAST( op, e ) =>
+				push( (new Closure(currentActivation.copy, currentModule,
+					List(FunctionExprAST(List(VariablePatternAST("a")),
+						List(FunctionPartExprAST(None, BinaryExprAST(VariableExprAST("a"), op, e))))))).computeReferencing )
 			case LiteralExprAST( v ) => push( v )
 			case StringLiteralExprAST( s ) =>
 				val buf = new StringBuilder

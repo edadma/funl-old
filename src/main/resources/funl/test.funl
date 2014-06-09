@@ -1,7 +1,6 @@
-import lists.zipWith
+def
+  qsort( [] )    =  []
+  qsort( p:xs )  =  qsort( filter((<p), xs) ) + [p] + qsort( filter((>=p), xs) )
 
-def dot( a, b )
-  | a.length() == b.length() = sum( zipWith((x, y) -> x*y, a, b) )
-  | otherwise = error( "Vector sizes must match" )
-
-println( dot([1, 3, -5], [4, -2, -1]) )
+println( qsort([4, 2, 1, 3, 0, 2]) )
+println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )
