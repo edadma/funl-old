@@ -1,25 +1,8 @@
-// native scala.collection.immutable.Stream
-// 
-// for i <- Stream.from( 1 ) do println( i )
-// 
-// def from( n ) = n # from( n + 1 )
-// 
-// for i <- from( 1 )
-//   println( i )
+native scala.collection.immutable.Stream
 
-import lists.splitAt
+for i <- Stream.from( 1 ) do println( i )
 
-def
-  sort( [] )          =  []
-  sort( [x] )         =  [x]
-  sort( xs )          =
-    val (l, r) = splitAt( xs.length()\2, xs )
-    merge( sort(l), sort(r) )
+def from( n ) = n # from( n + 1 )
 
-  merge( [], xs )     =  xs
-  merge( xs, [] )     =  xs
-  merge( x:xs, y:ys )
-    | x <= y          =  x : merge( xs, y:ys )
-    | otherwise       =  y : merge( x:xs, ys )
-
-println( sort( [27, 95, 35, 65, 26, 37, 32, 68, 64, 34, 5, 48, 22, 78, 86, 10, 47, 24, 54, 2] ) )
+for i <- from( 1 )
+  println( i )
