@@ -59,3 +59,12 @@ def
 
 	zipWith3( f, a:as, b:bs, c:cs )  =  f( a, b, c ) : zipWith3( f, as, bs, cs )
 	zipWith3( _, _, _, _ )           =  []
+
+	partition( p, l ) =
+		def
+			part( [], a, b ) = (a, b)
+			part( x:xs, a, b )
+				| p(x) = part( xs, x:a, b )
+				| otherwise = part( xs, a, x:b )
+
+		part( l, [], [] )

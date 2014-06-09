@@ -568,6 +568,35 @@ def
     | otherwise       =  y : merge( x:xs, ys )</lang>
 
 --------------------
+Quicksort
+--------------------
+
+=={{header|FunL}}==
+<lang funl>def
+  qsort( [] )    =  []
+  qsort( p:xs )  =  qsort( filter((<p), xs) ) + [p] + qsort( filter((>=p), xs) )</lang>
+
+Here is a more efficient version using the <code>partition</code> function.
+
+<lang funl>import lists.partition
+
+def
+  qsort( [] )    =  []
+  qsort( x:xs )  =
+    val (ys, zs) = partition( (<x), xs )
+    qsort( ys ) + (x : qsort( zs ))
+
+println( qsort([4, 2, 1, 3, 0, 2]) )
+println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )</lang>
+
+{{out}}
+
+<pre>
+[0, 1, 2, 2, 3, 4]
+[Alice, Barry, Bob, Charlotte, Fred, Zoe]
+</pre>
+
+--------------------
 Power_set
 --------------------
 
