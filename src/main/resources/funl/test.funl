@@ -1,8 +1,7 @@
-native scala.collection.immutable.Stream
+import lists.zipWith
 
-for i <- Stream.from( 1 ) do println( i )
+def dot( a, b )
+  | a.length() == b.length() = sum( zipWith((x, y) -> x*y, a, b) )
+  | otherwise = error( "Vector sizes must match" )
 
-def from( n ) = n # from( n + 1 )
-
-for i <- from( 1 )
-  println( i )
+println( dot([1, 3, -5], [4, -2, -1]) )

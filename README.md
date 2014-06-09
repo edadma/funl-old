@@ -37,7 +37,7 @@ To give a small example of a complete program in FunL that does something useful
 
       def response( code, type ) =
         output.println( 'HTTP/1.1 ' + code )
-        output.println( 'Content-Type: ' + (if (type != null) then type else 'text/html') )
+        output.println( 'Content-Type: ' + (if type != null then type else 'text/html') )
         output.println()
         
         if (type == null) then output.println( '<!DOCTYPE html><html><header><title>' + code + '</title><body><h1>' + code + '</h1></body></html>' )
