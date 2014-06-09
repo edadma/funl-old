@@ -745,7 +745,7 @@ class Evaluator
 						val r = eval( right )
 						
 						if (l.isInstanceOf[String] || r.isInstanceOf[String])
-							push( l.toString + r.toString )
+							push( display(l) + display(r) )
 						else if (l.isInstanceOf[Iterable[_]] && r.isInstanceOf[Iterable[_]])
 							push( l.asInstanceOf[Iterable[_]] ++ r.asInstanceOf[Iterable[_]] )
 						else if (l.isInstanceOf[Number] && r.isInstanceOf[Number])

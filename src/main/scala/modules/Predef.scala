@@ -1,9 +1,9 @@
-/*     ______            __                                      *\
-**    / ____/_  __ ___  / /     FunL Programming Language        **
-**   / __/ / / / / __ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
-**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
-** /_/    \____/_/ /_/____/                                      **
-\*                                                               */
+/*     ______            __                                     *\
+**    / ____/_  __ ___  / /     FunL Programming Language       **
+**   / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/           **
+** /_/    \____/_/ /_/____/                                     **
+\*                                                              */
 
 package funl.modules
 
@@ -29,7 +29,7 @@ object Predef
 	def readLine( a: List[Any] ) =
 		a match
 		{
-			case Nil => Console.readLine
+			case Nil => io.StdIn.readLine
 			case (text: String) :: args => io.StdIn.readLine( text, args: _* )
 		}
 

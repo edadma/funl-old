@@ -1,9 +1,12 @@
-def
-	powerset( {} ) = {{}}
-	powerset( s ) =
-		h = s.head()
-		t = s.tail()
-		acc = powerset( t )
-		acc + map( x -> {h} + x, acc )
+// native scala.collection.immutable.Stream
+// 
+// for i <- Stream.from( 1 ) do println( i )
+// 
+// def from( n ) = n # from( n + 1 )
+// 
+// for i <- from( 1 )
+//   println( i )
 
-println( powerset({1, 2, 3}) )
+import sys.execute
+
+execute( 'ls' )

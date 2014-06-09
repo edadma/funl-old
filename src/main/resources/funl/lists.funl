@@ -11,6 +11,8 @@ def
 
 	foldr( f, z, [] )				= z
 	foldr( f, z, x:xs )			= f( x, foldr(f, z, xs) )
+	foldr( f, z, (a::Array|a::Iterable) ) = foldr( f, z, list(a) )
+	foldr( f, z, it::Iterator ) = foldl( f, z, it )
 
 	foldr1( f, [x] )					= x
 	foldr1( f, x:xs )				= f( x, foldr1(f, xs) )

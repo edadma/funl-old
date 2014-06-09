@@ -5,6 +5,22 @@
 ** /_/    \____/_/ /_/____/                                     **
 \*                                                              */
 
-function funl.modules.Sys.{
-  execute, executeReturnString
-  }
+package funl.modules
+
+import sys.process._
+
+
+object Sys
+{
+	def execute( a: List[Any] ) =
+		a match
+		{
+			case List( cmd: String ) => cmd!
+		}
+		
+	def executeReturnString( a: List[Any] ) =
+		a match
+		{
+			case List( cmd: String ) => cmd!!
+		}
+}
