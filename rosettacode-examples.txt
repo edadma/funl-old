@@ -248,6 +248,15 @@ def
   binomial( n, k ) = factorial( n )/factorial( n - k )/factorial( k )</lang>
 
 --------------------
+Execute_a_system_command
+--------------------
+
+=={{header|FunL}}==
+<lang funl>import sys.execute
+
+execute( if $os.startsWith('Windows') then 'dir' else 'ls' )</lang>
+
+--------------------
 Factorial
 --------------------
 
