@@ -1309,6 +1309,7 @@ class Evaluator
 				a match
 				{
 					case v: Vector[Any] => v.length == t.length && (v zip t).forall( {case (ve, te) => unify(map, ve, te)} )
+          case v: Array[Any] => v.length == t.length && (v zip t).forall( {case (ve, te) => unify(map, ve, te)} )
 					case p: Product => p.productArity == t.length && t.zipWithIndex.forall {case (te, i) => unify( map, p.productElement(i), te )}
 					case _ => false
 				}

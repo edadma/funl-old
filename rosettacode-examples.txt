@@ -531,6 +531,26 @@ forever
   socket.close()</lang>
 
 --------------------
+Merge_sort
+--------------------
+
+=={{header|FunL}}==
+<lang funl>import lists.splitAt
+
+def
+  sort( [] )          =  []
+  sort( [x] )         =  [x]
+  sort( xs )          =
+    val (l, r) = splitAt( xs.length()\2, xs )
+    merge( sort(l), sort(r) )
+
+  merge( [], xs )     =  xs
+  merge( xs, [] )     =  xs
+  merge( x:xs, y:ys )
+    | x <= y          =  x : merge( xs, y:ys )
+    | otherwise       =  y : merge( x:xs, ys )</lang>
+
+--------------------
 Power_set
 --------------------
 
