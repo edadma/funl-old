@@ -76,7 +76,7 @@ class Evaluator
 	class Activation( val closure: Closure, val referencing: Activation, val module: Module, val scope: ListStack[SymbolMap] = new ListStack ) extends SymbolMapContainer
 	{
 		// think about copying referencing too
-		def copy = new Activation( closure, referencing, module, scope.copy )
+		def copy: Activation = new Activation( closure, if (referencing ne null) referencing.copy else null, module, scope.copy )
 		
 		def apply( key: String ) = synchronized (scope.top( key ))
 
@@ -674,16 +674,16 @@ class Evaluator
 				throw new ContinueThrowable
 			case SectionExprAST( op ) =>
 				push( new Closure(null, currentModule,
-					List(FunctionExprAST(List(VariablePatternAST("a"), VariablePatternAST("b")),
-						List(FunctionPartExprAST(None, BinaryExprAST(VariableExprAST("a"), op, VariableExprAST("b"))))))) )
+					List(FunctionExprAST(List(VariablePatternAST("$a"), VariablePatternAST("$b")),
+						List(FunctionPartExprAST(None, BinaryExprAST(VariableExprAST("$a"), op, VariableExprAST("$b"))))))) )
 			case LeftSectionExprAST( e, op ) =>
 				push( (new Closure(currentActivation.copy, currentModule,
-					List(FunctionExprAST(List(VariablePatternAST("a")),
-						List(FunctionPartExprAST(None, BinaryExprAST(e, op, VariableExprAST("a")))))))).computeReferencing )
+					List(FunctionExprAST(List(VariablePatternAST("$a")),
+						List(FunctionPartExprAST(None, BinaryExprAST(e, op, VariableExprAST("$a")))))))).computeReferencing )
 			case RightSectionExprAST( op, e ) =>
 				push( (new Closure(currentActivation.copy, currentModule,
-					List(FunctionExprAST(List(VariablePatternAST("a")),
-						List(FunctionPartExprAST(None, BinaryExprAST(VariableExprAST("a"), op, e))))))).computeReferencing )
+					List(FunctionExprAST(List(VariablePatternAST("$a")),
+						List(FunctionPartExprAST(None, BinaryExprAST(VariableExprAST("$a"), op, e))))))).computeReferencing )
 			case LiteralExprAST( v ) => push( v )
 			case StringLiteralExprAST( s ) =>
 				val buf = new StringBuilder
