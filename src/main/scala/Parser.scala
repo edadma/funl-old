@@ -225,11 +225,11 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	
 	lazy val expr10 =
 		expr11 ~ rep(("or" | "xor") ~ expr11) ^^
-			{case lhs ~ list => (lhs /: list){case (x, op ~ y) => BooleanConnectiveExprAST( x, Symbol(op), y )}}
+			{case lhs ~ list => (lhs /: list){case (x, op ~ y) => BinaryExprAST( x, Symbol(op), y )}}
 
 	lazy val expr11 =
 		expr12 ~ rep("and" ~ expr12) ^^
-			{case lhs ~ list => (lhs /: list){case (x, op ~ y) => BooleanConnectiveExprAST( x, Symbol(op), y )}}
+			{case lhs ~ list => (lhs /: list){case (x, op ~ y) => BinaryExprAST( x, Symbol(op), y )}}
 
 	lazy val expr12: PackratParser[ExprAST] =
 		"not" ~> expr12 ^^ (NotExprAST( _ )) |
@@ -355,7 +355,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"?" ~> ident ^^
 			(TestExprAST( _ ))
 
-	lazy val infix = "+" | "-" | "*" | "/" | """\""" | "^" | "<" | ">" | "<=" | ">="
+	lazy val infix = "+" | "-" | "*" | "/" | """\""" | "^" | "%" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
 	
 	lazy val pattern: PackratParser[PatternAST] =
 		(ident <~ "@") ~ pattern3 ^^

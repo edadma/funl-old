@@ -790,14 +790,6 @@ class Evaluator
 							push( Math(op, l, r) )
 						else
 							push( if (op == '==) l == r else l != r )
-					case _ =>
-						push( Math(op, l, eval(right)) )
-				}
-			case BooleanConnectiveExprAST( left, op, right ) =>
-				val l = eval( left )
-				
-				op match
-				{
 					case 'or =>
 						if (l.isInstanceOf[Boolean])
 							if (l.asInstanceOf[Boolean])
@@ -819,6 +811,8 @@ class Evaluator
 								push( beval(right) )
 						else
 							push( Math(op, l, eval(right)) )
+					case _ =>
+						push( Math(op, l, eval(right)) )
 				}
 			case NotExprAST( e ) => push( !beval(e) )
 			case VariableExprAST( v ) => push( vars(v).get )
