@@ -57,7 +57,7 @@ object Interpreter
 								}
 						case _ =>
 					}
-							
+
 				l.last match
 				{
 					case ExpressionStatementAST( e ) => markTailRecursion( n, e )
@@ -82,8 +82,10 @@ object Interpreter
 
 				if (no != None)
 					markTailRecursion( n, no.get )
-			case BooleanConnectiveExprAST( _, _, right ) =>
-				markTailRecursion( n, right )
+			case BinaryExprAST( LiteralExprAST(false), 'or | 'xor, e ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( LiteralExprAST(true), 'and, e ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( e, 'or | 'xor, LiteralExprAST(false) ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( e, 'and, LiteralExprAST(true) ) => 	markTailRecursion( n, e )
 			case _ =>
 		}
 	}
