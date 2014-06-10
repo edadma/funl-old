@@ -355,7 +355,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"?" ~> ident ^^
 			(TestExprAST( _ ))
 
-	lazy val infix = "+" | "-" | "<" | ">" | "<=" | ">="
+	lazy val infix = "+" | "-" | "*" | "/" | """\""" | "^" | "<" | ">" | "<=" | ">="
 	
 	lazy val pattern: PackratParser[PatternAST] =
 		(ident <~ "@") ~ pattern3 ^^

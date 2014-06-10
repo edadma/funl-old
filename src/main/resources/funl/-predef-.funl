@@ -21,9 +21,11 @@ def
 
 	snd( (_, b) ) = b
 
-	head( x:_ )                 = x
+	head( x:_ )               = x
+	head( [] )                = error( "head: empty list" )
 
-	tail( _:xs )                = xs
+	tail( _:xs )              = xs
+	head( [] )                = error( "head: empty list" )
 	
 	map( f, [] )                = []
 	map( f, x:xs::Stream )      = f( x ) # map( f, xs )
