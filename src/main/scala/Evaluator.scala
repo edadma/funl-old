@@ -154,6 +154,7 @@ class Evaluator
 		}
 	sysvar( "date" ) {new java.util.Date}
 	sysvar( "os" ) {System.getProperty( "os.name" )}
+	sysvar( "stdin" ) {scala.io.StdIn.readLine}
 	
 	def module( m: String ) = synchronized
 	{
