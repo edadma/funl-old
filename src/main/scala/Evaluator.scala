@@ -546,6 +546,14 @@ class Evaluator
 						RuntimeException( "iterator empty" )
 			}
 
+		def section( l: ExprAST, op: Symbol, r: ExprAST ) =
+			op match
+			{
+				case ': => ConsExprAST( l, r )
+				case '# => StreamExprAST( l, r )
+				case _ => BinaryExprAST( l, op, r )
+			}
+
 		t match
 		{
 			case ModuleAST( m, s ) =>
@@ -675,15 +683,15 @@ class Evaluator
 			case SectionExprAST( op ) =>
 				push( new Closure(null, currentModule,
 					List(FunctionExprAST(List(VariablePatternAST("$a"), VariablePatternAST("$b")),
-						List(FunctionPartExprAST(None, BinaryExprAST(VariableExprAST("$a"), op, VariableExprAST("$b"))))))) )
+						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, VariableExprAST("$b"))))))) )
 			case LeftSectionExprAST( e, op ) =>
 				push( (new Closure(currentActivation.copy, currentModule,
 					List(FunctionExprAST(List(VariablePatternAST("$a")),
-						List(FunctionPartExprAST(None, BinaryExprAST(e, op, VariableExprAST("$a")))))))).computeReferencing )
+						List(FunctionPartExprAST(None, section(e, op, VariableExprAST("$a")))))))).computeReferencing )
 			case RightSectionExprAST( op, e ) =>
 				push( (new Closure(currentActivation.copy, currentModule,
 					List(FunctionExprAST(List(VariablePatternAST("$a")),
-						List(FunctionPartExprAST(None, BinaryExprAST(VariableExprAST("$a"), op, e))))))).computeReferencing )
+						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, e))))))).computeReferencing )
 			case LiteralExprAST( v ) => push( v )
 			case StringLiteralExprAST( s ) =>
 				val buf = new StringBuilder
