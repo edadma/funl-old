@@ -36,6 +36,22 @@ class MutableSeqReference( seq: MutableSeq[Any], index: Int ) extends Reference
 	def assign( v: Any ) = seq(index) = v
 }
 
+abstract class SeqRangeReference( seq: Seq[Any], range: Range ) extends Reference
+{
+	protected val end =
+		if (range.isInclusive)
+			range.end + 1
+    else
+			range.end
+
+	def value = seq.slice( range.start, end )
+}
+
+class MutableSeqRangeReference( seq: MutableSeq[Any], range: Range ) extends SeqRangeReference(seq, range) with Reference
+{
+  def assign( v: Any ) = null//seq(index) = v
+}
+
 class Mutable2DSeqReference( seq: MutableSeq[MutableSeq[Any]], row: Int, col: Int ) extends Reference
 {
 	def value = seq( row )( col )
@@ -64,6 +80,11 @@ class ImmutableSeqReference( seq: ImmutableSeq[Any], index: Int ) extends ReadOn
 	val name = "tried to assign to index " + index + ", but sequence"
 	
 	def value = seq( index )
+}
+
+class ImmutableSeqRangeReference( seq: ImmutableSeq[Any], range: Range ) extends SeqRangeReference(seq, range) with ReadOnlyReference
+{	
+	val name = "tried to assign to slice " + (range.start, end) + ", but sequence"
 }
 
 class Immutable2DSeqReference( seq: ImmutableSeq[ImmutableSeq[Any]], row: Int, col: Int ) extends ReadOnlyReference
