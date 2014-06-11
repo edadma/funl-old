@@ -440,6 +440,23 @@ for i <- 0..10
 </pre>
 
 --------------------
+Greatest_common_divisor
+--------------------
+
+=={{header|FunL}}==
+FunL has pre-defined function <code>gcd</code> in module <code>integers</code> defined as:
+
+<lang funl>def
+  gcd( 0, 0 ) = error( 'integers.gcd: gcd( 0, 0 ) is undefined' )
+  gcd( a, b ) =
+    def
+      _gcd( a, 0 ) = a
+      _gcd( a, b ) = _gcd( b, a%b )
+
+    _gcd( abs(a), abs(b) )
+</lang>
+
+--------------------
 Greatest_element_of_a_list
 --------------------
 

@@ -1,6 +1,3 @@
-native scala.collection.immutable.Stream.from
+import integers.gcd
 
-a = [1, 2, 3, 4, 5]
-println( a(1..3) )
-a(1..3) = from(10)
-println( a )
+println( gcd(6, 9) )

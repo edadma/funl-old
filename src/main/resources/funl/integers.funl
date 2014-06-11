@@ -5,6 +5,9 @@
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
 
+import math.abs
+
+
 def
 	choose( n, k ) | k < 0 or k > n = 0
 	choose( n, 0 ) = 1
@@ -19,10 +22,18 @@ def
 
 	factorial( n::Integer ) | n >= 0 = product( 1..n )
 
-	def F( n ) =
+	F( n ) =
 		def
 			fib( 0, prev, _ )    = prev
 			fib( 1, _,    next ) = next
 			fib( n, prev, next ) = fib( n - 1, next, next + prev )
 
 		fib( n, 0, 1 )
+
+	gcd( 0, 0 ) = error( 'integers.gcd: gcd( 0, 0 ) is undefined' )
+	gcd( a, b ) =
+		def
+			_gcd( a, 0 ) = a
+			_gcd( a, b ) = _gcd( b, a%b )
+
+		_gcd( abs(a), abs(b) )

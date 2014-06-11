@@ -17,7 +17,13 @@ object Math
 	def sqrt( a: List[Any] ) =
 		a match
 		{
-			case List( n: Number ) => MATH.squareRoot( n )
+			case List( n: Number ) => MATH.sqrtNumber( n )
+		}
+		
+	def abs( a: List[Any] ) =
+		a match
+		{
+			case List( n: Number ) => MATH.absNumber( n )
 		}
 
 // 	def choose( a: Vector[Any] ): Any =

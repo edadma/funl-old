@@ -6,5 +6,5 @@
 \*                                                              */
 
 function funl.modules.Math.{
-	sqrt
+	abs, sqrt
 	}
