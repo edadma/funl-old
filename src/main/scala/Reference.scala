@@ -49,7 +49,13 @@ abstract class SeqRangeReference( seq: Seq[Any], range: Range ) extends Referenc
 
 class MutableSeqRangeReference( seq: MutableSeq[Any], range: Range ) extends SeqRangeReference(seq, range) with Reference
 {
-  def assign( v: Any ) = null//seq(index) = v
+  def assign( v: Any ) =
+		v match
+		{
+			case s: Seq[Any] =>
+				for ((i, e) <- range zip s)
+					seq(i) = e
+		}
 }
 
 class Mutable2DSeqReference( seq: MutableSeq[MutableSeq[Any]], row: Int, col: Int ) extends Reference

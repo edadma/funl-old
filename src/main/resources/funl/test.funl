@@ -1,1 +1,6 @@
-println( array([1, 2, 3, 4, 5])(1..3) )
+native scala.collection.immutable.Stream.from
+
+a = [1, 2, 3, 4, 5]
+println( a(1..3) )
+a(1..3) = from(10)
+println( a )
