@@ -754,6 +754,7 @@ class Evaluator
 
 				op match
 				{
+//					case '>> => 
 					case 'in | 'notin =>
 						val r = eval( right )
 						val res =

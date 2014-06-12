@@ -19,7 +19,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	override val lexical: IndentationLexical =
 		new IndentationLexical( false, true, List("[", "(", "{"), List("]", ")", "}") )
 		{
-			override def token: Parser[Token] = decimalParser | super.token
+			override def token: Parser[Token] = hexParser | decimalParser | super.token
 
 			private def decimalParser: Parser[Token] =
 				rep1(digit) ~ optFraction ~ optExponent ^^
@@ -49,7 +49,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 					case Some( fraction ) => fraction
 				}
 
-			private def exponent = (chr( 'e' ) | chr( 'E' )) ~ optSign ~ rep1(digit) ^^
+			private def exponent = (chr('e') | chr('E')) ~ optSign ~ rep1(digit) ^^
 				{case e ~ optSign ~ exp => e :: optSign :: (exp mkString "") :: Nil mkString ""}
 
 			private def optExponent: Parser[String] =
@@ -58,6 +58,10 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 					case None => ""
 					case Some( exponent ) => exponent
 				}
+
+			private def hexParser: Parser[Token] =
+				'0' ~> 'x' ~> rep1(digit | chr('a') | chr('b') | chr('c') | chr('d') | chr('e') | chr('f') | chr('A') | chr('B') | chr('C') | chr('D') | chr('E') | chr('F')) ^^
+					(d => NumericLit( "0x" + (d mkString "") ))
 				
 			reserved += (
 				"and", "break", "by", "case", "class", "continue", "data", "def", "do", "elif",
@@ -65,8 +69,9 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				"native", "not", "null", "of", "or", "otherwise", "private", "return", "then", "true",
 				"until", "val", "var", "while", "xor", "yield"
 				)
-			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", "=", "==", "!=", "<", "$", "?",
-				">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->", "=>", "+=", "-=", "*=", "/=", "^=", ":", "#", "\\", "::", "@")
+			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",",
+				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->",
+				"=>", "+=", "-=", "*=", "/=", "^=", ":", "#", "\\", "::", "@", ">>", "<<", ">>*", "*<<")
 		}
 
 	import lexical.{Newline, Indent, Dedent}
@@ -228,7 +233,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case lhs ~ list => (lhs /: list){case (x, op ~ y) => BinaryExprAST( x, Symbol(op), y )}}
 
 	lazy val expr11 =
-		expr12 ~ rep("and" ~ expr12) ^^
+		expr12 ~ rep(("and" | ">>*" | "*<<" | ">>" | "<<") ~ expr12) ^^
 			{case lhs ~ list => (lhs /: list){case (x, op ~ y) => BinaryExprAST( x, Symbol(op), y )}}
 
 	lazy val expr12: PackratParser[ExprAST] =
@@ -314,6 +319,11 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			(n =>
 				if (n matches ".*(\\.|e|E).*")
 					LiteralExprAST( n.toDouble )
+				else if (n startsWith "0x")
+					if (n.length <= 10)		// 8 digits (32 bits) + 2 for "0x"
+						LiteralExprAST( Integer.parseInt(n substring 2, 16) )
+					else
+						LiteralExprAST( BigInt(n substring 2, 16) )
 				else
 				{
 				val bi = BigInt( n )
@@ -376,6 +386,11 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			(n =>
 				if (n matches ".*(\\.|e|E).*")
 					LiteralPatternAST( n.toDouble )
+				else if (n startsWith "0x")
+					if (n.length <= 10)		// 8 digits (32 bits) + 2 for "0x"
+						LiteralPatternAST( Integer.parseInt(n substring 2, 16) )
+					else
+						LiteralPatternAST( BigInt(n substring 2, 16) )
 				else
 				{
 				val bi = BigInt( n )
