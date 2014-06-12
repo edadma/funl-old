@@ -1,3 +1,7 @@
-a = seq( 1, 2, 3 )
-a(2) = ['a', 'b', 'c']
-println( 0x1234567890123456789012345678901234567890123456789 )
+a = BitArray()
+a.append( 1 )
+a.append( 0 )
+a.append( 1 )
+a.append( 1 )
+println( a.length() )
+println( a(2) )
