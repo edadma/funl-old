@@ -1,3 +1,3 @@
-import integers.gcd
-
-println( gcd(6, 9) )
+a = seq( 1, 2, 3 )
+a(2) = ['a', 'b', 'c']
+println( a )

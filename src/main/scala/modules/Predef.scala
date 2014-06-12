@@ -84,10 +84,11 @@ object Predef
 		a match
 		{
 			case Nil => new ArrayBuffer[Any]
-			case List( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
+//			case List( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
 			case List( init: Array[Any] ) => ArrayBuffer[Any]( init: _* )
 			case List( init: Seq[Any] ) => ArrayBuffer[Any]( init: _* )
 			case List( init: Iterable[Any] ) => ArrayBuffer[Any]( init.toSeq: _* )
+			case _ => ArrayBuffer[Any]( a: _* )
 		}
 
 	def list( a: List[Any] ) =

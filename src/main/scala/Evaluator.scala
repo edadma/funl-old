@@ -132,7 +132,7 @@ class Evaluator
 
 	class ContinueThrowable extends Throwable
 
-	class State( val stack: Int, val activations: Int, val scope: Int )
+	object NEW
 
 	private var symbols = symbolMap
 	private var sysvars = symbolMap
@@ -373,8 +373,9 @@ class Evaluator
 		
 		def newVar( name: String ) =
 		{
-		val ref = new VariableReference
-			
+		val ref = new VariableReference( NEW )
+
+			ref.assign( ref )
 			currentActivation(name) = ref
 			
 			ref
@@ -828,13 +829,24 @@ class Evaluator
 			case CaseFunctionExprAST( cases ) => push( (new Closure(currentActivation.copy, currentModule, cases)).computeReferencing )
 			case f@FunctionExprAST( _, _ ) => push( (new Closure(currentActivation.copy, currentModule, List(f))).computeReferencing )
 			case ApplyExprAST( f, args, tailrecursive ) =>
-				apply( f )
+				apply( f, createvars )
 				apply( args )
 
 			val argList = list( args.length )
 
 				pop match
 				{
+					case ref: Reference =>
+						val seq = new ArrayBuffer[Any]
+						ref.assign( seq )
+
+						argList match
+						{
+							case List( index: Int ) =>
+								push( new MutableSeqReference(seq, index) )
+							case List( range: Range ) =>
+								push( new MutableSeqRangeReference(seq, range) )
+						}
 					case ms: MutableSeq[MutableSeq[Any]] if argList.length == 2 =>
 						push( new Mutable2DSeqReference(ms, argList.head.asInstanceOf[Int], argList(1).asInstanceOf[Int]) )
 					case ms: MutableSeq[Any] if argList.head.isInstanceOf[Int] => push( new MutableSeqReference(ms, argList.head.asInstanceOf[Int]) )
