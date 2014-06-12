@@ -824,7 +824,13 @@ class Evaluator
 					case _ =>
 						push( Math(op, l, eval(right)) )
 				}
-			case NotExprAST( e ) => push( !beval(e) )
+			case NotExprAST( e ) =>
+				val o = eval( e )
+				
+				if (o.isInstanceOf[Boolean])
+					push( !o.asInstanceOf[Boolean] )
+				else
+					push( Math('not, o) )
 			case VariableExprAST( v ) => push( vars(v).get )
 			case CaseFunctionExprAST( cases ) => push( (new Closure(currentActivation.copy, currentModule, cases)).computeReferencing )
 			case f@FunctionExprAST( _, _ ) => push( (new Closure(currentActivation.copy, currentModule, List(f))).computeReferencing )
