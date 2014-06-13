@@ -74,10 +74,16 @@ def sha256( message ) =
 
 	map( a -> format('%08x', a.intValue()), [h0, h1, h2, h3, h4, h5, h6, h7] ).mkString()
 
-println( sha256('Rosetta code') )
-
 native java.security.MessageDigest
 
 def sha256Java( message ) = map( a -> format('%02x', a), list(MessageDigest.getInstance('SHA-256').digest(message.getBytes('UTF-8'))) ).mkString()
 
-println( sha256Java('Rosetta code') )
+message = 'Rosetta code'
+
+println( 'FunL: "' + message + '" ~> ' + sha256(message) )
+println( 'Java: "' + message + '" ~> ' + sha256Java(message) )
+
+message = ''
+
+println( 'FunL: "' + message + '" ~> ' + sha256(message) )
+println( 'Java: "' + message + '" ~> ' + sha256Java(message) )
