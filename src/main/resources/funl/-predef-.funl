@@ -6,7 +6,7 @@
 \*                                                              */
 
 function funl.modules.Predef.{
-	print, println, printf, readLine,
+	print, println, printf, format, readLine,
 	error, require, assert,
 	array, seq, list, dict, set, tuple, vector,
 	int

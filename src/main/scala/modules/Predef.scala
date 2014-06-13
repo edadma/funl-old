@@ -26,6 +26,12 @@ object Predef
 			case (text: String) :: args => Console.printf( text, args: _* )
 		}
 
+	def format( a: List[Any] ) =
+		a match
+		{
+			case (text: String) :: args => text format (args : _*)
+		}
+
 	def readLine( a: List[Any] ) =
 		a match
 		{

@@ -101,6 +101,13 @@ class BitArray( init: Array[Byte] ) extends AbstractBuffer[Int]
 		res
 	}
 
+	def appendInt( a: Int ) =
+	{
+		bits = (bits << 32) | a
+		_length += 32
+		this
+	}
+
 	def toIntVector =
 	{
 	val bytes = bits.toByteArray
