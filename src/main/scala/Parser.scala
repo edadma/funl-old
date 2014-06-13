@@ -318,10 +318,14 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		numericLit ^^
 			(n =>
 				if (n startsWith "0x")
-					if (n.length <= 10)		// 8 digits (32 bits) + 2 for "0x"
-						LiteralExprAST( Integer.parseInt(n substring 2, 16) )
+				{
+				val num = BigInt( n substring 2, 16 )
+
+					if (num.isValidInt)
+						LiteralExprAST( num.intValue )
 					else
-						LiteralExprAST( BigInt(n substring 2, 16) )
+						LiteralExprAST( num )
+				}
 				else if (n matches ".*(\\.|e|E).*")
 					LiteralExprAST( n.toDouble )
 				else
@@ -385,10 +389,14 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		numericLit ^^
 			(n =>
 				if (n startsWith "0x")
-					if (n.length <= 10)		// 8 digits (32 bits) + 2 for "0x"
-						LiteralPatternAST( Integer.parseInt(n substring 2, 16) )
+				{
+				val num = BigInt( n substring 2, 16 )
+
+					if (num.isValidInt)
+						LiteralPatternAST( num.intValue )
 					else
-						LiteralPatternAST( BigInt(n substring 2, 16) )
+						LiteralPatternAST( num )
+				}
 				else if (n matches ".*(\\.|e|E).*")
 					LiteralPatternAST( n.toDouble )
 				else
