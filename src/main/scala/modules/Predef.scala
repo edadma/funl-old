@@ -68,6 +68,8 @@ object Predef
 			case List( n: Int ) => ArraySeq.fill[Any]( n )( null )
 			case List( n1: Int, n2: Int ) => ArraySeq.fill[Any]( n1, n2 )( null )
 			case List( init: Array[Any] ) => ArraySeq[Any]( init: _* )
+			case List( init: Array[Byte] ) => ArraySeq[Any]( init: _* )
+			case List( init: Array[Int] ) => ArraySeq[Any]( init: _* )
 			case List( init: Seq[Seq[Any]] ) if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
 				ArraySeq[Any]( (init map (e => ArraySeq[Any](e: _*))): _* )
 			case List( init: Seq[Any] ) => ArraySeq[Any]( init: _* )
@@ -80,6 +82,8 @@ object Predef
 // 			case List( n: Int, f: Function ) => Vector.fill[Any]( n )( null )
 // 			case List( n1: Int, n2: Int, f: Function ) => Vector.fill[Any]( n1, n2 )( null )
 			case List( init: Array[Any] ) => Vector[Any]( init: _* )
+			case List( init: Array[Byte] ) => Vector[Any]( init: _* )
+			case List( init: Array[Int] ) => Vector[Any]( init: _* )
 			case List( init: Seq[Seq[Any]] ) if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
 				Vector[Any]( (init map (e => Vector[Any](e: _*))): _* )
 			case List( init: Seq[Any] ) => Vector[Any]( init: _* )
@@ -92,6 +96,8 @@ object Predef
 			case Nil => new ArrayBuffer[Any]
 //			case List( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
 			case List( init: Array[Any] ) => ArrayBuffer[Any]( init: _* )
+			case List( init: Array[Byte] ) => ArrayBuffer[Any]( init: _* )
+			case List( init: Array[Int] ) => ArrayBuffer[Any]( init: _* )
 			case List( init: Seq[Any] ) => ArrayBuffer[Any]( init: _* )
 			case List( init: Iterable[Any] ) => ArrayBuffer[Any]( init.toSeq: _* )
 			case _ => ArrayBuffer[Any]( a: _* )
@@ -102,6 +108,8 @@ object Predef
 		{
 			case Nil => Nil
 			case List( init: Array[Any] ) => List[Any]( init: _* )
+			case List( init: Array[Byte] ) => List[Any]( init: _* )
+			case List( init: Array[Int] ) => List[Any]( init: _* )
 			case List( init: Seq[Any] ) => List[Any]( init: _* )
 			case List( init: Iterable[Any] ) => List[Any]( init.toSeq: _* )
 		}

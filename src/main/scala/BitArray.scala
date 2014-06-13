@@ -13,6 +13,17 @@ import collection.mutable.{AbstractBuffer}
 class BitArray( init: Array[Byte] ) extends AbstractBuffer[Int]
 {
 	def this() = this( Array[Byte]() )
+	
+	def this( s: Seq[Any] ) =
+	this(
+		{
+		val array = new Array[Byte]( s.length )
+
+			for ((i, b) <- (0 until s.length) zip (s map (_.asInstanceOf[Number].intValue)))
+				array(i) = b.asInstanceOf[Byte]
+
+			array
+		} )
 
 	private var _length =
 		if (init isEmpty)
@@ -111,15 +122,20 @@ class BitArray( init: Array[Byte] ) extends AbstractBuffer[Int]
 	def toIntVector =
 	{
 	val bytes = bits.toByteArray
-	val aligned =
-		if (bytes.length%4 == 0)
+	val bytes1 =
+		if (bytes(0) == 0)
+			bytes.tail
+		else
 			bytes
+	val aligned =
+		if (bytes1.length%4 == 0)
+			bytes1
 		else
 		{
-		val padding = 4 - bytes.length%4
-		val dst = Array.fill[Byte]( bytes.length + padding )( 0 )
+		val padding = 4 - bytes1.length%4
+		val dst = Array.fill[Byte]( bytes1.length + padding )( 0 )
 
-			Array.copy( bytes, 0, dst, padding, bytes.length )
+			Array.copy( bytes, 0, dst, padding, bytes1.length )
 			dst
 		}
 
