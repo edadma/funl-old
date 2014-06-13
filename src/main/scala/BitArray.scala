@@ -13,7 +13,12 @@ import collection.mutable.{AbstractBuffer}
 class BitArray( init: Array[Byte] ) extends AbstractBuffer[Int]
 {
 	def this() = this( Array[Byte]() )
-	
+
+	private var _length =
+		if (init isEmpty)
+			0
+		else
+			init.length*8
 	private var bits =
 		if (init isEmpty)
 			BigInt( 0 )
@@ -33,15 +38,15 @@ class BitArray( init: Array[Byte] ) extends AbstractBuffer[Int]
 	{
 		
 	}
-		
-	def length =  bits.bitLength
+	
+	def length =  _length
 // 	def length =  bits.bitLength - 1
 
 	def iterator =
 		new Iterator[Int]
 		{
 			val _bits = bits
-			var index = BitArray.this.length - 1
+			var index = _length - 1
 
 			def hasNext = index >= 0
 
@@ -60,12 +65,14 @@ class BitArray( init: Array[Byte] ) extends AbstractBuffer[Int]
 	def clear
 	{
 		bits = BigInt( 0 )
+		_length = 0
 // 		bits = BigInt( 1 )
 	}
 	
 	def +=( elem: Int ) =
 	{
 		bits = (bits << 1) | (elem&1)
+		_length += 1
 		this
 	}
 
@@ -77,7 +84,8 @@ class BitArray( init: Array[Byte] ) extends AbstractBuffer[Int]
 // 			bits = bits clearBit (bits.bitLength - 1)
 		if ((elem&1) == 1)
 			bits setBit bits.bitLength
-			
+
+		_length += 1
 		this
 	}
 

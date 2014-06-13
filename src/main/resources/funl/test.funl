@@ -1,4 +1,1 @@
-a = BitArray()
-a.append( 1, 0, 1 )
-println( a.length() )
-println( a.toIntVector() )
+println( 3 rotateright 1 )
