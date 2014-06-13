@@ -67,11 +67,11 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				"and", "break", "by", "case", "class", "continue", "data", "def", "do", "elif",
 				"else", "false", "for", "forever", "function", "if", "import", "in", "is", "mod",
 				"native", "not", "null", "of", "or", "otherwise", "private", "return", "then", "true",
-				"until", "val", "var", "while", "xor", "yield"
+				"until", "val", "var", "while", "xor", "yield", "rightshift", "leftshift", "rightrotate", "leftrotate"
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",",
 				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->",
-				"=>", "+=", "-=", "*=", "/=", "^=", ":", "#", "\\", "::", "@", ">>", "<<", ">>*", "*<<")
+				"=>", "+=", "-=", "*=", "/=", "^=", ":", "#", "\\", "::", "@")
 		}
 
 	import lexical.{Newline, Indent, Dedent}
@@ -233,7 +233,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case lhs ~ list => (lhs /: list){case (x, op ~ y) => BinaryExprAST( x, Symbol(op), y )}}
 
 	lazy val expr11 =
-		expr12 ~ rep(("and" | ">>*" | "*<<" | ">>" | "<<") ~ expr12) ^^
+		expr12 ~ rep(("and" | "rightrotate" | "leftrotate" | "rightshift" | "leftshift") ~ expr12) ^^
 			{case lhs ~ list => (lhs /: list){case (x, op ~ y) => BinaryExprAST( x, Symbol(op), y )}}
 
 	lazy val expr12: PackratParser[ExprAST] =
