@@ -317,13 +317,13 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val expr40: PackratParser[ExprAST] =
 		numericLit ^^
 			(n =>
-				if (n matches ".*(\\.|e|E).*")
-					LiteralExprAST( n.toDouble )
-				else if (n startsWith "0x")
+				if (n startsWith "0x")
 					if (n.length <= 10)		// 8 digits (32 bits) + 2 for "0x"
 						LiteralExprAST( Integer.parseInt(n substring 2, 16) )
 					else
 						LiteralExprAST( BigInt(n substring 2, 16) )
+				else if (n matches ".*(\\.|e|E).*")
+					LiteralExprAST( n.toDouble )
 				else
 				{
 				val bi = BigInt( n )
@@ -384,13 +384,13 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val pattern10: PackratParser[PatternAST] =
 		numericLit ^^
 			(n =>
-				if (n matches ".*(\\.|e|E).*")
-					LiteralPatternAST( n.toDouble )
-				else if (n startsWith "0x")
+				if (n startsWith "0x")
 					if (n.length <= 10)		// 8 digits (32 bits) + 2 for "0x"
 						LiteralPatternAST( Integer.parseInt(n substring 2, 16) )
 					else
 						LiteralPatternAST( BigInt(n substring 2, 16) )
+				else if (n matches ".*(\\.|e|E).*")
+					LiteralPatternAST( n.toDouble )
 				else
 				{
 				val bi = BigInt( n )
