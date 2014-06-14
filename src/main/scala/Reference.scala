@@ -54,7 +54,12 @@ abstract class SeqRangeReference( seq: Seq[Any], range: Range ) extends Referenc
     else
 			range.end
 
-	def value = seq.slice( range.start, end )
+	def value =
+		if (range.step == 1)
+			seq.slice( range.start, end )
+		else
+			for ((e, i) <- seq.zipWithIndex if range contains i)
+				yield e
 }
 
 class MutableSeqRangeReference( seq: MutableSeq[Any], range: Range ) extends SeqRangeReference(seq, range) with Reference
