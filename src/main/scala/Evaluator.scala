@@ -865,7 +865,11 @@ class Evaluator
 								push( new MutableSeqRangeReference(seq, range) )
 						}
 					case ms: MutableSeq[MutableSeq[Any]] if argList.length == 2 =>
-						push( new Mutable2DSeqReference(ms, argList.head.asInstanceOf[Int], argList(1).asInstanceOf[Int]) )
+						argList match
+						{
+							case List( r: Int, c: Int ) => push( new Mutable2DSeqReference(ms, r, c) )
+//							case List( r: Range, c: Int ) => push( new MutableSeqRowRangeReference(ms, r, c) )
+						}
 					case ms: MutableSeq[Any] if argList.head.isInstanceOf[Int] => push( new MutableSeqReference(ms, argList.head.asInstanceOf[Int]) )
           case ms: MutableSeq[Any] => push( new MutableSeqRangeReference(ms, argList.head.asInstanceOf[Range]) )
 					case a: Array[Any] => push( new MutableSeqReference(a, argList.head.asInstanceOf[Int]) )

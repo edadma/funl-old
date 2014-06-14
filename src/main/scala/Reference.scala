@@ -7,7 +7,7 @@
 
 package funl.interp
 
-import collection.mutable.{Seq => MutableSeq, Map => MutableMap, Buffer}
+import collection.mutable.{Seq => MutableSeq, Map => MutableMap, Buffer, ArrayBuffer}
 import collection.immutable.{Seq => ImmutableSeq, Map => ImmutableMap}
 
 
@@ -62,7 +62,7 @@ abstract class SeqRangeReference( seq: Seq[Any], range: Range ) extends Referenc
 				yield e
 }
 
-class MutableSeqRangeReference( seq: MutableSeq[Any], range: Range ) extends SeqRangeReference(seq, range) with Reference
+class MutableSeqRangeReference( seq: MutableSeq[Any], range: Range ) extends SeqRangeReference( seq, range ) with Reference
 {
   def assign( v: Any ) =
   {
@@ -87,6 +87,39 @@ class Mutable2DSeqReference( seq: MutableSeq[MutableSeq[Any]], row: Int, col: In
 	def value = seq( row )( col )
 
 	def assign( v: Any ) = seq(row)(col) = v
+}
+
+abstract class SeqRowRangeReference( seq: Seq[Seq[Any]], row: Range, col: Int ) extends Reference
+{
+	protected val end =
+		if (row.isInclusive)
+			row.end + 1
+    else
+			row.end
+
+	def value =
+		for ((r, i) <- seq.zipWithIndex if row contains i)
+			yield r(col)
+}
+
+class MutableSeqRowRangeReference( seq: MutableSeq[MutableSeq[Any]], row: Range, col: Int ) extends SeqRowRangeReference( seq, row, col ) with Reference
+{
+	def assign( v: Any ) =
+  {
+		seq match
+		{
+			case buf: Buffer[MutableSeq[Any]] if buf.length < end =>
+				buf.appendAll( Iterator.fill(end - buf.length)(ArrayBuffer.fill(seq.head.length)(null)) )
+			case _ =>
+		}
+
+		v match
+		{
+			case s: Seq[Seq[Any]] =>
+				for ((r, i) <- s.zipWithIndex if row contains i)
+					seq(i)(col) = r(col)
+		}
+	}
 }
 
 class MutableMapReference( map: MutableMap[Any, Any], key: Any ) extends Reference
@@ -122,6 +155,11 @@ class Immutable2DSeqReference( seq: ImmutableSeq[ImmutableSeq[Any]], row: Int, c
 	val name = "tried to assign to row " + row + ", column " + col + ", but sequence"
 
 	def value = seq( row )( col )
+}
+
+class ImmutableSeqRowRangeReference( seq: ImmutableSeq[ImmutableSeq[Any]], row: Range, col: Int ) extends SeqRowRangeReference( seq, row, col ) with ReadOnlyReference
+{
+	val name = "tried to assign to row range" + row + ", column " + col + ", but sequence"
 }
 
 class ImmutableMapReference( map: ImmutableMap[Any, Any], key: Any ) extends ReadOnlyReference
