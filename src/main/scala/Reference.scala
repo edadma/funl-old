@@ -76,7 +76,7 @@ class MutableSeqRangeReference( seq: MutableSeq[Any], range: Range ) extends Seq
 		v match
 		{
 			case s: Seq[Any] =>
-				for ((i, e) <- range zip s)
+				for ((e, i) <- s.zipWithIndex if range contains i)
 					seq(i) = e
 		}
 	}
