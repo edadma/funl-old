@@ -18,6 +18,22 @@ trait Reference
 	def assign( v: Any )
 }
 
+abstract class RangeReference extends Reference
+{
+	protected def end( r: Range ) =
+		if (r.isInclusive)
+			r.end + 1
+    else
+			r.end
+
+	protected def slice( seq: Seq[Any], range: Range ) =
+		if (range.step == 1)
+			seq.slice( range.start, end(range) )
+		else
+			for ((e, i) <- seq.zipWithIndex if range contains i)
+				yield e
+}
+
 class VariableReference( init: Any ) extends Reference
 {
 	def this() = this( null )
@@ -46,37 +62,26 @@ class MutableSeqReference( seq: MutableSeq[Any], index: Int ) extends Reference
 	}
 }
 
-abstract class SeqRangeReference( seq: Seq[Any], range: Range ) extends Reference
+abstract class SeqRangeReference( seq: Seq[Any], range: Range ) extends RangeReference
 {
-	protected val end =
-		if (range.isInclusive)
-			range.end + 1
-    else
-			range.end
-
-	def value =
-		if (range.step == 1)
-			seq.slice( range.start, end )
-		else
-			for ((e, i) <- seq.zipWithIndex if range contains i)
-				yield e
+	def value = slice( seq, range )
 }
 
-class MutableSeqRangeReference( seq: MutableSeq[Any], range: Range ) extends SeqRangeReference( seq, range ) with Reference
+class MutableSeqRangeReference( seq: MutableSeq[Any], range: Range ) extends SeqRangeReference( seq, range )
 {
   def assign( v: Any ) =
   {
 		seq match
 		{
-			case buf: Buffer[Any] if buf.length < end =>
-				buf.appendAll( Iterator.fill(end - buf.length)(null) )
+			case buf: Buffer[Any] if buf.length < end( range ) =>
+				buf.appendAll( Iterator.fill(end(range) - buf.length)(null) )
 			case _ =>
 		}
 		
 		v match
 		{
 			case s: Seq[Any] =>
-				for ((e, i) <- s.zipWithIndex if range contains i)
+				for ((e, i) <- s zip range)
 					seq(i) = e
 		}
 	}
@@ -115,12 +120,77 @@ class MutableSeqRowRangeReference( seq: MutableSeq[MutableSeq[Any]], row: Range,
 
 		v match
 		{
-			case s: Seq[Seq[Any]] =>
-				for ((r, i) <- s.zipWithIndex if row contains i)
-					seq(i)(col) = r(col)
+			case s: Seq[Any] =>
+				for ((r, i) <- s zip row)
+					seq(i)(col) = r
 		}
 	}
 }
+
+abstract class SeqColumnRangeReference( seq: Seq[Seq[Any]], row: Int, col: Range ) extends RangeReference
+{
+	def value = slice( seq(row), col )
+}
+
+class MutableSeqColumnRangeReference( seq: MutableSeq[MutableSeq[Any]], row: Int, col: Range ) extends SeqColumnRangeReference( seq, row, col ) with Reference
+{
+	def assign( v: Any ) =
+  {
+		seq(row) match
+		{
+			case buf: Buffer[Any] if buf.length < end(col) =>
+				buf.appendAll( Iterator.fill(end(col) - buf.length)(null) )
+			case _ =>
+		}
+
+		v match
+		{
+			case s: Seq[Any] =>
+				for ((e, i) <- s zip col)
+					seq(row)(i) = e
+		}
+	}
+}
+
+// abstract class Seq2DRangeReference( seq: Seq[Seq[Any]], row: Range, col: Range ) extends Reference
+// {
+// 	protected val rend =
+// 		if (row.isInclusive)
+// 			row.end + 1
+//     else
+// 			row.end
+// 
+// 	protected val cend =
+// 		if (col.isInclusive)
+// 			col.end + 1
+//     else
+// 			col.end
+// 
+// 	def value =
+// 		for ((r, i) <- seq.zipWithIndex if row contains i)
+// 			yield
+// 				
+// }
+
+// class MutableSeq2DRangeReference( seq: MutableSeq[MutableSeq[Any]], row: Int, col: Int ) extends Seq2DRangeReference( seq, row, col ) with Reference
+// {
+// 	def assign( v: Any ) =
+//   {
+// 		seq match
+// 		{
+// 			case buf: Buffer[MutableSeq[Any]] if buf.length < end =>
+// 				buf.appendAll( Iterator.fill(end - buf.length)(ArrayBuffer.fill(seq.head.length)(null)) )
+// 			case _ =>
+// 		}
+// 
+// 		v match
+// 		{
+// 			case s: Seq[Seq[Any]] =>
+// 				for ((r, i) <- s.zipWithIndex if row contains i)
+// 					seq(i)(col) = r(col)
+// 		}
+// 	}
+// }
 
 class MutableMapReference( map: MutableMap[Any, Any], key: Any ) extends Reference
 {
@@ -147,7 +217,7 @@ class ImmutableSeqReference( seq: ImmutableSeq[Any], index: Int ) extends ReadOn
 
 class ImmutableSeqRangeReference( seq: ImmutableSeq[Any], range: Range ) extends SeqRangeReference(seq, range) with ReadOnlyReference
 {	
-	val name = "tried to assign to slice " + (range.start, end) + ", but sequence"
+	val name = "tried to assign to slice " + (range.start, end(range)) + ", but sequence"
 }
 
 class Immutable2DSeqReference( seq: ImmutableSeq[ImmutableSeq[Any]], row: Int, col: Int ) extends ReadOnlyReference
@@ -160,6 +230,11 @@ class Immutable2DSeqReference( seq: ImmutableSeq[ImmutableSeq[Any]], row: Int, c
 class ImmutableSeqRowRangeReference( seq: ImmutableSeq[ImmutableSeq[Any]], row: Range, col: Int ) extends SeqRowRangeReference( seq, row, col ) with ReadOnlyReference
 {
 	val name = "tried to assign to row range" + row + ", column " + col + ", but sequence"
+}
+
+class ImmutableSeqColumnRangeReference( seq: ImmutableSeq[ImmutableSeq[Any]], row: Int, col: Range ) extends SeqColumnRangeReference( seq, row, col ) with ReadOnlyReference
+{
+	val name = "tried to assign to column range" + row + ", column " + col + ", but sequence"
 }
 
 class ImmutableMapReference( map: ImmutableMap[Any, Any], key: Any ) extends ReadOnlyReference
