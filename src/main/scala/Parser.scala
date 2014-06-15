@@ -343,7 +343,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
       (o => SectionExprAST( Symbol(o) )) |
     "(" ~> expr ~ infix <~ ")" ^^
       {case e ~ o => LeftSectionExprAST( e, Symbol(o) )} |
-    "(" ~> infix ~ expr <~ ")" ^^
+    "(" ~> infixNoMinus ~ expr <~ ")" ^^
       {case o ~ e => RightSectionExprAST( Symbol(o), e )} |
 		"(" ~> expr <~ ")" |
 		ident ^^
@@ -369,7 +369,9 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"?" ~> ident ^^
 			(TestExprAST( _ ))
 
-	lazy val infix = "+" | "-" | "*" | "/" | """\""" | "^" | "%" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
+	lazy val infixNoMinus = "+" | "*" | "/" | """\""" | "^" | "%" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
+	
+	lazy val infix = infixNoMinus | "-"
 	
 	lazy val pattern: PackratParser[PatternAST] =
 		(ident <~ "@") ~ pattern3 ^^
