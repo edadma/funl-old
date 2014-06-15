@@ -868,7 +868,7 @@ class Evaluator
 						argList match
 						{
 							case List( r: Int, c: Int ) => push( new Mutable2DSeqReference(ms, r, c) )
-//							case List( r: Range, c: Int ) => push( new MutableSeqRowRangeReference(ms, r, c) )
+							case List( r: Range, c: Int ) => push( new MutableSeqRowRangeReference(ms, r, c) )
 						}
 					case ms: MutableSeq[Any] if argList.head.isInstanceOf[Int] => push( new MutableSeqReference(ms, argList.head.asInstanceOf[Int]) )
           case ms: MutableSeq[Any] => push( new MutableSeqRangeReference(ms, argList.head.asInstanceOf[Range]) )
@@ -876,7 +876,11 @@ class Evaluator
 					case m: Map[Any, Any] => push( new ImmutableMapReference(m, argList.head) )
 					case mm: MutableMap[Any, Any] => push( new MutableMapReference(mm, argList.head) )
 					case ms: ImmutableSeq[ImmutableSeq[_]] if argList.length == 2 =>
-						push( new Immutable2DSeqReference(ms, argList.head.asInstanceOf[Int], argList(1).asInstanceOf[Int]) )
+						argList match
+						{
+							case List( r: Int, c: Int ) => push( new Immutable2DSeqReference(ms, r, c) )
+							case List( r: Range, c: Int ) => push( new ImmutableSeqRowRangeReference(ms, r, c) )
+						}
 					case s: ImmutableSeq[_] if argList.head.isInstanceOf[Int] => push( new ImmutableSeqReference(s, argList.head.asInstanceOf[Int]) )
           case s: ImmutableSeq[_] => push( new ImmutableSeqRangeReference(s, argList.head.asInstanceOf[Range]) )
 					case s: collection.Set[Any] => push( s(argList.head) )
