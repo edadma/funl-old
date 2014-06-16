@@ -65,7 +65,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				
 			reserved += (
 				"and", "break", "by", "case", "class", "continue", "data", "def", "do", "elif",
-				"else", "false", "for", "forever", "function", "if", "import", "in", "is", "mod",
+				"else", "false", "for", "function", "if", "import", "in", "is", "mod",
 				"native", "not", "null", "of", "or", "otherwise", "private", "return", "then", "true",
 				"until", "val", "var", "while", "xor", "yield", "shiftright", "shiftleft", "rotateright", "rotateleft"
 				)
@@ -210,10 +210,10 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val expr7 =
 		("if" ~> booleanExpr) ~ ("then" ~> expr | block) ~ rep(elif) ~ opt(onl ~> "else" ~> expr) ^^
 			{case c ~ t ~ ei ~ e => ConditionalExprAST( (c, t) +: ei, e )} |
-		"forever" ~> expr ^^
-			(ForeverExprAST( _ )) |
 		"for" ~> generators ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) ^^
 			{case g ~ b ~ e => ForExprAST( g, b, e )} |
+    "for" ~> expr ^^
+      (ForeverExprAST( _ )) |
 		"while" ~> expr ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) ^^
 			{case c ~ b ~ e => WhileExprAST( c, b, e )} |
 		"do" ~> expr ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> expr) ^^
