@@ -8,3 +8,5 @@
 function funl.modules.Util.{rnd, sleep}
 
 native funl.modules.TextTable
+
+def from( n ) = n # from( n + 1 )

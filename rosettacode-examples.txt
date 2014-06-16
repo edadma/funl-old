@@ -440,6 +440,27 @@ for i <- 0..10
 </pre>
 
 --------------------
+Generator/Exponential
+--------------------
+
+=={{header|FunL}}==
+{{trans|Scala}} (for the filter)
+<lang funl>import util.from
+
+def powers( m ) = map( (^ m), from(0) )
+
+def
+  filtered( s@sh:_, ch:ct ) | sh > ch = filtered( s, ct )
+  filtered( sh:st, c@ch:_ ) | sh < ch = sh # filtered( st, c )
+  filtered( _:st, c ) = filtered( st, c )
+
+println( filtered(powers(2), powers(3)).drop(20).take(10) )</lang>
+{{out}}
+<pre>
+[529, 576, 625, 676, 784, 841, 900, 961, 1024, 1089]
+</pre>
+
+--------------------
 Greatest_common_divisor
 --------------------
 
@@ -453,8 +474,7 @@ FunL has pre-defined function <code>gcd</code> in module <code>integers</code> d
       _gcd( a, 0 ) = a
       _gcd( a, b ) = _gcd( b, a%b )
 
-    _gcd( abs(a), abs(b) )
-</lang>
+    _gcd( abs(a), abs(b) )</lang>
 
 --------------------
 Greatest_element_of_a_list
