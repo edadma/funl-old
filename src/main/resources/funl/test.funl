@@ -7,7 +7,7 @@ def mul( a, b ) =
   vector( res )
 
 def
-  pow( _, 0 ) = vector( [[1, 0], [0, 1]] )
+  pow( _, 0 ) = ((1, 0), (0, 1))
   pow( x, 1 ) = x
   pow( x, n )
     | 2|n = pow( mul(x, x), n\2 )
