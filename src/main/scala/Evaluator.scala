@@ -781,10 +781,15 @@ class Evaluator
 							push( display(l) + display(r) )
 						else if (l.isInstanceOf[Iterable[_]] && r.isInstanceOf[Iterable[_]])
 							push( l.asInstanceOf[Iterable[_]] ++ r.asInstanceOf[Iterable[_]] )
-						else if (l.isInstanceOf[Number] && r.isInstanceOf[Number])
-							push( Math(op, l, r) )
 						else
-							RuntimeException( "operation '" + op.name + "' not applicable to values: '" + l + "', '" + r + "'" )
+							push( Math(op, l, r) )
+					case '* =>
+						val r = eval( right )
+
+						if (l.isInstanceOf[String])
+							push( l.asInstanceOf[String]*r.asInstanceOf[Int] )
+						else
+							push( Math(op, l, r) )					
 					case '< | '> | '<= | '>= =>
 						val r = eval( right )
 
@@ -921,7 +926,7 @@ class Evaluator
 												types.length == 1 && types(0).getName == "scala.collection.Seq"
 										}) match
 										{
-											case None => RuntimeException( "no class methods with matching signatures for: " + argList.mkString(", ") )
+											case None => RuntimeException( "no class methods with matching signatures for: " + m.head.getName + ": " + argList.mkString(", ") )
 											case Some( cm ) => push( cm.invoke(o, argList) )
 										}
 								case Some( cm ) =>
