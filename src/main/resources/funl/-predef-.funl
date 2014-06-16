@@ -15,6 +15,10 @@ function funl.modules.Predef.{
 native java.lang.System.gc
 
 native funl.interp.BitArray
+native funl.lia.ComplexDouble
+
+val i = ComplexDouble( 0.0, 1.0 )
+val j = i
 
 def
 	compose( f, g ) = x -> f( g(x) )
