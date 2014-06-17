@@ -142,4 +142,14 @@ object Predef
 			case List( n: Number ) => n.intValue
 			case List( s: String ) => s.toInt
 		}
+
+  def chr( code: Int ) = code.toChar.toString
+
+  def ord( ch: String ) = ch.head.toInt
+
+  def isalpha( ch: String ) = ch.head.toChar.isLetter
+
+  def isupper( ch: String ) = ch.head.toChar.isUpper
+
+  def islower( ch: String ) = ch.head.toChar.isLower
 }

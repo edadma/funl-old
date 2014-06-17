@@ -5,6 +5,10 @@
 ** /_/    \____/_/ /_/____/                                     **
 \*                                                              */
 
+native java.lang.System.gc
+
+native scala.collection.mutable.StringBuilder
+
 function funl.modules.Predef.{
 	print, println, printf, format, readLine,
 	error, require, assert,
@@ -12,7 +16,9 @@ function funl.modules.Predef.{
 	int
 	}
 
-native java.lang.System.gc
+native funl.modules.Predef.{
+  chr, ord, isalpha, isupper, islower
+  }
 
 native funl.interp.BitArray
 native funl.lia.ComplexDouble

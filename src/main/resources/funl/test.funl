@@ -1,15 +1,14 @@
-import integers.choose
+def rot13( s ) =
+	buf = StringBuilder()
 
-def pascal( n ) = [choose( n - 1, k ) | k <- 0..n-1]
+	for c <- s
+		if isalpha( c )
+			n = ((ord(c) and 0x1F) - 1 + 13)%26 + 1
 
-def triangle( height ) =
-	width = max( map(a -> a.toString().length(), pascal(height)) )
+			buf.append( chr(if isupper(c) then n or 64 else n or 96) )
+		else
+			buf.append( c )
 
-	if 2|width
-		width++
+	buf.toString()
 
-	for n <- 1..height
-		print( ' '*((width + 1)\2)*(height - n) )
-		println( map(a -> format('%' + width + 'd ', a), pascal(n)).mkString() )
-
-triangle( 10 )
+println( rot13(rot13('abC3465Xyz')) )
