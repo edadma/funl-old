@@ -11,3 +11,5 @@ native java.io.File
 function funl.modules.IO.{readFile}
 
 def lines( file ) = Source.fromFile( File(file), 'UTF-8' ).getLines()
+
+def stdin = Source.stdin().getLines()

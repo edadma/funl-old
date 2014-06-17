@@ -43,7 +43,7 @@ object Main extends App
 		val eval = new Evaluator
 		implicit val env = new eval.Environment
 
-			eval.assign( m, "args" -> args.tail.toIndexedSeq )
+			eval.assign( "-main-", "args" -> args.tail.toVector )
 			eval( l )
 		}
 	}
