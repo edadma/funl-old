@@ -658,7 +658,7 @@ def isProbablyPrimeMillerRabin( n, k ) =
 
     if x == 1 or x == n - 1 then continue
 
-    for r <- 1..s - 1
+    for _ <- 1..s - 1
       x = x^2%n
 
       if x == 1 then return false
