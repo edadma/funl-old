@@ -71,7 +71,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",",
 				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->",
-				"=>", "+=", "-=", "*=", "/=", "^=", ":", "#", "\\", "::", "@")
+				"=>", "+=", "-=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "::", "@")
 		}
 
 	import lexical.{Newline, Indent, Dedent}
@@ -182,7 +182,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			(BlockExprAST( _ ))
 
 	lazy val expr: PackratParser[ExprAST] =
-		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "^=") ~ rep1sep(nonassignmentExpr, ",") ^^
+		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "\\=" | "^=") ~ rep1sep(nonassignmentExpr, ",") ^^
 			{case lhs ~ op ~ rhs => AssignmentExprAST( lhs, Symbol(op), rhs )} |
 		nonassignmentExpr
 

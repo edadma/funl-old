@@ -1,8 +1,10 @@
-def f =
-	for i <- 1..10
-		println( i )
-		
-		if i == 5
-			return
+//Miller-Rabin_primality_test
 
-println( f() )
+def isProbablyPrime( n, k ) =
+	n1 = n - 1
+	s = 0
+	
+	while 2|n1
+		s++
+		n1 /= 2
+		
