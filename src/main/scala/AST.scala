@@ -64,6 +64,7 @@ case class WhileExprAST( cond: ExprAST, body: ExprAST, e: Option[ExprAST] ) exte
 case class DoWhileExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class RepeatExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class RangeExprAST( f: ExprAST, t: ExprAST, b: Option[ExprAST], inclusize: Boolean ) extends ExprAST
+case class UnboundedRangeExprAST( f: ExprAST ) extends ExprAST
 case class CaseFunctionExprAST( cases: List[FunctionExprAST] ) extends ExprAST
 case class FunctionExprAST( parms: List[PatternAST], parts: List[FunctionPartExprAST] ) extends ExprAST
 case class FunctionPartExprAST( cond: Option[ExprAST], body: ExprAST ) extends ExprAST

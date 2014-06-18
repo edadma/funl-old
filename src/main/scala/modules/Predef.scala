@@ -152,4 +152,14 @@ object Predef
   def isupper( ch: String ) = ch.head.toChar.isUpper
 
   def islower( ch: String ) = ch.head.toChar.isLower
+
+  def sum( t: TraversableOnce[Any] ) =
+  {
+	var res: Any = 0
+
+		for (a <- t)
+			res = funl.lia.Math( '+, res, a )
+
+		res
+  }
 }

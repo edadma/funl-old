@@ -156,11 +156,11 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{	case n ~ None ~ gs => DefAST( n, FunctionExprAST(Nil, gs) )
 				case n ~ Some(p) ~ gs => DefAST( n, FunctionExprAST(p, gs) )}
 
-	lazy val part = opt("|" ~> expr10) ~ ("=" ~> expr) <~ Newline ^^
+	lazy val part = opt("|" ~> expr10) ~ ("=" ~> exprOrBlock) <~ Newline ^^
 		{case g ~ b => List(FunctionPartExprAST(g, b))}
 
 	lazy val subpart =
-		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ ("=" ~> expr) <~ Newline ^^
+		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ ("=" ~> exprOrBlock) <~ Newline ^^
 			{case g ~ b => FunctionPartExprAST(g, b)}
 
 	lazy val parts =
@@ -176,6 +176,10 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val statement: PackratParser[StatementAST] =
 		expr <~ Newline ^^ (ExpressionStatementAST( _ )) |
 		declaration
+		
+	lazy val block =
+		Indent ~> statements <~ Dedent ^^
+			(BlockExprAST( _ ))
 
 	lazy val expr: PackratParser[ExprAST] =
 		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "^=") ~ rep1sep(nonassignmentExpr, ",") ^^
@@ -206,19 +210,21 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		(pattern <~ "<-") ~ expr ~ opt("if" ~> expr) ^^ {case p ~ t ~ f => GeneratorAST( p, t, f )}
 
 	lazy val generators = rep1sep(generator, ",")
+
+	lazy val exprOrBlock = expr | block
 	
 	lazy val expr7 =
-		("if" ~> booleanExpr) ~ ("then" ~> expr | block) ~ rep(elif) ~ opt(onl ~> "else" ~> expr) ^^
+		("if" ~> booleanExpr) ~ ("then" ~> expr | block) ~ rep(elif) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
 			{case c ~ t ~ ei ~ e => ConditionalExprAST( (c, t) +: ei, e )} |
 		"for" ~> generators ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) ^^
 			{case g ~ b ~ e => ForExprAST( g, b, e )} |
     "for" ~> expr ^^
       (ForeverExprAST( _ )) |
-		"while" ~> expr ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) ^^
+		"while" ~> expr ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
 			{case c ~ b ~ e => WhileExprAST( c, b, e )} |
-		"do" ~> expr ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> expr) ^^
+		"do" ~> expr ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
 			{case b ~ c ~ e => DoWhileExprAST( b, c, e )} |
-		"do" ~> expr ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> expr) ^^
+		"do" ~> expr ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
 			{case b ~ c ~ e => RepeatExprAST( b, c, e )} |
 		"break" ^^^ BreakExprAST |
 		"continue" ^^^ ContinueExprAST |
@@ -263,6 +269,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val expr27: PackratParser[ExprAST] =
 		expr30 ~ (".." | "until") ~ expr30 ~ opt("by" ~> expr30) ^^
 			{case f ~ op ~ t ~ b => RangeExprAST( f, t, b, if (op == "..") true else false )} |
+		expr30 <~ ".." ^^
+      {case f => UnboundedRangeExprAST( f )} |
 		expr30
 
 	lazy val expr30: PackratParser[ExprAST] =
@@ -288,16 +296,16 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		expr34
 
 	lazy val expr34: PackratParser[ExprAST] =
-		("++" | "--") ~ block ^^
+		("++" | "--") ~ expr35 ^^
 			{case o ~ e => UnaryExprAST( Symbol("pre" + o), e )} |
-		block ~ ("++" | "--") ^^
+		expr35 ~ ("++" | "--") ^^
 			{case e ~ o => UnaryExprAST( Symbol("post" + o), e )} |
-		block
-
-	lazy val block =
-		Indent ~> statements <~ Dedent ^^
-			(BlockExprAST( _ )) |
 		expr35
+
+// 	lazy val block =
+// 		Indent ~> statements <~ Dedent ^^
+// 			(BlockExprAST( _ )) |
+// 		expr35
 
 	lazy val leftExpr = expr35
 	

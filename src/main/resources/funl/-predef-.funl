@@ -17,7 +17,8 @@ function funl.modules.Predef.{
 	}
 
 native funl.modules.Predef.{
-  chr, ord, isalpha, isupper, islower
+  chr, ord, isalpha, isupper, islower,
+	sum
   }
 
 native funl.interp.BitArray
@@ -69,7 +70,7 @@ def
 		| it.hasNext()                = foldl( f, it.next(), it )
 		| otherwise                   = error( "foldl1: empty iterator" )
 
-	sum( l )									= foldl( (a, b) -> a + b, 0, l )
+//	sum( l )									= foldl( (a, b) -> a + b, 0, l )
 	product( l )							= foldl( (a, b) -> a*b, 1, l )
 
 	max( a, b )							= if a <= b then b else a

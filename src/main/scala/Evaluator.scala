@@ -1238,6 +1238,11 @@ class Evaluator
 					case d: Double => push( d until deval(t) by (if (b == None) 1 else deval(b.get)) )
 					case _ => RuntimeException( "expected a number as the initial value of a range" )
 				}
+			case UnboundedRangeExprAST( f ) =>
+				push( Stream.iterate(eval(f))
+					{	v =>
+						Math( '+, v, 1 )
+					} )
 			case DotExprAST( e, f ) =>
 				eval( e ) match
 				{
