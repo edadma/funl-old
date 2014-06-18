@@ -40,6 +40,7 @@ case class SysvarExprAST( name: String ) extends ExprAST
 case class TestExprAST( name: String ) extends ExprAST
 case object BreakExprAST extends ExprAST
 case object ContinueExprAST extends ExprAST
+case class ReturnExprAST( ret: ExprAST ) extends ExprAST
 case class LiteralExprAST( v: Any ) extends ExprAST
 case class StringLiteralExprAST( s: String ) extends ExprAST
 case class VariableExprAST( name: String ) extends ExprAST
@@ -54,7 +55,7 @@ case class ConsExprAST( head: ExprAST, tail: ExprAST ) extends ExprAST
 case class StreamExprAST( head: ExprAST, tail: ExprAST ) extends ExprAST
 case class SetExprAST( l: List[ExprAST] ) extends ExprAST
 case class MapExprAST( l: List[TupleExprAST] ) extends ExprAST
-case object UnitExprAST extends ExprAST
+case object VoidExprAST extends ExprAST
 case object NullExprAST extends ExprAST
 case class BlockExprAST( l: List[StatementAST] ) extends ExprAST
 case class ConditionalExprAST( cond: List[(ExprAST, ExprAST)], no: Option[ExprAST] ) extends ExprAST
@@ -82,5 +83,5 @@ case class RecordPatternAST( n: String, l: List[PatternAST] ) extends PatternAST
 case class ListPatternAST( l: List[PatternAST] ) extends PatternAST
 case class ConsPatternAST( head: PatternAST, tail: PatternAST ) extends PatternAST
 case object EmptySetPatternAST extends PatternAST
-case object UnitPatternAST extends PatternAST
+case object VoidPatternAST extends PatternAST
 case object NullPatternAST extends PatternAST

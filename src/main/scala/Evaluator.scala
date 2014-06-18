@@ -132,6 +132,8 @@ class Evaluator
 
 	class ContinueThrowable extends Throwable
 
+	case class ReturnThrowable( ret: Any ) extends Throwable
+
 	object NEW
 
 	private var symbols = symbolMap
@@ -198,6 +200,14 @@ class Evaluator
 		apply( t )
 		pop
 	}
+
+	def restoreEnvironment( st: Environment )( implicit env: Environment )
+	{
+		env.stack = st.stack
+		env.activations = st.activations
+	}
+
+	def push( v: Any )( implicit env: Environment ) = env.stack.push( long2bigint(v) )
 
 	def pop( implicit env: Environment ) = deref( env.stack.pop )
 
@@ -314,7 +324,20 @@ class Evaluator
 		}
 
 		enterActivation( c, c.referencing, c.module )
-		occur( argList )
+
+	val st = env.copy
+
+		try
+		{
+			occur( argList )
+		}
+		catch
+		{
+			case ReturnThrowable( ret ) =>
+				restoreEnvironment( st )
+				push( ret )
+		}
+		
 		exitActivation
 	}
 	
@@ -403,8 +426,6 @@ class Evaluator
 			else
 				currentActivation
 
-		def push( v: Any ) = env.stack.push( long2bigint(v) )
-
 		def dpop = pop.asInstanceOf[Double]
 
 		def bpop = pop.asInstanceOf[Boolean]
@@ -419,12 +440,6 @@ class Evaluator
 				buf prepend pop
 
 			buf.toList
-		}
-
-		def restoreEnvironment( st: Environment )
-		{
-			env.stack = st.stack
-			env.activations = st.activations
 		}
 
 		def exitScope = env.activations.top.scope pop
@@ -682,6 +697,8 @@ class Evaluator
 				throw new BreakThrowable
 			case ContinueExprAST =>
 				throw new ContinueThrowable
+			case ReturnExprAST( ret ) =>
+				throw new ReturnThrowable( eval(ret) )
 			case SectionExprAST( op ) =>
 				push( new Closure(null, currentModule,
 					List(FunctionExprAST(List(VariablePatternAST("$a"), VariablePatternAST("$b")),
@@ -1040,7 +1057,7 @@ class Evaluator
 			case MapExprAST( l ) =>
 				apply( l )
 				push( list(l.length).asInstanceOf[List[(_, _)]].toMap )
-			case UnitExprAST => push( () )
+			case VoidExprAST => push( () )
 			case NullExprAST => push( null )
 			case BlockExprAST( Nil ) => push( () )
 			case BlockExprAST( l ) =>
@@ -1349,7 +1366,7 @@ class Evaluator
 		{
 			case LiteralPatternAST( v ) => a == v
 			case EmptySetPatternAST => a == Set.empty
-			case UnitPatternAST => a == ()
+			case VoidPatternAST => a == ()
 			case NullPatternAST => a == null
 			case AliasPatternAST( alias, pat ) =>
 				if (map contains alias)

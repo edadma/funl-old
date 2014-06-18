@@ -228,6 +228,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case b ~ c ~ e => RepeatExprAST( b, c, e )} |
 		"break" ^^^ BreakExprAST |
 		"continue" ^^^ ContinueExprAST |
+		"return" ~> opt(expr) ^^
+			{case e => ReturnExprAST( e.getOrElse(VoidExprAST) )} |
 		("case" ~> expr) ~ ("of" ~> functionExpr | caseFunctionExpr) ^^
 			{case e ~ f => ApplyExprAST( f, List(e), false )} |
 		expr10
@@ -359,7 +361,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		("true" | "false") ^^
 			(b => LiteralExprAST( b.toBoolean )) |
 		"(" ~ ")" ^^^
-			UnitExprAST |
+			VoidExprAST |
 		("(" ~> nonassignmentExpr <~ ",") ~ (rep1sep(nonassignmentExpr, ",") <~ ")") ^^
 			{case e ~ l => VectorExprAST( e +: l )} |
 		"[" ~> iteratorExpr <~ "]" ^^
@@ -423,7 +425,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		("true" | "false") ^^
 			(b => LiteralPatternAST( b.toBoolean )) |
 		"(" ~ ")" ^^^
-			UnitPatternAST |
+			VoidPatternAST |
 		"null" ^^^
 			NullPatternAST |
 		ident ~ ("(" ~> repsep(pattern, ",") <~ ")") ^^
