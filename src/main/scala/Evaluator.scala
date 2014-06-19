@@ -571,6 +571,14 @@ class Evaluator
 				case _ => BinaryExprAST( l, op, r )
 			}
 
+		def rewrap( arg: Any ): AnyRef =
+			arg match
+			{
+				case x: BigInt if x.isValidLong => x.longValue.asInstanceOf[AnyRef]
+				case x: ScalaNumber => x.underlying
+				case x => x.asInstanceOf[AnyRef]
+			}
+
 		t match
 		{
 			case ModuleAST( m, s ) =>
@@ -931,6 +939,7 @@ class Evaluator
 										t.getName == "int" && cls.getName == "java.lang.Integer" ||
 											t.getName == "double" && cls.getName == "java.lang.Double" ||
 											t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
+											t.getName == "long" && (cls.getName == "java.lang.Integer" || cls.getName == "scala.math.BigInt") ||
 											t.isAssignableFrom( cls )
 									})
 							) match
@@ -947,7 +956,7 @@ class Evaluator
 											case Some( cm ) => push( cm.invoke(o, argList) )
 										}
 								case Some( cm ) =>
-									push( cm.invoke(o, argList.asInstanceOf[List[Object]]: _*) )
+									push( cm.invoke(o, argList map rewrap: _*) )
 							}
 					case c: Class[Any] =>
 						c.getConstructors.toList.filter( _.getParameterTypes.length == argList.length ).
@@ -958,15 +967,16 @@ class Evaluator
 									t.getName == "int" && cls.getName == "java.lang.Integer" ||
 										t.getName == "double" && cls.getName == "java.lang.Double" ||
 										t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
+										t.getName == "long" && (cls.getName == "java.lang.Integer" || cls.getName == "scala.math.BigInt") ||
 									t.isAssignableFrom( cls )
 								}) ) match
 							{
 								case None => RuntimeException( "no constructor with matching signatures for: " + argList )
-								case Some( cm ) => push( cm.newInstance( argList.asInstanceOf[List[Object]]: _* ) )
+								case Some( cm ) => push( cm.newInstance( argList map rewrap: _* ) )
 							}
 					case p: Product =>
 						push( p.productElement(argList.head.asInstanceOf[Int]) )
-					case o => RuntimeException( "not a function: " + o )
+					case o => RuntimeException( "not callable: " + o )
 				}
 			case UnaryExprAST( op, exp ) =>
 				apply( exp )
