@@ -5,6 +5,9 @@
 ** /_/    \____/_/ /_/____/                                     **
 \*                                                              */
 
-function funl.modules.Math.{
-	abs, sqrt
+native funl.lia.Math.{
+	sqrtFunction => sqrt, absFunction => abs,
+	cosFunction => cos, sinFunction => sin, acosFunction => acos, asinFunction => asin
 	}
+
+native java.lang.Math.{PI => Pi, E}

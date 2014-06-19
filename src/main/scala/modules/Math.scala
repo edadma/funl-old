@@ -14,17 +14,17 @@ import funl.interp.RuntimeException
 
 object Math
 {
-	def sqrt( a: List[Any] ) =
-		a match
-		{
-			case List( n: Number ) => MATH.sqrtNumber( n )
-		}
-		
-	def abs( a: List[Any] ) =
-		a match
-		{
-			case List( n: Number ) => MATH.absNumber( n )
-		}
+// 	def sqrt( a: List[Any] ) =
+// 		a match
+// 		{
+// 			case List( n: Number ) => MATH.sqrtFunction( n )
+// 		}
+// 		
+// 	def abs( a: List[Any] ) =
+// 		a match
+// 		{
+// 			case List( n: Number ) => MATH.absFunction( n )
+// 		}
 
 // 	def choose( a: Vector[Any] ): Any =
 // 		a match

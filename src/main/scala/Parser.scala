@@ -204,7 +204,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		expr7
 
 	lazy val elif =
-		(onl ~ "elif") ~> booleanExpr ~ ("then" ~> expr | block) ^^ {case c ~ t => (c, t)}
+		(onl ~ "elif") ~> booleanExpr ~ ("then" ~> exprOrBlock | block) ^^ {case c ~ t => (c, t)}
 
 	lazy val generator =
 		(pattern <~ "<-") ~ expr ~ opt("if" ~> expr) ^^ {case p ~ t ~ f => GeneratorAST( p, t, f )}
@@ -214,7 +214,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val exprOrBlock = expr | block
 	
 	lazy val expr7 =
-		("if" ~> booleanExpr) ~ ("then" ~> expr | block) ~ rep(elif) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
+		("if" ~> booleanExpr) ~ ("then" ~> exprOrBlock | block) ~ rep(elif) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
 			{case c ~ t ~ ei ~ e => ConditionalExprAST( (c, t) +: ei, e )} |
 		"for" ~> generators ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
 			{case g ~ b ~ e => ForExprAST( g, b, e )} |
