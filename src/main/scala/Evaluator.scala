@@ -70,6 +70,20 @@ class Evaluator
 				}
 			}
 
+		def function =
+		{
+			new scala.runtime.AbstractFunction1[Any, Any]
+			{
+			implicit val env = new Environment
+
+				def apply( arg: Any ) =
+				{
+					invoke( Closure.this, List(arg) )
+					pop
+				}
+			}
+		}
+		
 		override def toString = "<closure>"
 	}
 
@@ -576,9 +590,23 @@ class Evaluator
 			{
 				case x: BigInt if x.isValidLong => x.longValue.asInstanceOf[AnyRef]
 				case x: ScalaNumber => x.underlying
+				case x: Closure => x.function
 				case x => x.asInstanceOf[AnyRef]
 			}
 
+		def assignable( objs: List[Any], types: Array[Class[_]]) =
+			(objs zip types).forall(
+				{case (a, t) =>
+					val cls = a.getClass
+
+					t.getName == "int" && cls.getName == "java.lang.Integer" ||
+						t.getName == "double" && cls.getName == "java.lang.Double" ||
+						t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
+						t.getName == "long" && (cls.getName == "java.lang.Integer" || cls.getName == "scala.math.BigInt") ||
+						t.getName == "scala.Function1" && cls.getName == "funl.interp.Evaluator$Closure" ||
+						t.isAssignableFrom( cls )
+				})
+		
 		t match
 		{
 			case ModuleAST( m, s ) =>
@@ -931,25 +959,14 @@ class Evaluator
 						push( new Record(m, t, n, fields, argList) )
 					case NativeMethod( o, m ) =>
 						m.filter( _.getParameterTypes.length == argList.length ).
-							find( cm =>
-								(argList zip cm.getParameterTypes).forall(
-									{case (a, t) =>
-										val cls = a.getClass
-
-										t.getName == "int" && cls.getName == "java.lang.Integer" ||
-											t.getName == "double" && cls.getName == "java.lang.Double" ||
-											t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
-											t.getName == "long" && (cls.getName == "java.lang.Integer" || cls.getName == "scala.math.BigInt") ||
-											t.isAssignableFrom( cls )
-									})
-							) match
+							find( cm => assignable(argList, cm.getParameterTypes) ) match
 							{
 								case None =>
 									m.find( cm =>
 										{
 										val types = cm.getParameterTypes
 
-												types.length == 1 && types(0).getName == "scala.collection.Seq"
+											types.length == 1 && types(0).getName == "scala.collection.Seq"
 										}) match
 										{
 											case None => RuntimeException( "no class methods with matching signatures for: " + m.head.getName + ": " + argList.mkString(", ") )
@@ -960,16 +977,7 @@ class Evaluator
 							}
 					case c: Class[Any] =>
 						c.getConstructors.toList.filter( _.getParameterTypes.length == argList.length ).
-							find( cm => (argList zip cm.getParameterTypes).forall(
-								{case (a, t) =>
-									val cls = a.getClass
-
-									t.getName == "int" && cls.getName == "java.lang.Integer" ||
-										t.getName == "double" && cls.getName == "java.lang.Double" ||
-										t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
-										t.getName == "long" && (cls.getName == "java.lang.Integer" || cls.getName == "scala.math.BigInt") ||
-									t.isAssignableFrom( cls )
-								}) ) match
+							find( cm => assignable(argList, cm.getParameterTypes) ) match
 							{
 								case None => RuntimeException( "no constructor with matching signatures for: " + argList )
 								case Some( cm ) => push( cm.newInstance( argList map rewrap: _* ) )
