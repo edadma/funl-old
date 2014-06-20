@@ -1,6 +1,6 @@
 # Introduction
 
-*FunL* (pronounced "funnel") is a functional dynamically typed scripting language. The name FunL stands for "fun language", but it can also stand for "functional language".  One goal in creating FunL was to make a scripting language that would be as enjoyable and convenient to use as Python but with the added support for pattern matching and more of an "functional" style of programming.  FunL has the same kind of indentation or "off-side rule" syntax that Python has.
+*FunL* (pronounced "funnel") is a functional dynamically typed scripting language. The name FunL stands for "fun language", but it can also stand for "functional language".  One of the goals in creating FunL was to make a scripting language that would be as enjoyable and convenient to use as Python but with the added support for pattern matching and more of a "functional" style of programming.  FunL has the same kind of indentation or "off-side rule" syntax as Python.
 
 As an example, here is a tail-recursive version of the well known factorial function.
 
@@ -92,7 +92,7 @@ As a more interesting example, here is an (not fairly efficient) implementation 
 
 	def
 	  qsort( [] )   = []
-	  qsort( p:xs ) = qsort( filter(e -> e < p, xs) ) + [p] + qsort( filter(e -> e >= p, xs) )
+	  qsort( p:xs ) = qsort( xs.filter((< p)) ) + [p] + qsort( xs.filter((>= p)) )
 
 	println( qsort([4, 2, 1, 3, 0, 2]) )
 	println( qsort(["Bob", "Alice", "Barry", "Zoe", "Charlotte", "Fred"]) )
