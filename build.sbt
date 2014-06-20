@@ -5,7 +5,7 @@ import LaikaKeys._
 
 name := "FunL"
 
-version := "1.0"
+version := "0.12-SNAPSHOT"
 
 scalaVersion := "2.11.1"
 

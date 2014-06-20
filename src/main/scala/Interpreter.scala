@@ -18,7 +18,7 @@ import io.Source
 object Interpreter
 {
 	val PREDEF = "-predef-"
-	val VERSION = "1.0"
+	val VERSION = "0.12-SNAPSHOT"
 	
 	def markTailRecursion( m: ModuleAST )
 	{
