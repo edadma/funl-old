@@ -86,14 +86,14 @@ Use the following definition to use FunL in your Maven project:
 	<dependency>
 		<groupId>org.funl-lang</groupId>
 		<artifactId>funl</artifactId>
-		<version>0.11-SNAPSHOT</version>
+		<version>1.0</version>
 	</dependency>
 
 Add the following to your build file to use FunL in your SBT project:
 
 	resolvers += Resolver.sonatypeRepo( "snapshots" )
 
-	libraryDependencies ++= "org.funl-lang" %% "funl" % "0.11-SNAPSHOT"
+	libraryDependencies ++= "org.funl-lang" %% "funl" % "1.0"
 
 
 ## Building

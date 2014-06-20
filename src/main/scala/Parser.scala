@@ -271,8 +271,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val expr27: PackratParser[ExprAST] =
 		expr30 ~ (".." | "until") ~ expr30 ~ opt("by" ~> expr30) ^^
 			{case f ~ op ~ t ~ b => RangeExprAST( f, t, b, if (op == "..") true else false )} |
-		expr30 <~ ".." ^^
-      {case f => UnboundedRangeExprAST( f )} |
+		(expr30 <~ "..") ~ opt("by" ~> expr30) ^^
+      {case f ~ b => UnboundedStreamExprAST( f, b )} |
 		expr30
 
 	lazy val expr30: PackratParser[ExprAST] =
