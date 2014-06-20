@@ -28,11 +28,17 @@ If you haven't yet done so, please download the software by clicking on the *Dow
 
 After executing the above command to run the REPL, you shoud see
 
+	    ______            __
+	   / ____/_  __ ___  / /     FunL Programming Language
+	  / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr.
+	 / /   / /_/ / / / / /__     http://funl-lang.org/
+	/_/    \____/_/ /_/____/
+	
 	Welcome to FunL version 0.12-SNAPSHOT
 	Type in expressions to have them evaluated.
 	Type :help for more information.
 
-	FunL>
+	>
 
 If so, you can now enter FunL expressions at the prompt.
 
