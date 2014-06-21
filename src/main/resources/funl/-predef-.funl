@@ -22,10 +22,16 @@ native funl.modules.Predef.{
   }
 
 native funl.interp.BitArray
-native funl.lia.ComplexDouble
 
-val i = ComplexDouble( 0.0, 1.0 )
+val i =
+	native funl.lia.ComplexDouble
+	ComplexDouble( 0.0, 1.0 )
 val j = i
+
+native scala.Some
+val None =
+	native funl.modules.Predef.none
+	none()
 
 def
 	compose( f, g ) = x -> f( g(x) )

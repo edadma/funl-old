@@ -70,7 +70,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				"until", "val", "var", "while", "xor", "yield", "shiftright", "shiftleft", "rotateright", "rotateleft"
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",",
-				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", "..", "<-", "->",
+				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
 				"=>", "+=", "-=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "::", "@")
 		}
 
@@ -120,7 +120,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline ^^ (DeclarationBlockAST( _ ))
 
 	lazy val constant =
-		(pattern <~ "=") ~ nonassignmentExpr <~ Newline ^^
+// 		(pattern <~ "=") ~ nonassignmentExpr <~ Newline ^^
+		(pattern <~ "=") ~ exprOrBlock <~ Newline ^^
 			{case pat ~ exp => ValAST( pat, exp )}
 
 	lazy val variables =
@@ -128,7 +129,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline ^^ (DeclarationBlockAST( _ ))
 
 	lazy val variable =
-		ident ~ opt("=" ~> expr) <~ Newline ^^
+		ident ~ opt("=" ~> exprOrBlock) <~ Newline ^^
 			{case n ~ v => VarAST( n, v )}
 
 	lazy val data =
@@ -314,7 +315,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val expr35: PackratParser[ExprAST] =
 		expr35 ~ ("(" ~> repsep(expr, ",") <~ ")") ^^
 			{case f ~ args => ApplyExprAST( f, args, false )} |
-		expr35 ~ ("." ~> ident) ^^ {case e ~ f => DotExprAST( e, f )} |
+		expr35 ~ ("." | ".>") ~ ident ^^ {case e ~ op ~ f => DotExprAST( e, f, op == "." )} |
 		expr40
 
 	lazy val entry =

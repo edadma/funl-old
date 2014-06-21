@@ -162,4 +162,6 @@ object Predef
 
 		res
   }
+
+  def none = None
 }

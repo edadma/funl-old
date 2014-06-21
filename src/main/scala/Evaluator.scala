@@ -1284,7 +1284,7 @@ class Evaluator
 					{	v =>
 						Math( '+, v, by )
 					} )
-			case DotExprAST( e, f ) =>
+			case DotExprAST( e, f, lookup ) =>
 				eval( e ) match
 				{
 					case r: Record =>
@@ -1293,9 +1293,9 @@ class Evaluator
 							case None => RuntimeException( "unknown field: " + f )
 							case Some( v ) => push( new ConstantReference("field '" + f + "'", v) )
 						}
-					case m: Map[Any, Any] => push( new ImmutableMapReference(m, f) )
-					case mm: MutableMap[Any, Any] => push( new MutableMapReference(mm, f) )
-					case c: Class[Any] =>
+					case m: Map[Any, Any] if lookup => push( new ImmutableMapReference(m, f) )
+					case mm: MutableMap[Any, Any] if lookup => push( new MutableMapReference(mm, f) )
+					case c: Class[Any] if lookup =>
 						val methods = c.getMethods.toList.filter( m => m.getName == f && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
 
 						if (methods isEmpty)

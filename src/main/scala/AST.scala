@@ -69,7 +69,7 @@ case class UnboundedStreamExprAST( f: ExprAST, b: Option[ExprAST] ) extends Expr
 case class CaseFunctionExprAST( cases: List[FunctionExprAST] ) extends ExprAST
 case class FunctionExprAST( parms: List[PatternAST], parts: List[FunctionPartExprAST] ) extends ExprAST
 case class FunctionPartExprAST( cond: Option[ExprAST], body: ExprAST ) extends ExprAST
-case class DotExprAST( e: ExprAST, f: String ) extends ExprAST
+case class DotExprAST( e: ExprAST, f: String, lookup: Boolean ) extends ExprAST
 case class NotExprAST( exp: ExprAST ) extends ExprAST
 
 trait PatternAST extends AST
