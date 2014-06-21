@@ -37,3 +37,7 @@ def
 			_gcd( a, b ) = _gcd( b, a%b )
 
 		_gcd( abs(a), abs(b) )
+
+	lcm( _, 0 ) =  0
+	lcm( 0, _ ) =  0
+	lcm( x, y ) =  abs( (x\gcd(x, y)) y )

@@ -609,6 +609,18 @@ for i <- from( 1 )
   println( i )</lang>
 
 --------------------
+Least_common_multiple
+--------------------
+
+=={{header|FunL}}==
+FunL has function <code>lcm</code> in module <code>integers</code> with the following implement:
+
+<lang funl>def
+  lcm( _, 0 ) =  0
+  lcm( 0, _ ) =  0
+  lcm( x, y ) =  abs( (x\gcd(x, y)) y )</lang>
+
+--------------------
 Matrix_arithmetic
 --------------------
 
