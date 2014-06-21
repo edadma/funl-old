@@ -1,0 +1,3 @@
+import integers.egcd
+
+println( egcd(18, 12) )
