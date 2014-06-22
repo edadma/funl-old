@@ -1,23 +1,7 @@
-def primes =
-	d = dict()
-	q = 3
+import lists.zipWith
 
-	def oddprimes =
-		for
-			p1 = d.>remove( q )
+def dot( a, b )
+  | a.length() == b.length() = sum( zipWith((*), a, b) )
+  | otherwise = error( "Vector sizes must match" )
 
-			if p1 != None
-				p = p1.get()
-				x = p + q
-				while x in d do x += p
-				d(x) = p
-				q += 2
-			else
-				d(q*q) = 2*q
-				p = q
-				q += 2
-				return p # oddprimes()
-
-	2 # oddprimes()
-
-println( primes() )
+println( dot([1, 3, -5], [4, -2, -1]) )
