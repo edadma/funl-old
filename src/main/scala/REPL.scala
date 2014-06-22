@@ -27,7 +27,7 @@ object REPL extends App
 	implicit val env = new eval.Environment
 
 	reader.setBellEnabled( false )
-	reader.setPrompt( "> " )
+	reader.setPrompt( "FunL> " )
 
 	for {line <- """	|    ______            __
 									|   / ____/_  __ ___  / /     FunL Programming Language
@@ -41,7 +41,7 @@ object REPL extends App
 	out.println( "Type in expressions to have them evaluated." )
 	out.println( "Type :help for more information." )
 	out.println
-
+	
 	eval.loadPredef( "REPL" )
 	eval.enterActivation( null, null, eval.module("REPL") )
 	

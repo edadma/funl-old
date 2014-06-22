@@ -18,8 +18,14 @@ import io.Source
 object Interpreter
 {
 	val PREDEF = "-predef-"
-	val VERSION = "0.12-SNAPSHOT"
-	
+	val VERSION =
+		{
+			val p = getClass.getPackage
+			val name = p.getImplementationTitle
+			
+			p.getImplementationVersion
+		}
+
 	def markTailRecursion( m: ModuleAST )
 	{
 		for (s <- m.statements)
@@ -126,7 +132,7 @@ object Interpreter
 		{
 			case parser.Success( l, _ ) =>
 				markTailRecursion( l )
-println( l )
+//println( l )
 				l
 			case parser.Failure( m, r ) => sys.error( r.pos + ": " + m + '\n' + r.pos.longString )
 			case parser.Error( m, r ) => sys.error( r.pos + ": " + m )
