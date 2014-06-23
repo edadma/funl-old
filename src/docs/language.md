@@ -30,18 +30,72 @@ A FunL program manipulates *objects*.  An object is something that lives in the 
 
 There are two kinds of objects: mutable and immutable.  Generally, anything that can be created directly using the syntax of the language is immutable.  Built-in functions and type constructors are used to create mutable objects.  And there are also functions that create immutables too.
 
-### Immutable Types
-
 Immutable types in FunL are all created using a type of expression called a *literal*.
 
-#### Strings
+### Strings
 
 A string literal is a list of characters enclosed in either single or double quotes, such as: `'this is a "string"'` or `"that's cool"`.  Strings used for representing text.  There is no separate character literal in FunL as in other languages, however FunL can deal with Java character objects.
 
-#### Numbers
+### Numbers
 
-FunL knows about several different types of numbers.
+FunL knows about several different types of numbers:
+
+- **integers** can be any number of digits.  Internally FunL uses two different ways of dealing with integers depending on how big they are.  The conversion is handled automatically.
+- **decimals** are IEEE 754 double precision (binary64) number objects.  FunL 1.0 will support arbitrary precision BCD numbers as well.
+- **rationals** or fractions are what you get if you divide two integers where the first is not a multiple of the second.  So, strictly speaking there's no literal syntax for rationals.  FunL just gives the feeling that there is.  If you type `2/3`, you'll get a rational object with the value of two thirds. There's no limit to the size of the numerator or denominator of a rational number object.
+- **complex numbers** are supported directly.  Current, complex numbers are a pair of double precision numbers, however FunL 1.0 will support arbitrary precision as well as complex (Gaussian) integers and complex fractions.  As for rationals, there's no literal syntax for complex numbers.  The variables `i` and `j`, which are equal and represent the imaginary unit, are predefined.  So, you can type `2 + 3i`, for example to the complex number equal to 2 plus 3 times the imaginary unit.  Note that an asterisk (`*`) is not need between the `3` and the `i`.  FunL understands that it's multiplication.
+
+### Booleans
+
+A boolean literal is just `true` or `false`.  Boolean values are the results of comparisons and logical connectives.
+
+### Compound Literal
+
+### Lists
+
+A list literal is a list of expressions separated by commas and enclosed in square brackets.  For example, `[1, 2, 3]` creates a list with the numbers 1, 2 and 3 in it.  The empty list is `[]`.
+
+### Closures
+
+A closure is an immutable object (though it may refer internally to variables that are mutable) that encapsulates a calculation and all variable references needed by that calculation.  A closure can be *called* or *invoked* using the so-called *application* syntax to get a value from it (which may be compound).
 
 ## Expressions
 
+A expression is a way of creating an object by way of applying operations and functions to other objects.  There are a number of categories of expressions.
+
+### Applications
+
+*Applications* refers to the well-known syntax for calling or invoking a function.  The term is not being used here to refer to software applications.  Generally, the application syntax is
+
+	expression '(' expression (',' expression)* ')' |
+	expression '(' ')'
+
+For example to print the number `123` write
+
+	println( 123 )
+
+
+
+### Arithmetic
+
+### Comparisons
+
+### Logical
+
+### Bitwise
+
+### Conditional
+
+### Case
+
+### Conditional Loops
+
+### Iterator Loop
+
+### Simple Loop
+
+### Lambda
+
 ## Declarations
+
+### Import

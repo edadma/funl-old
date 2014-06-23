@@ -241,8 +241,6 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		expr10 ~ ("or" | "xor") ~ expr11 ^^
 			{case lhs ~ op ~ rhs => BinaryExprAST( lhs, Symbol(op), rhs )} |
 		expr11
-// 		expr11 ~ rep(("or" | "xor") ~ expr11) ^^
-// 			{case lhs ~ list => (lhs /: list){case (x, op ~ y) => BinaryExprAST( x, Symbol(op), y )}}
 
 	lazy val expr11: PackratParser[ExprAST] =
 		expr11 ~ ("and" | "rotateright" | "rotateleft" | "shiftright" | "shiftleft") ~ expr12 ^^
