@@ -1,0 +1,20 @@
+source ::= Newline | statements
+
+declaration ::= imports | natives | constants | variables | data | definitions
+
+imports ::=
+    'import' importModule
+  |	'import' Indent importModule+ Dedent Newline
+
+  lazy val importModule =
+    name ^^ {case (qual, names) => ImportAST( qual, names )}
+
+  lazy val natives =
+    "native" ~> name ^^ {case (pkg, names) => DeclarationBlockAST( List(NativeAST(pkg, names)) )} |
+    "native" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclarationBlockAST( cs map {case (pkg, names) => NativeAST( pkg, names )})) |
+    "function" ~> name ^^ {case (cls, names) => DeclarationBlockAST(List( FunctionAST(cls, names) ))} |
+    "function" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclarationBlockAST(cs map {case (cls, names) => FunctionAST( cls, names )}))
+
+  lazy val dottedName = rep1sep(ident, ".")
+
+  lazy val qualifier = ident ~ opt("=>" ~> ident) ^^ {case name ~ alias => (name, alias)}
