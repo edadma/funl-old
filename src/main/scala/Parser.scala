@@ -78,7 +78,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 
 	def parseSource( r: Reader[Char] ) = phrase( source )( lexical.read(r) )
 
-	def parseExpression( r: Reader[Char] ) = phrase( expression )( lexical.read(r) )
+	def parseExpression( r: Reader[Char] ) = phrase( expressionStatement )( lexical.read(r) )
 
 	def parseStatement( r: Reader[Char] ) = phrase( statement )( lexical.read(r) )
 
@@ -113,15 +113,14 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		dottedName <~ "." <~ "*" <~ Newline ^^
 			{case name => (name.mkString( "." ), null)}
 
-	lazy val idents = rep1sep( ident, "," )
+	lazy val identifiers = rep1sep( ident, "," )
 
 	lazy val constants =
 		"val" ~> constant ^^ {case c => DeclarationBlockAST( List(c) )} |
 		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline ^^ (DeclarationBlockAST( _ ))
 
 	lazy val constant =
-// 		(pattern <~ "=") ~ nonassignmentExpr <~ Newline ^^
-		(pattern <~ "=") ~ exprOrBlock <~ Newline ^^
+		(pattern <~ "=") ~ expressionOrBlock <~ Newline ^^
 			{case pat ~ exp => ValAST( pat, exp )}
 
 	lazy val variables =
@@ -129,7 +128,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline ^^ (DeclarationBlockAST( _ ))
 
 	lazy val variable =
-		ident ~ opt("=" ~> exprOrBlock) <~ Newline ^^
+		ident ~ opt("=" ~> expressionOrBlock) <~ Newline ^^
 			{case n ~ v => VarAST( n, v )}
 
 	lazy val data =
@@ -143,7 +142,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case c => DataAST( c._1, List(c) )}
 
 	lazy val constructor =
-		(ident <~ "(") ~ (idents <~ ")") ^^
+		(ident <~ "(") ~ (identifiers <~ ")") ^^
 			{case name ~ fields => (name, fields)} |
 		ident ^^
 			{case name => (name, Nil)}
@@ -153,181 +152,172 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"def" ~> (Indent ~> rep1(definition) <~ (Dedent ~ Newline)) ^^ (DeclarationBlockAST( _ ))
 
 	lazy val definition =
-		ident ~ opt("(" ~> repsep(pattern, ",") <~ ")") ~ (part | parts) ^^
+		ident ~ opt("(" ~> repsep(pattern, ",") <~ ")") ~ (optionallyGuardedPart | guardedParts) ^^
 			{	case n ~ None ~ gs => DefAST( n, FunctionExprAST(Nil, gs) )
 				case n ~ Some(p) ~ gs => DefAST( n, FunctionExprAST(p, gs) )}
 
-	lazy val part = opt("|" ~> expr10) ~ ("=" ~> exprOrBlock) <~ Newline ^^
+	lazy val optionallyGuardedPart = opt("|" ~> booleanExpression) ~ ("=" ~> expressionOrBlock) <~ Newline ^^
 		{case g ~ b => List(FunctionPartExprAST(g, b))}
 
-	lazy val subpart =
-		"|" ~> ("otherwise" ^^^ None | expr10 ^^ (e => Some(e))) ~ ("=" ~> exprOrBlock) <~ Newline ^^
+	lazy val guardedPart =
+		"|" ~> ("otherwise" ^^^ None | booleanExpression ^^ (e => Some(e))) ~ ("=" ~> expressionOrBlock) <~ Newline ^^
 			{case g ~ b => FunctionPartExprAST(g, b)}
 
-	lazy val parts =
-		Indent ~> rep1(subpart) <~ Dedent <~ Newline
+	lazy val guardedParts =
+		Indent ~> rep1(guardedPart) <~ Dedent <~ Newline
 
 	lazy val statements =
 		rep1(statement)
 
-	lazy val onl = opt(Newline)
+	lazy val optionalNewline = opt(Newline)
 
-	lazy val expression: PackratParser[ExprAST] = expr <~ Newline
+	lazy val expressionStatement: PackratParser[ExprAST] = expression <~ Newline
 	
 	lazy val statement: PackratParser[StatementAST] =
-		expr <~ Newline ^^ (ExpressionStatementAST( _ )) |
+		expressionStatement ^^ (ExpressionStatementAST( _ )) |
 		declaration
 		
-	lazy val block =
+	lazy val blockExpression =
 		Indent ~> statements <~ Dedent ^^
 			(BlockExprAST( _ ))
 
-	lazy val expr: PackratParser[ExprAST] =
-		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "\\=" | "^=") ~ rep1sep(nonassignmentExpr, ",") ^^
+	lazy val expression: PackratParser[ExprAST] =
+		rep1sep(lvalueExpression, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "\\=" | "^=") ~ rep1sep(nonAssignmentExpression, ",") ^^
 			{case lhs ~ op ~ rhs => AssignmentExprAST( lhs, Symbol(op), rhs )} |
-		nonassignmentExpr
+  nonAssignmentExpression
 
- 	lazy val mapping =
- 	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> expr10) ~ ("->" ~> expr) ^^
+ 	lazy val lambdaExpression =
+ 	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> booleanExpression) ~ ("->" ~> expression) ^^
 		{case p ~ g ~ b => FunctionExprAST( p, List(FunctionPartExprAST(g, b)) )}
 
-	lazy val caseFunctionExpr =
-		Indent ~> rep1(mapping <~ Newline) <~ Dedent ^^
+	lazy val caseFunctionExpression =
+		Indent ~> rep1(lambdaExpression <~ Newline) <~ Dedent ^^
 			{case c => CaseFunctionExprAST( c )}
 			
-	lazy val functionExpr =
-		mapping | caseFunctionExpr
-
-	lazy val nonassignmentExpr = expr5
+	lazy val functionExpression =
+		lambdaExpression | caseFunctionExpression
 	
-	lazy val expr5 =
-		functionExpr |
-		expr7
+	lazy val nonAssignmentExpression =
+		functionExpression |
+		controlExpression
 
 	lazy val elif =
-		(onl ~ "elif") ~> booleanExpr ~ ("then" ~> exprOrBlock | block) ^^ {case c ~ t => (c, t)}
+		(optionalNewline ~ "elif") ~> booleanExpression ~ ("then" ~> expressionOrBlock | blockExpression) ^^ {case c ~ t => (c, t)}
 
 	lazy val generator =
-		(pattern <~ "<-") ~ expr ~ opt("if" ~> expr) ^^ {case p ~ t ~ f => GeneratorAST( p, t, f )}
+		(pattern <~ "<-") ~ expression ~ opt("if" ~> expression) ^^ {case p ~ t ~ f => GeneratorAST( p, t, f )}
 
 	lazy val generators = rep1sep(generator, ",")
 
-	lazy val exprOrBlock = expr | block
+	lazy val expressionOrBlock = expression | blockExpression
 	
-	lazy val expr7 =
-		("if" ~> booleanExpr) ~ ("then" ~> exprOrBlock | block) ~ rep(elif) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
+	lazy val controlExpression =
+		("if" ~> booleanExpression) ~ ("then" ~> expressionOrBlock | blockExpression) ~ rep(elif) ~ opt(optionalNewline ~> "else" ~> expressionOrBlock) ^^
 			{case c ~ t ~ ei ~ e => ConditionalExprAST( (c, t) +: ei, e )} |
-		"for" ~> generators ~ ("do" ~> exprOrBlock | block) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
+		"for" ~> generators ~ ("do" ~> expressionOrBlock | blockExpression) ~ opt(optionalNewline ~> "else" ~> expressionOrBlock) ^^
 			{case g ~ b ~ e => ForExprAST( g, b, e )} |
-    "for" ~> exprOrBlock ^^
+    "for" ~> expressionOrBlock ^^
       (ForeverExprAST( _ )) |
-		"while" ~> expr ~ ("do" ~> exprOrBlock | block) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
+		"while" ~> expression ~ ("do" ~> expressionOrBlock | blockExpression) ~ opt(optionalNewline ~> "else" ~> expressionOrBlock) ^^
 			{case c ~ b ~ e => WhileExprAST( c, b, e )} |
-		"do" ~> expr ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
+		"do" ~> expression ~ (optionalNewline ~> "while" ~> expression) ~ opt(optionalNewline ~> "else" ~> expressionOrBlock) ^^
 			{case b ~ c ~ e => DoWhileExprAST( b, c, e )} |
-		"do" ~> expr ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> exprOrBlock) ^^
+		"do" ~> expression ~ (optionalNewline ~> "until" ~> expression) ~ opt(optionalNewline ~> "else" ~> expressionOrBlock) ^^
 			{case b ~ c ~ e => RepeatExprAST( b, c, e )} |
 		"break" ^^^ BreakExprAST |
 		"continue" ^^^ ContinueExprAST |
-		"return" ~> opt(expr) ^^
+		"return" ~> opt(expression) ^^
 			{case e => ReturnExprAST( e.getOrElse(VoidExprAST) )} |
-		("case" ~> expr) ~ ("of" ~> functionExpr | caseFunctionExpr) ^^
+		("case" ~> expression) ~ ("of" ~> functionExpression | caseFunctionExpression) ^^
 			{case e ~ f => ApplyExprAST( f, List(e), false )} |
-		expr10
+		orExpression
 
-	lazy val booleanExpr = expr10
+	lazy val booleanExpression = orExpression
 	
-	lazy val expr10: PackratParser[ExprAST] =
-		expr10 ~ ("or" | "xor") ~ expr11 ^^
+	lazy val orExpression: PackratParser[ExprAST] =
+		orExpression ~ ("or" | "xor") ~ andExpression ^^
 			{case lhs ~ op ~ rhs => BinaryExprAST( lhs, Symbol(op), rhs )} |
-		expr11
+		andExpression
 
-	lazy val expr11: PackratParser[ExprAST] =
-		expr11 ~ ("and" | "rotateright" | "rotateleft" | "shiftright" | "shiftleft") ~ expr12 ^^
+	lazy val andExpression: PackratParser[ExprAST] =
+		andExpression ~ ("and" | "rotateright" | "rotateleft" | "shiftright" | "shiftleft") ~ notExpression ^^
 			{case lhs ~ op ~ rhs => BinaryExprAST( lhs, Symbol(op), rhs )} |
-		expr12
+		notExpression
 
-	lazy val expr12: PackratParser[ExprAST] =
-		"not" ~> expr12 ^^ (NotExprAST( _ )) |
-		expr22
+	lazy val notExpression: PackratParser[ExprAST] =
+		"not" ~> notExpression ^^ (NotExprAST( _ )) |
+		comparisonExpression
 
-	lazy val expr22: PackratParser[ExprAST] =
-		expr24 ~ ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" | "|" | "/|") ~ expr24 ^^
+	lazy val comparisonExpression: PackratParser[ExprAST] =
+		iteratorExpression ~ ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" | "|" | "/|") ~ iteratorExpression ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
-		expr24 ~ "is" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
-		expr24
+		iteratorExpression ~ "is" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
+  iteratorExpression
 
-	lazy val expr24: PackratParser[ExprAST] =
-		(comprehensionExpr <~ "|") ~ generators ^^
+	lazy val iteratorExpression: PackratParser[ExprAST] =
+		(consExpression <~ "|") ~ generators ^^
 			{case e ~ gs => IteratorExprAST( e, gs )} |
-		expr26
-
-	lazy val comprehensionExpr = expr26
+		consExpression
 	
-	lazy val expr26: PackratParser[ExprAST] =
-		expr27 ~ (":" ~> expr26) ^^ {case h ~ t => ConsExprAST( h, t )} |
-		expr27 ~ ("#" ~> expr26) ^^ {case h ~ t => StreamExprAST( h, t )} |
-		expr27
+	lazy val consExpression: PackratParser[ExprAST] =
+		rangeExpression ~ (":" ~> consExpression) ^^ {case h ~ t => ConsExprAST( h, t )} |
+		rangeExpression ~ ("#" ~> consExpression) ^^ {case h ~ t => StreamExprAST( h, t )} |
+		rangeExpression
 
-	lazy val jsonExpr = expr27
+	lazy val keyExpression = rangeExpression
 	
-	lazy val expr27: PackratParser[ExprAST] =
-		expr30 ~ (".." | "until") ~ expr30 ~ opt("by" ~> expr30) ^^
+	lazy val rangeExpression: PackratParser[ExprAST] =
+		additiveExpression ~ (".." | "until") ~ additiveExpression ~ opt("by" ~> additiveExpression) ^^
 			{case f ~ op ~ t ~ b => RangeExprAST( f, t, b, if (op == "..") true else false )} |
-		(expr30 <~ "..") ~ opt("by" ~> expr30) ^^
+		(additiveExpression <~ "..") ~ opt("by" ~> additiveExpression) ^^
       {case f ~ b => UnboundedStreamExprAST( f, b )} |
-		expr30
+  additiveExpression
 
-	lazy val expr30: PackratParser[ExprAST] =
-		expr30 ~ ("+" | "-") ~ expr31 ^^
+	lazy val additiveExpression: PackratParser[ExprAST] =
+		additiveExpression ~ ("+" | "-") ~ multiplicativeExpression ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
-		expr31
+		multiplicativeExpression
 
-	lazy val expr31: PackratParser[ExprAST] =
-		expr31 ~ ("*" | "/" | """\""" | "%") ~ expr32 ^^
+	lazy val multiplicativeExpression: PackratParser[ExprAST] =
+		multiplicativeExpression ~ ("*" | "/" | """\""" | "%") ~ exponentialExpression ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
-		expr31 ~ leftExpr ^^
+		multiplicativeExpression ~ applyExpression ^^
 			{case l ~ r => BinaryExprAST( l, '*, r )} |
-		expr32
+  exponentialExpression
 
-	lazy val expr32: PackratParser[ExprAST] =
-		expr32 ~ "^" ~ expr33 ^^
+	lazy val exponentialExpression: PackratParser[ExprAST] =
+		exponentialExpression ~ "^" ~ negationExpression ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
-		expr33
+  negationExpression
 
-	lazy val expr33: PackratParser[ExprAST] =
-		"-" ~> expr34 ^^
+	lazy val negationExpression: PackratParser[ExprAST] =
+		"-" ~> incrementExpression ^^
 			(UnaryExprAST( '-, _ )) |
-		expr34
+		incrementExpression
 
-	lazy val expr34: PackratParser[ExprAST] =
-		("++" | "--") ~ expr35 ^^
+	lazy val incrementExpression: PackratParser[ExprAST] =
+		("++" | "--") ~ applyExpression ^^
 			{case o ~ e => UnaryExprAST( Symbol("pre" + o), e )} |
-		expr35 ~ ("++" | "--") ^^
+		applyExpression ~ ("++" | "--") ^^
 			{case e ~ o => UnaryExprAST( Symbol("post" + o), e )} |
-		expr35
+  applyExpression
 
-// 	lazy val block =
-// 		Indent ~> statements <~ Dedent ^^
-// 			(BlockExprAST( _ )) |
-// 		expr35
-
-	lazy val leftExpr = expr35
+	lazy val lvalueExpression = applyExpression
 	
-	lazy val expr35: PackratParser[ExprAST] =
-		expr35 ~ ("(" ~> repsep(expr, ",") <~ ")") ^^
+	lazy val applyExpression: PackratParser[ExprAST] =
+		applyExpression ~ ("(" ~> repsep(expression, ",") <~ ")") ^^
 			{case f ~ args => ApplyExprAST( f, args, false )} |
-		expr35 ~ ("." | ".>") ~ ident ^^ {case e ~ op ~ f => DotExprAST( e, f, op == "." )} |
-		expr40
+		applyExpression ~ ("." | ".>") ~ ident ^^ {case e ~ op ~ f => DotExprAST( e, f, op == "." )} |
+  primaryExpression
 
-	lazy val entry =
-		jsonExpr ~ (":" ~> expr) ^^ {case k ~ v => TupleExprAST( k, v )}
+	lazy val MapEntry =
+		keyExpression ~ (":" ~> expression) ^^ {case k ~ v => TupleExprAST( k, v )}
 
-	lazy val iteratorExpr =
-		comprehensionExpr ~ ("|" ~> generators) ^^
+	lazy val comprehensionExpression =
+		consExpression ~ ("|" ~> generators) ^^
 			{case e ~ g => IteratorExprAST( e, g )}
 	
-	lazy val expr40: PackratParser[ExprAST] =
+	lazy val primaryExpression: PackratParser[ExprAST] =
 		numericLit ^^
 			(n =>
 				if (n startsWith "0x")
@@ -354,28 +344,28 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			(StringLiteralExprAST( _ )) |
     "(" ~> infix <~ ")" ^^
       (o => SectionExprAST( Symbol(o) )) |
-    "(" ~> expr ~ infix <~ ")" ^^
+    "(" ~> expression ~ infix <~ ")" ^^
       {case e ~ o => LeftSectionExprAST( e, Symbol(o) )} |
-    "(" ~> infixNoMinus ~ expr <~ ")" ^^
+    "(" ~> infixNoMinus ~ expression <~ ")" ^^
       {case o ~ e => RightSectionExprAST( Symbol(o), e )} |
-		"(" ~> expr <~ ")" |
+		"(" ~> expression <~ ")" |
 		ident ^^
 			{case v => VariableExprAST( v )} |
 		("true" | "false") ^^
 			(b => LiteralExprAST( b.toBoolean )) |
 		"(" ~ ")" ^^^
 			VoidExprAST |
-		("(" ~> nonassignmentExpr <~ ",") ~ (rep1sep(nonassignmentExpr, ",") <~ ")") ^^
+		("(" ~> nonAssignmentExpression <~ ",") ~ (rep1sep(nonAssignmentExpression, ",") <~ ")") ^^
 			{case e ~ l => VectorExprAST( e +: l )} |
-		"[" ~> iteratorExpr <~ "]" ^^
+		"[" ~> comprehensionExpression <~ "]" ^^
 			(ListComprehensionExprAST( _ )) |
-		"[" ~> repsep(nonassignmentExpr, ",") <~ "]" ^^
+		"[" ~> repsep(nonAssignmentExpression, ",") <~ "]" ^^
 			{case l => ListExprAST( l )} |
 		"null" ^^
 			(_ => NullExprAST) |
-		"{" ~> repsep(jsonExpr, ",") <~ "}" ^^
+		"{" ~> repsep(keyExpression, ",") <~ "}" ^^
 			(SetExprAST( _ )) |
-		"{" ~> rep1sep(entry, ",") <~ "}" ^^
+		"{" ~> rep1sep(MapEntry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
 		"$" ~> ident ^^
 			(SysvarExprAST( _ )) |
@@ -387,20 +377,20 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val infix = infixNoMinus | "-"
 	
 	lazy val pattern: PackratParser[PatternAST] =
-		(ident <~ "@") ~ pattern3 ^^
+		(ident <~ "@") ~ typePattern ^^
 			{case alias ~ pat => AliasPatternAST( alias, pat )} |
-		pattern3
+  typePattern
 
-	lazy val pattern3: PackratParser[PatternAST] =
-		pattern5 ~ ("::" ~> ident) ^^
+	lazy val typePattern: PackratParser[PatternAST] =
+		consPattern ~ ("::" ~> ident) ^^
 			{case pat ~ typename => TypePatternAST( pat, typename )} |
-		pattern5
+  consPattern
 		
-	lazy val pattern5: PackratParser[PatternAST] =
-		pattern10 ~ (":" ~> pattern5) ^^ {case h ~ t => ConsPatternAST( h, t )} |
-		pattern10
+	lazy val consPattern: PackratParser[PatternAST] =
+		primaryPattern ~ (":" ~> consPattern) ^^ {case h ~ t => ConsPatternAST( h, t )} |
+  primaryPattern
 
-	lazy val pattern10: PackratParser[PatternAST] =
+	lazy val primaryPattern: PackratParser[PatternAST] =
 		numericLit ^^
 			(n =>
 				if (n startsWith "0x")
