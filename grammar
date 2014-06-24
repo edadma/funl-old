@@ -6,15 +6,327 @@ imports ::=
     'import' importModule
   |	'import' Indent importModule+ Dedent Newline
 
-  lazy val importModule =
-    name ^^ {case (qual, names) => ImportAST( qual, names )}
+importModule ::= name
 
-  lazy val natives =
-    "native" ~> name ^^ {case (pkg, names) => DeclarationBlockAST( List(NativeAST(pkg, names)) )} |
-    "native" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclarationBlockAST( cs map {case (pkg, names) => NativeAST( pkg, names )})) |
-    "function" ~> name ^^ {case (cls, names) => DeclarationBlockAST(List( FunctionAST(cls, names) ))} |
-    "function" ~> Indent ~> rep1(name) <~ Dedent <~ Newline ^^ (cs => DeclarationBlockAST(cs map {case (cls, names) => FunctionAST( cls, names )}))
+natives ::=
+    "native" name
+  | "native" Indent name+ Dedent Newline
+  | "function" name
+  | "function" Indent name+ Dedent Newline
 
-  lazy val dottedName = rep1sep(ident, ".")
+dottedName ::= ident ("." ident)*
 
-  lazy val qualifier = ident ~ opt("=>" ~> ident) ^^ {case name ~ alias => (name, alias)}
+qualifier ::= ident ("=>" ident)?
+
+name ::=
+    dottedName ("=>" ident)? Newline
+  | dottedName "." "{" qualifier ("," qualifier)* "}" Newline
+  | dottedName "." "*" Newline
+
+identifiers ::= ident ("," ident)*
+
+constants ::=
+    "val" constant
+  | "val" Indent constant+ Dedent Newline
+
+constant ::=
+    pattern "=" expressionOrBlock Newline
+
+variables ::=
+    "var" variable
+  | "var" Indent variable+ Dedent Newline
+
+variable ::=
+    ident ("=" expressionOrBlock)? Newline
+
+data ::=
+    "data" datatype
+  | "data" Indent datatype+ Dedent Newline
+
+datatype ::=
+    ident "=" constructor ("|" constructor)* Newline
+  | constructor Newline
+
+constructor ::=
+    ident "(" identifiers ")"
+  | ident
+
+definitions ::=
+    "def" definition
+  | "def" Indent definition+ Dedent Newline
+
+definition ::=
+    ident ("(" (pattern ("," pattern)*)? ")")? (optionallyGuardedPart | guardedParts)
+
+optionallyGuardedPart ::=
+    ("|" booleanExpression)? "=" expressionOrBlock Newline
+
+guardedPart ::=
+    "|" ("otherwise" | booleanExpression) "=" expressionOrBlock Newline
+
+guardedParts ::= Indent guardedPart+ Dedent Newline
+
+statements ::= statement+
+
+optionalNewline ::= Newline?
+
+expressionStatement ::= expression Newline
+
+statement ::=
+    expressionStatement
+  | declaration
+
+blockExpression ::=
+    Indent statements Dedent
+
+expression ::=
+    lvalueExpression ("," lvalueExpression)* ("=" | "+=" | "-=" | "*=" | "/=" | "\\=" | "^=") nonAssignmentExpression ("," nonAssignmentExpression)*
+  | nonAssignmentExpression
+
+lambdaExpression ::=
+  ("(" pattern ("," pattern)* ")" | pattern) ("|" booleanExpression)? "->" expression
+
+caseFunctionExpression ::=
+    Indent rep1(lambdaExpression Newline) Dedent ^^
+      {case c => CaseFunctionExprAST( c )}
+      
+functionExpression ::=
+    lambdaExpression | caseFunctionExpression
+  
+nonAssignmentExpression ::=
+    functionExpression |
+    controlExpression
+
+elif ::=
+    (optionalNewline "elif") booleanExpression ("then" expressionOrBlock | blockExpression) ^^ {case c t => (c, t)}
+
+generator ::=
+    (pattern "<-") expression opt("if" expression) ^^ {case p t f => GeneratorAST( p, t, f )}
+
+generators = rep1sep(generator, ",")
+
+expressionOrBlock = expression | blockExpression
+  
+controlExpression ::=
+    ("if" booleanExpression) ("then" expressionOrBlock | blockExpression) rep(elif) opt(optionalNewline "else" expressionOrBlock) ^^
+      {case c t ei e => ConditionalExprAST( (c, t) +: ei, e )} |
+    "for" generators ("do" expressionOrBlock | blockExpression) opt(optionalNewline "else" expressionOrBlock) ^^
+      {case g b e => ForExprAST( g, b, e )} |
+    "for" expressionOrBlock ^^
+      (ForeverExprAST( _ )) |
+    "while" expression ("do" expressionOrBlock | blockExpression) opt(optionalNewline "else" expressionOrBlock) ^^
+      {case c b e => WhileExprAST( c, b, e )} |
+    "do" expression (optionalNewline "while" expression) opt(optionalNewline "else" expressionOrBlock) ^^
+      {case b c e => DoWhileExprAST( b, c, e )} |
+    "do" expression (optionalNewline "until" expression) opt(optionalNewline "else" expressionOrBlock) ^^
+      {case b c e => RepeatExprAST( b, c, e )} |
+    "break" ^^^ BreakExprAST |
+    "continue" ^^^ ContinueExprAST |
+    "return" opt(expression) ^^
+      {case e => ReturnExprAST( e.getOrElse(VoidExprAST) )} |
+    ("case" expression) ("of" functionExpression | caseFunctionExpression) ^^
+      {case e f => ApplyExprAST( f, List(e), false )} |
+    orExpression
+
+booleanExpression = orExpression
+  
+orExpression: PackratParser[ExprAST] ::=
+    orExpression ("or" | "xor") andExpression ^^
+      {case lhs op rhs => BinaryExprAST( lhs, Symbol(op), rhs )} |
+    andExpression
+
+andExpression: PackratParser[ExprAST] ::=
+    andExpression ("and" | "rotateright" | "rotateleft" | "shiftright" | "shiftleft") notExpression ^^
+      {case lhs op rhs => BinaryExprAST( lhs, Symbol(op), rhs )} |
+    notExpression
+
+notExpression: PackratParser[ExprAST] ::=
+    "not" notExpression ^^ (NotExprAST( _ )) |
+    comparisonExpression
+
+comparisonExpression: PackratParser[ExprAST] ::=
+    iteratorExpression ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" "in" ^^^ "notin" | "|" | "/|") iteratorExpression ^^
+      {case l o r => BinaryExprAST( l, Symbol(o), r )} |
+    iteratorExpression "is" ident ^^ {case e _ t => TypeExprAST( e, t )} |
+  iteratorExpression
+
+iteratorExpression: PackratParser[ExprAST] ::=
+    (consExpression "|") generators ^^
+      {case e gs => IteratorExprAST( e, gs )} |
+    consExpression
+  
+consExpression: PackratParser[ExprAST] ::=
+    rangeExpression (":" consExpression) ^^ {case h t => ConsExprAST( h, t )} |
+    rangeExpression ("#" consExpression) ^^ {case h t => StreamExprAST( h, t )} |
+    rangeExpression
+
+keyExpression = rangeExpression
+  
+rangeExpression: PackratParser[ExprAST] ::=
+    additiveExpression (".." | "until") additiveExpression opt("by" additiveExpression) ^^
+      {case f op t b => RangeExprAST( f, t, b, if (op == "..") true else false )} |
+    (additiveExpression "..") opt("by" additiveExpression) ^^
+      {case f b => UnboundedStreamExprAST( f, b )} |
+  additiveExpression
+
+additiveExpression: PackratParser[ExprAST] ::=
+    additiveExpression ("+" | "-") multiplicativeExpression ^^
+      {case l o r => BinaryExprAST( l, Symbol(o), r )} |
+    multiplicativeExpression
+
+multiplicativeExpression: PackratParser[ExprAST] ::=
+    multiplicativeExpression ("*" | "/" | """\""" | "%") exponentialExpression ^^
+      {case l o r => BinaryExprAST( l, Symbol(o), r )} |
+    multiplicativeExpression applyExpression ^^
+      {case l r => BinaryExprAST( l, '*, r )} |
+  exponentialExpression
+
+exponentialExpression: PackratParser[ExprAST] ::=
+    exponentialExpression "^" negationExpression ^^
+      {case l o r => BinaryExprAST( l, Symbol(o), r )} |
+  negationExpression
+
+negationExpression: PackratParser[ExprAST] ::=
+    "-" incrementExpression ^^
+      (UnaryExprAST( '-, _ )) |
+    incrementExpression
+
+incrementExpression: PackratParser[ExprAST] ::=
+    ("++" | "--") applyExpression ^^
+      {case o e => UnaryExprAST( Symbol("pre" + o), e )} |
+    applyExpression ("++" | "--") ^^
+      {case e o => UnaryExprAST( Symbol("post" + o), e )} |
+  applyExpression
+
+lvalueExpression = applyExpression
+  
+applyExpression: PackratParser[ExprAST] ::=
+    applyExpression ("(" repsep(expression, ",") ")") ^^
+      {case f args => ApplyExprAST( f, args, false )} |
+    applyExpression ("." | ".>") ident ^^ {case e op f => DotExprAST( e, f, op == "." )} |
+  primaryExpression
+
+MapEntry ::=
+    keyExpression (":" expression) ^^ {case k v => TupleExprAST( k, v )}
+
+comprehensionExpression ::=
+    consExpression ("|" generators) ^^
+      {case e g => IteratorExprAST( e, g )}
+  
+primaryExpression: PackratParser[ExprAST] ::=
+    numericLit ^^
+      (n =>
+        if (n startsWith "0x")
+        {
+        val num = BigInt( n substring 2, 16 )
+
+          if (num.isValidInt)
+            LiteralExprAST( num.intValue )
+          else
+            LiteralExprAST( num )
+        }
+        else if (n matches ".*(\\.|e|E).*")
+          LiteralExprAST( n.toDouble )
+        else
+        {
+        val bi = BigInt( n )
+
+          if (bi.isValidInt)
+            LiteralExprAST( bi.intValue )
+          else
+            LiteralExprAST( bi )
+        }) |
+    stringLit ^^
+      (StringLiteralExprAST( _ )) |
+    "(" infix ")" ^^
+      (o => SectionExprAST( Symbol(o) )) |
+    "(" expression infix ")" ^^
+      {case e o => LeftSectionExprAST( e, Symbol(o) )} |
+    "(" infixNoMinus expression ")" ^^
+      {case o e => RightSectionExprAST( Symbol(o), e )} |
+    "(" expression ")" |
+    ident ^^
+      {case v => VariableExprAST( v )} |
+    ("true" | "false") ^^
+      (b => LiteralExprAST( b.toBoolean )) |
+    "(" ")" ^^^
+      VoidExprAST |
+    ("(" nonAssignmentExpression ",") (rep1sep(nonAssignmentExpression, ",") ")") ^^
+      {case e l => VectorExprAST( e +: l )} |
+    "[" comprehensionExpression "]" ^^
+      (ListComprehensionExprAST( _ )) |
+    "[" repsep(nonAssignmentExpression, ",") "]" ^^
+      {case l => ListExprAST( l )} |
+    "null" ^^
+      (_ => NullExprAST) |
+    "{" repsep(keyExpression, ",") "}" ^^
+      (SetExprAST( _ )) |
+    "{" rep1sep(MapEntry, ",") "}" ^^
+      (MapExprAST( _ )) |
+    "$" ident ^^
+      (SysvarExprAST( _ )) |
+    "?" ident ^^
+      (TestExprAST( _ ))
+
+infixNoMinus = "+" | "*" | "/" | """\""" | "^" | "%" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
+  
+infix = infixNoMinus | "-"
+  
+pattern: PackratParser[PatternAST] ::=
+    (ident "@") typePattern ^^
+      {case alias pat => AliasPatternAST( alias, pat )} |
+  typePattern
+
+typePattern: PackratParser[PatternAST] ::=
+    consPattern ("::" ident) ^^
+      {case pat typename => TypePatternAST( pat, typename )} |
+  consPattern
+    
+consPattern: PackratParser[PatternAST] ::=
+    primaryPattern (":" consPattern) ^^ {case h t => ConsPatternAST( h, t )} |
+  primaryPattern
+
+primaryPattern: PackratParser[PatternAST] ::=
+    numericLit ^^
+      (n =>
+        if (n startsWith "0x")
+        {
+        val num = BigInt( n substring 2, 16 )
+
+          if (num.isValidInt)
+            LiteralPatternAST( num.intValue )
+          else
+            LiteralPatternAST( num )
+        }
+        else if (n matches ".*(\\.|e|E).*")
+          LiteralPatternAST( n.toDouble )
+        else
+        {
+        val bi = BigInt( n )
+
+          if (bi.isValidInt)
+            LiteralPatternAST( bi.intValue )
+          else
+            LiteralPatternAST( bi )
+        }) |
+    stringLit ^^
+      (LiteralPatternAST( _ )) |
+    ("true" | "false") ^^
+      (b => LiteralPatternAST( b.toBoolean )) |
+    "(" ")" ^^^
+      VoidPatternAST |
+    "null" ^^^
+      NullPatternAST |
+    ident ("(" repsep(pattern, ",") ")") ^^
+      {case n l => RecordPatternAST( n, l )} |
+    ident ^^
+      {case v => VariablePatternAST( v )} |
+    ("(" pattern ",") (rep1sep(pattern, ",") ")") ^^
+      {case e l => TuplePatternAST( e +: l )} |
+    "[" repsep(pattern, ",") "]" ^^
+      {case l => ListPatternAST( l )} |
+    "{" "}" ^^^
+      EmptySetPatternAST |
+    ("(" pattern "|") (rep1sep(pattern, "|") ")") ^^
+      {case e l => AltPatternAST( e +: l )} |
+    "(" pattern ")"
