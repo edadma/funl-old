@@ -421,7 +421,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			VoidPatternAST |
 		"null" ^^^
 			NullPatternAST |
-		ident ~ ("(" ~> repsep(pattern, ",") <~ ")") ^^
+		ident ~ ("(" ~> rep1sep(pattern, ",") <~ ")") ^^
 			{case n ~ l => RecordPatternAST( n, l )} |
 		ident ^^
 			{case v => VariablePatternAST( v )} |
