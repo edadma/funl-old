@@ -49,15 +49,13 @@ FunL knows about several different types of numbers:
 
 A boolean literal is just `true` or `false`.  Boolean values are the results of comparisons and logical connectives.
 
-### Compound Literal
+### Closures
+
+A closure is an immutable object (though it may refer internally to variables that are mutable) that encapsulates a calculation and all variable references needed by that calculation.  A closure can be *called* or *invoked* using the so-called *application* syntax to get a value from it (which may be compound).
 
 ### Lists
 
 A list literal is a list of expressions separated by commas and enclosed in square brackets.  For example, `[1, 2, 3]` creates a list with the numbers 1, 2 and 3 in it.  The empty list is `[]`.
-
-### Closures
-
-A closure is an immutable object (though it may refer internally to variables that are mutable) that encapsulates a calculation and all variable references needed by that calculation.  A closure can be *called* or *invoked* using the so-called *application* syntax to get a value from it (which may be compound).
 
 ## Expressions
 
@@ -67,14 +65,14 @@ A expression is a way of creating an object by way of applying operations and fu
 
 *Applications* refers to the well-known syntax for calling or invoking a function.  The term is not being used here to refer to software applications.  Generally, the application syntax is
 
-	expression '(' expression (',' expression)* ')' |
-	expression '(' ')'
+    applyExpression ::=
+        applyExpression ('(' (expression (',' expression)*)? ')')
+      | applyExpression ('.' | '.>') ident
+      | primaryExpression
 
 For example to print the number `123` write
 
 	println( 123 )
-
-
 
 ### Arithmetic
 
@@ -92,9 +90,48 @@ For example to print the number `123` write
 
 ### Iterator Loop
 
+An iterator loop, also known as a *for* loop, causes an express or block of expressions to be executed iteratively, one iteration for each element of an iterator object.  "for" loops have the syntax:
+
+    'for' generators ('do' expressionOrBlock | blockExpression) elsePart
+
+where
+
+    generator ::=
+        pattern '<-' expression ('if' expression)?
+
+    generators ::= generator (',' generator)*
+
+    expressionOrBlock ::= expression | blockExpression
+
+    elsePart ::= (optionalNewline 'else' expressionOrBlock)?
+
+For example
+
+    for (key, value) <- {'one': 1, 'two': 2, 'three': 3}
+      println( key + ' -> ' + value )
+
+produces
+
+    one -> 1
+    two -> 2
+    three -> 3
+
+and
+
+    for i <- 1..5 by 2
+      println( i )
+
+produces
+
+    1
+    3
+    5
+
 ### Simple Loop
 
-### Lambda
+### Sections
+
+### Lambda Expressions
 
 ## Declarations
 
