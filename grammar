@@ -9,60 +9,60 @@ imports ::=
 importModule ::= name
 
 natives ::=
-    "native" name
-  | "native" Indent name+ Dedent Newline
-  | "function" name
-  | "function" Indent name+ Dedent Newline
+    'native' name
+  | 'native' Indent name+ Dedent Newline
+  | 'function' name
+  | 'function' Indent name+ Dedent Newline
 
-dottedName ::= ident ("." ident)*
+dottedName ::= ident ('.' ident)*
 
-qualifier ::= ident ("=>" ident)?
+qualifier ::= ident ('=>' ident)?
 
 name ::=
-    dottedName ("=>" ident)? Newline
-  | dottedName "." "{" qualifier ("," qualifier)* "}" Newline
-  | dottedName "." "*" Newline
+    dottedName ('=>' ident)? Newline
+  | dottedName '.' '{' qualifier (',' qualifier)* '}' Newline
+  | dottedName '.' '*' Newline
 
-identifiers ::= ident ("," ident)*
+identifiers ::= ident (',' ident)*
 
 constants ::=
-    "val" constant
-  | "val" Indent constant+ Dedent Newline
+    'val' constant
+  | 'val' Indent constant+ Dedent Newline
 
 constant ::=
-    pattern "=" expressionOrBlock Newline
+    pattern '=' expressionOrBlock Newline
 
 variables ::=
-    "var" variable
-  | "var" Indent variable+ Dedent Newline
+    'var' variable
+  | 'var' Indent variable+ Dedent Newline
 
 variable ::=
-    ident ("=" expressionOrBlock)? Newline
+    ident ('=' expressionOrBlock)? Newline
 
 data ::=
-    "data" datatype
-  | "data" Indent datatype+ Dedent Newline
+    'data' datatype
+  | 'data' Indent datatype+ Dedent Newline
 
 datatype ::=
-    ident "=" constructor ("|" constructor)* Newline
+    ident '=' constructor ('|' constructor)* Newline
   | constructor Newline
 
 constructor ::=
-    ident "(" identifiers ")"
+    ident '(' identifiers ')'
   | ident
 
 definitions ::=
-    "def" definition
-  | "def" Indent definition+ Dedent Newline
+    'def' definition
+  | 'def' Indent definition+ Dedent Newline
 
 definition ::=
-    ident ("(" (pattern ("," pattern)*)? ")")? (optionallyGuardedPart | guardedParts)
+    ident ('(' (pattern (',' pattern)*)? ')')? (optionallyGuardedPart | guardedParts)
 
 optionallyGuardedPart ::=
-    ("|" booleanExpression)? "=" expressionOrBlock Newline
+    ('|' booleanExpression)? '=' expressionOrBlock Newline
 
 guardedPart ::=
-    "|" ("otherwise" | booleanExpression) "=" expressionOrBlock Newline
+    '|' ('otherwise' | booleanExpression) '=' expressionOrBlock Newline
 
 guardedParts ::= Indent guardedPart+ Dedent Newline
 
@@ -79,12 +79,15 @@ statement ::=
 blockExpression ::=
     Indent statements Dedent
 
+
+assignment ::= '=' | '+=' | '-=' | '*=' | '/=' | '\=' | '^='
+
 expression ::=
-    lvalueExpression ("," lvalueExpression)* ("=" | "+=" | "-=" | "*=" | "/=" | "\=" | "^=") nonAssignmentExpression ("," nonAssignmentExpression)*
+    lvalueExpression (',' lvalueExpression)* assignment nonAssignmentExpression (',' nonAssignmentExpression)*
   | nonAssignmentExpression
 
 lambdaExpression ::=
-  ("(" pattern ("," pattern)* ")" | pattern) ("|" booleanExpression)? "->" expression
+  ('(' pattern (',' pattern)* ')' | pattern) ('|' booleanExpression)? '->' expression
 
 caseFunctionExpression ::=
     Indent lambdaExpression (Newline lambdaExpression)* Dedent
@@ -95,144 +98,146 @@ functionExpression ::=
 nonAssignmentExpression ::=
     functionExpression | controlExpression
 
-elif ::=
-    optionalNewline "elif" booleanExpression ("then" expressionOrBlock | blockExpression)
-
 generator ::=
-    pattern "<-" expression ("if" expression)?
+    pattern '<-' expression ('if' expression)?
 
-generators ::= generator ("," generator)*
+generators ::= generator (',' generator)*
 
 expressionOrBlock ::= expression | blockExpression
 
+elif ::=
+    optionalNewline 'elif' booleanExpression ('then' expressionOrBlock | blockExpression)
+
+elsePart ::= (optionalNewline 'else' expressionOrBlock)?
+
 controlExpression ::=
-    "if" booleanExpression ("then" expressionOrBlock | blockExpression) elif* (optionalNewline "else" expressionOrBlock)?
-  | "for" generators ("do" expressionOrBlock | blockExpression) (optionalNewline "else" expressionOrBlock)?
-  | "for" expressionOrBlock
-  | "while" expression ("do" expressionOrBlock | blockExpression) (optionalNewline "else" expressionOrBlock)?
-  | "do" expression optionalNewline "while" expression (optionalNewline "else" expressionOrBlock)?
-  | "do" expression optionalNewline "until" expression (optionalNewline "else" expressionOrBlock)?
-  | "break"
-  | "continue"
-  | "return" expression?
-  | "case" expression ("of" functionExpression | caseFunctionExpression)
+    'if' booleanExpression ('then' expressionOrBlock | blockExpression) elif* elsePart
+  | 'for' generators ('do' expressionOrBlock | blockExpression) elsePart
+  | 'for' expressionOrBlock
+  | 'while' expression ('do' expressionOrBlock | blockExpression) elsePart
+  | 'do' expression optionalNewline 'while' expression elsePart
+  | 'do' expression optionalNewline 'until' expression elsePart
+  | 'break'
+  | 'continue'
+  | 'return' expression?
+  | 'case' expression ('of' functionExpression | caseFunctionExpression)
   | orExpression
 
 booleanExpression ::= orExpression
 
 orExpression ::=
-    orExpression ("or" | "xor") andExpression
+    orExpression ('or' | 'xor') andExpression
   | andExpression
 
 andExpression ::=
-    andExpression ("and" | "rotateright" | "rotateleft" | "shiftright" | "shiftleft") notExpression
+    andExpression ('and' | 'rotateright' | 'rotateleft' | 'shiftright' | 'shiftleft') notExpression
   | notExpression
 
 notExpression ::=
-    "not" notExpression
+    'not' notExpression
   | comparisonExpression
 
 comparisonExpression ::=
-    iteratorExpression ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" "in"^ "notin" | "|" | "/|") iteratorExpression
-  | iteratorExpression "is" ident
+    iteratorExpression ('==' | '!=' | '<' | '>' | '<=' | '>=' | 'in' | 'not' 'in'^ 'notin' | '|' | '/|') iteratorExpression
+  | iteratorExpression 'is' ident
   | iteratorExpression
 
 iteratorExpression ::=
-    (consExpression "|") generators
+    (consExpression '|') generators
   | consExpression
 
 consExpression ::=
-    rangeExpression (":" consExpression)
-  | rangeExpression ("#" consExpression)
+    rangeExpression (':' consExpression)
+  | rangeExpression ('#' consExpression)
   | rangeExpression
 
 keyExpression ::= rangeExpression
 
 rangeExpression ::=
-    additiveExpression (".." | "until") additiveExpression ("by" additiveExpression)?
-  | (additiveExpression "..") ("by" additiveExpression)?
+    additiveExpression ('..' | 'until') additiveExpression ('by' additiveExpression)?
+  | (additiveExpression '..') ('by' additiveExpression)?
   | additiveExpression
 
 additiveExpression ::=
-    additiveExpression ("+" | "-") multiplicativeExpression
+    additiveExpression ('+' | '-') multiplicativeExpression
   | multiplicativeExpression
 
 multiplicativeExpression ::=
-    multiplicativeExpression ("*" | "/" | "\" | "%") exponentialExpression
+    multiplicativeExpression ('*' | '/' | '\' | '%') exponentialExpression
   | multiplicativeExpression applyExpression
   | exponentialExpression
 
 exponentialExpression ::=
-    exponentialExpression "^" negationExpression
+    exponentialExpression '^' negationExpression
   | negationExpression
 
 negationExpression ::=
-    "-" incrementExpression
+    '-' incrementExpression
   | incrementExpression
 
 incrementExpression ::=
-    ("++" | "--") applyExpression
-  | applyExpression ("++" | "--")
+    ('++' | '--') applyExpression
+  | applyExpression ('++' | '--')
   | applyExpression
 
 lvalueExpression ::= applyExpression
 
 applyExpression ::=
-    applyExpression ("(" (expression ("," expression)*)? ")")
-  | applyExpression ("." | ".>") ident
+    applyExpression ('(' (expression (',' expression)*)? ')')
+  | applyExpression ('.' | '.>') ident
   | primaryExpression
 
 MapEntry ::=
-    keyExpression ":" expression
+    keyExpression ':' expression
 
 comprehensionExpression ::=
-    consExpression "|" generators
+    consExpression '|' generators
 
 primaryExpression ::=
     numericLit
   | stringLit
-  | "(" infix ")"
-  | "(" expression infix ")"
-  | "(" infixNoMinus expression ")"
-  | "(" expression ")"
+  | '(' infix ')'
+  | '(' expression infix ')'
+  | '(' infixNoMinus expression ')'
+  | '(' expression ')'
   | ident
-  | ("true" | "false")
-  | "(" ")"
-  | ("(" nonAssignmentExpression ",") nonAssignmentExpression ("," nonAssignmentExpression)* ")"
-  | "[" comprehensionExpression "]"
-  | "[" (nonAssignmentExpression ("," nonAssignmentExpression)*)? "]"
-  | "null"
-  | "{" (keyExpression ("," keyExpression)*)? "}"
-  | "{" MapEntry ("," MapEntry)* "}"
-  | "$" ident
-  | "?" ident
+  | ('true' | 'false')
+  | '(' ')'
+  | ('(' nonAssignmentExpression ',') nonAssignmentExpression (',' nonAssignmentExpression)* ')'
+  | '[' comprehensionExpression ']'
+  | '[' (nonAssignmentExpression (',' nonAssignmentExpression)*)? ']'
+  | 'null'
+  | '{' (keyExpression (',' keyExpression)*)? '}'
+  | '{' MapEntry (',' MapEntry)* '}'
+  | '$' ident
+  | '?' ident
 
-infixNoMinus ::= "+" | "*" | "/" | "\" | "^" | "%" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
+infixNoMinus ::= '+' | '*' | '/' | '\' | '^' | '%' | '==' | '!=' | '<' | '>' | '<=' | '>=' | ':' | '#' | 'and' | 'or' | 'xor'
 
-infix ::= infixNoMinus | "-"
+infix ::= infixNoMinus | '-'
 
 pattern ::=
-    ident "@" typePattern
+    ident '@' typePattern
   | typePattern
 
 typePattern ::=
-    consPattern "::" ident
+    consPattern '::' ident
   | consPattern
 
 consPattern ::=
-    primaryPattern ":" consPattern
+    primaryPattern ':' consPattern
   | primaryPattern
 
 primaryPattern ::=
     numericLit
   | stringLit
-  | "true" | "false"
-  | "(" ")"
-  | "null"
-  | ident "(" pattern ("," pattern)* ")"
+  | 'true' | 'false'
+  | '(' ')'
+  | 'null'
+  | ident '(' pattern (',' pattern)* ')'
   | ident
-  | "(" pattern "," pattern ("," pattern)* ")"
-  | "[" (pattern ("," pattern)*)? "]"
-  | "{" "}"
-  | "(" pattern "|" pattern ("|" pattern)* ")"
-  | "(" pattern ")"
+  | '(' pattern ',' pattern (',' pattern)* ')'
+  | '[' (pattern (',' pattern)*)? ']'
+  | '{' '}'
+  | '(' pattern '|' pattern ('|' pattern)* ')'
+  | '(' pattern ')'

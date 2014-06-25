@@ -181,8 +181,10 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		Indent ~> statements <~ Dedent ^^
 			(BlockExprAST( _ ))
 
+	lazy val assignment = "=" | "+=" | "-=" | "*=" | "/=" | "\\=" | "^="
+	
 	lazy val expression: PackratParser[ExprAST] =
-		rep1sep(lvalueExpression, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "\\=" | "^=") ~ rep1sep(nonAssignmentExpression, ",") ^^
+		rep1sep(lvalueExpression, ",") ~ assignment ~ rep1sep(nonAssignmentExpression, ",") ^^
 			{case lhs ~ op ~ rhs => AssignmentExprAST( lhs, Symbol(op), rhs )} |
   nonAssignmentExpression
 
@@ -210,19 +212,21 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val generators = rep1sep(generator, ",")
 
 	lazy val expressionOrBlock = expression | blockExpression
+
+	lazy val elsePart: PackratParser[Option[ExprAST]] = opt(optionalNewline ~> "else" ~> expressionOrBlock)
 	
-	lazy val controlExpression =
-		("if" ~> booleanExpression) ~ ("then" ~> expressionOrBlock | blockExpression) ~ rep(elif) ~ opt(optionalNewline ~> "else" ~> expressionOrBlock) ^^
+	lazy val controlExpression: PackratParser[ExprAST] =
+		("if" ~> booleanExpression) ~ ("then" ~> expressionOrBlock | blockExpression) ~ rep(elif) ~ elsePart ^^
 			{case c ~ t ~ ei ~ e => ConditionalExprAST( (c, t) +: ei, e )} |
-		"for" ~> generators ~ ("do" ~> expressionOrBlock | blockExpression) ~ opt(optionalNewline ~> "else" ~> expressionOrBlock) ^^
+		"for" ~> generators ~ ("do" ~> expressionOrBlock | blockExpression) ~ elsePart ^^
 			{case g ~ b ~ e => ForExprAST( g, b, e )} |
     "for" ~> expressionOrBlock ^^
       (ForeverExprAST( _ )) |
-		"while" ~> expression ~ ("do" ~> expressionOrBlock | blockExpression) ~ opt(optionalNewline ~> "else" ~> expressionOrBlock) ^^
+		"while" ~> expression ~ ("do" ~> expressionOrBlock | blockExpression) ~ elsePart ^^
 			{case c ~ b ~ e => WhileExprAST( c, b, e )} |
-		"do" ~> expression ~ (optionalNewline ~> "while" ~> expression) ~ opt(optionalNewline ~> "else" ~> expressionOrBlock) ^^
+		"do" ~> expression ~ (optionalNewline ~> "while" ~> expression) ~ elsePart ^^
 			{case b ~ c ~ e => DoWhileExprAST( b, c, e )} |
-		"do" ~> expression ~ (optionalNewline ~> "until" ~> expression) ~ opt(optionalNewline ~> "else" ~> expressionOrBlock) ^^
+		"do" ~> expression ~ (optionalNewline ~> "until" ~> expression) ~ elsePart ^^
 			{case b ~ c ~ e => RepeatExprAST( b, c, e )} |
 		"break" ^^^ BreakExprAST |
 		"continue" ^^^ ContinueExprAST |

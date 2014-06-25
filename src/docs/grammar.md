@@ -1,227 +1,255 @@
 # Grammar
 
-Here is the actual grammar (without parser actions and other source code boilerplate) used to parse FunL.  The grammar syntax is documented here: <http://www.scala-lang.org/api/2.11.1/scala-parser-combinators/#scala.util.parsing.combinator.Parsers>
+Here is the grammar used to parse FunL presented in EBNF.
 
 
 ## Syntactic Grammar
 
-	source = Newline | statements
+    source ::= Newline | statements
 
-	declaration = imports | natives | constants | variables | data | definitions
+    declaration ::= imports | natives | constants | variables | data | definitions
 
-	imports =
-		"import" ~> importModule |
-		"import" ~> Indent ~> rep1(importModule) <~ Dedent <~ Newline
+    imports ::=
+        'import' importModule
+      | 'import' Indent importModule+ Dedent Newline
 
-	lazy val importModule = name <~ Newline
+    importModule ::= name
 
-	natives =
-		"native" ~> name |
-		"native" ~> Indent ~> rep1(name) <~ Dedent <~ Newline |
-		"function" ~> name |
-		"function" ~> Indent ~> rep1(name) <~ Dedent <~ Newline
-		
-	dottedName = rep1sep(ident, ".")
+    natives ::=
+        'native' name
+      | 'native' Indent name+ Dedent Newline
+      | 'function' name
+      | 'function' Indent name+ Dedent Newline
 
-	qualifier = ident ~ opt("=>" ~> ident)
+    dottedName ::= ident ('.' ident)*
 
-	name =
-		dottedName ~ opt("=>" ~> ident) <~ Newline |
-		(dottedName <~ ".") ~ ("{" ~> rep1sep(className, ",") <~ "}" <~ Newline) |
-		dottedName <~ "." <~ "*" <~ Newline
+    qualifier ::= ident ('=>' ident)?
 
-	idents = rep1sep( ident, "," )
-	
-	constants =
-		"val" ~> constant |
-		"val" ~> Indent ~> rep1(constant) <~ Dedent <~ Newline
+    name ::=
+        dottedName ('=>' ident)? Newline
+      | dottedName '.' '{' qualifier (',' qualifier)* '}' Newline
+      | dottedName '.' '*' Newline
 
-	constant =
-		(ident <~ "=") ~ expr <~ Newline
+    identifiers ::= ident (',' ident)*
 
-	variables =
-		"var" ~> variable |
-		"var" ~> Indent ~> rep1(variable) <~ Dedent <~ Newline
+    constants ::=
+        'val' constant
+      | 'val' Indent constant+ Dedent Newline
 
-	variable =
-		ident ~ opt("=" ~> expr) <~ Newline
+    constant ::=
+        pattern '=' expressionOrBlock Newline
 
-	data =
-		"data" ~> datatype |
-		"data" ~> Indent ~> rep1(datatype) <~ Dedent <~ Newline
+    variables ::=
+        'var' variable
+      | 'var' Indent variable+ Dedent Newline
 
-	datatype =
-		(ident <~ "=") ~ rep1sep(constructor, "|") <~ Newline |
-		constructor <~ Newline
+    variable ::=
+        ident ('=' expressionOrBlock)? Newline
 
-	constructor =
-		(ident <~ "(") ~ (idents <~ ")") |
-		ident
+    data ::=
+        'data' datatype
+      | 'data' Indent datatype+ Dedent Newline
 
-	definitions =
-		"def" ~> definition {case d => List( d )} |
-		"def" ~> (Indent ~> rep1(definition) <~ (Dedent ~ Newline))
+    datatype ::=
+        ident '=' constructor ('|' constructor)* Newline
+      | constructor Newline
 
-	definition =
-		(ident <~ "(") ~ (repsep(pattern, ",") <~ ")") ~ (part | parts)
+    constructor ::=
+        ident '(' identifiers ')'
+      | ident
 
-	part = opt("|" ~> expr10) ~ ("=" ~> expr) <~ Newline
+    definitions ::=
+        'def' definition
+      | 'def' Indent definition+ Dedent Newline
 
-	subpart =
-		"|" ~> ("otherwise" | expr10) ~ ("=" ~> expr) <~ Newline
+    definition ::=
+        ident ('(' (pattern (',' pattern)*)? ')')? (optionallyGuardedPart | guardedParts)
 
-	parts =
-		Indent ~> rep1(subpart) <~ Dedent <~ Newline
+    optionallyGuardedPart ::=
+        ('|' booleanExpression)? '=' expressionOrBlock Newline
 
-	statements =
-		rep1(statement)
+    guardedPart ::=
+        '|' ('otherwise' | booleanExpression) '=' expressionOrBlock Newline
 
-	onl = opt(Newline)
+    guardedParts ::= Indent guardedPart+ Dedent Newline
 
-	expression = expr <~ Newline
-	
-	statement =
-		expr <~ Newline |
-		declaration
+    statements ::= statement+
 
-	expr: PackratParser[ExprAST] =
-		rep1sep(leftExpr, ",") ~ ("=" | "+=" | "-=" | "*=" | "/=" | "^=") ~ rep1sep(nonassignmentExpr, ",") |
-		nonassignmentExpr
+    optionalNewline ::= Newline?
 
- 	mapping =
-		("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> expr10) ~ ("->" ~> expr)
+    expressionStatement ::= expression Newline
 
-	caseFunctionExpr = Indent ~> rep1(mapping <~ Newline) <~ Dedent
-	
-	functionExpr = mapping | caseFunctionExpr
+    statement ::=
+        expressionStatement
+      | declaration
 
-	nonassignmentExpr = expr5
-	
-	expr5 =
-		functionExpr |
-		expr7
+    blockExpression ::=
+        Indent statements Dedent
 
-	elif =
-		(onl ~ "elif") ~> (booleanExpr <~ "then") ~ expr
+    assignment ::= '=' | '+=' | '-=' | '*=' | '/=' | '\=' | '^='
 
-	generator = (pattern <~ "<-") ~ expr ~ opt("if" ~> expr)
+    expression ::=
+        lvalueExpression (',' lvalueExpression)* assignment nonAssignmentExpression (',' nonAssignmentExpression)*
+      | nonAssignmentExpression
 
-	generators = rep1sep(generator, ",")
-	
-	expr7 =
-		("if" ~> booleanExpr) ~ ("then" ~> expr | block) ~ rep(elif) ~ opt(onl ~> "else" ~> expr) |
-		"forever" ~> expr |
-		"for" ~> generators ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) |
-		"do" ~> expr ~ ("do" ~> expr | block) ~ opt(onl ~> "else" ~> expr) |
-		"do" ~> expr ~ (onl ~> "while" ~> expr) ~ opt(onl ~> "else" ~> expr) |
-		"repeat" ~> expr ~ (onl ~> "until" ~> expr) ~ opt(onl ~> "else" ~> expr) |
-		"break" |
-		"continue" |
-		("case" ~> expr) ~ ("of" ~> functionExpr | caseFunctionExpr) |
-		expr10
+    lambdaExpression ::=
+      ('(' pattern (',' pattern)* ')' | pattern) ('|' booleanExpression)? '->' expression
 
-	booleanExpr = expr10
+    caseFunctionExpression ::=
+        Indent lambdaExpression (Newline lambdaExpression)* Dedent
 
-	expr10 =
-		expr11 ~ rep(("or" | "xor") ~ expr11)
+    functionExpression ::=
+        lambdaExpression | caseFunctionExpression
 
-	expr11 =
-		expr12 ~ rep("and" ~ expr12)
+    nonAssignmentExpression ::=
+        functionExpression | controlExpression
 
-	expr12 =
-		"not" ~> expr12 (NotExprAST( _ )) |
-		expr22
+    elif ::=
+        optionalNewline 'elif' booleanExpression ('then' expressionOrBlock | blockExpression)
 
-	expr22 =
-		expr26 ~ ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" | "|" | "/|") ~ expr26 |
-		expr26
+    generator ::=
+        pattern '<-' expression ('if' expression)?
 
-	listComprehensionExpr = expr26
-	
-	expr26 =
-		expr27 ~ (":" ~> expr26) |
-		expr27
+    generators ::= generator (',' generator)*
 
-	jsonExpr = expr27
+    expressionOrBlock ::= expression | blockExpression
 
-	expr27 =
-		expr30 ~ (".." | "until") ~ expr30 ~ opt("by" ~> expr30) |
-		expr30
+    elif ::=
+        optionalNewline 'elif' booleanExpression ('then' expressionOrBlock | blockExpression)
 
-	expr30 =
-		expr30 ~ ("+" | "-") ~ expr31 |
-		expr31
+    elsePart ::= (optionalNewline 'else' expressionOrBlock)?
 
-	expr31 =
-		expr31 ~ ("*" | "/" | """\""" | "%") ~ expr32 |
-		expr31 ~ leftExpr |
-		expr32
+    controlExpression ::=
+        'if' booleanExpression ('then' expressionOrBlock | blockExpression) elif* elsePart
+      | 'for' generators ('do' expressionOrBlock | blockExpression) elsePart
+      | 'for' expressionOrBlock
+      | 'while' expression ('do' expressionOrBlock | blockExpression) elsePart
+      | 'do' expression optionalNewline 'while' expression elsePart
+      | 'do' expression optionalNewline 'until' expression elsePart
+      | 'break'
+      | 'continue'
+      | 'return' expression?
+      | 'case' expression ('of' functionExpression | caseFunctionExpression)
+      | orExpression
 
-	expr32 =
-		expr32 ~ "^" ~ expr33 |
-		expr33
+    booleanExpression ::= orExpression
 
-	expr33 =
-		"-" ~> expr34 |
-		expr34
+    orExpression ::=
+        orExpression ('or' | 'xor') andExpression
+      | andExpression
 
-	expr34 =
-		("++" | "--") ~ expr35 |
-		expr35 ~ ("++" | "--") |
-		expr35
+    andExpression ::=
+        andExpression ('and' | 'rotateright' | 'rotateleft' | 'shiftright' | 'shiftleft') notExpression
+      | notExpression
 
-	leftExpr = expr35
+    notExpression ::=
+        'not' notExpression
+      | comparisonExpression
 
-	expr35 =
-		expr35 ~ ("(" ~> repsep(expr, ",") <~ ")") |
-		expr35 ~ ("." ~> ident) |
-		expr40
+    comparisonExpression ::=
+        iteratorExpression ('==' | '!=' | '<' | '>' | '<=' | '>=' | 'in' | 'not' 'in'^ 'notin' | '|' | '/|') iteratorExpression
+      | iteratorExpression 'is' ident
+      | iteratorExpression
 
-	entry =
-		jsonExpr ~ (":" ~> expr)
+    iteratorExpression ::=
+        (consExpression '|') generators
+      | consExpression
 
-	expr40 =
-		numericLit |
-		stringLit |
-		"(" ~> expr <~ ")" |
-		ident |
-		("true" | "false") |
-		"(" ~ ")" |
-		("(" ~> expr <~ ",") ~ (rep1sep(expr, ",") <~ ")") |
-		("[" ~> listComprehensionExpr) ~ ("|" ~> generators <~ "]") |
-		("[" ~> repsep(expr, ",") <~ "]") |
-		"null" |
-		"{" ~> repsep(jsonExpr, ",") <~ "}" |
-		"{" ~> repsep(entry, ",") <~ "}" |
-		Indent ~> statements <~ Dedent |
-		"$" ~> ident |
-		"?" ~> ident
+    consExpression ::=
+        rangeExpression (':' consExpression)
+      | rangeExpression ('#' consExpression)
+      | rangeExpression
 
-	pattern =
-		(ident <~ "@") ~ pattern3 |
-		pattern3
+    keyExpression ::= rangeExpression
 
-	pattern3 =
-		pattern5 ~ ("::" ~> ident) |
-		pattern5
-		
-	pattern5: PackratParser[PatternAST] =
-		pattern10 ~ (":" ~> pattern5) |
-		pattern10
+    rangeExpression ::=
+        additiveExpression ('..' | 'until') additiveExpression ('by' additiveExpression)?
+      | (additiveExpression '..') ('by' additiveExpression)?
+      | additiveExpression
 
-	pattern10: PackratParser[PatternAST] =
-		numericLit |
-		stringLit |
-		("true" | "false") |
-		"(" ~ ")" |
-		"null" |
-		ident ~ ("(" ~> repsep(pattern, ",") <~ ")") |
-		ident ~ opt("::" ~> ident) |
-		("(" ~> pattern <~ ",") ~ (rep1sep(pattern, ",") <~ ")") |
-		("[" ~> repsep(pattern, ",") <~ "]") |
-		("(" ~> pattern <~ "|") ~ (rep1sep(pattern, "|") <~ ")") |
-		"(" ~> pattern <~ ")"
+    additiveExpression ::=
+        additiveExpression ('+' | '-') multiplicativeExpression
+      | multiplicativeExpression
 
+    multiplicativeExpression ::=
+        multiplicativeExpression ('*' | '/' | '\' | '%') exponentialExpression
+      | multiplicativeExpression applyExpression
+      | exponentialExpression
+
+    exponentialExpression ::=
+        exponentialExpression '^' negationExpression
+      | negationExpression
+
+    negationExpression ::=
+        '-' incrementExpression
+      | incrementExpression
+
+    incrementExpression ::=
+        ('++' | '--') applyExpression
+      | applyExpression ('++' | '--')
+      | applyExpression
+
+    lvalueExpression ::= applyExpression
+
+    applyExpression ::=
+        applyExpression ('(' (expression (',' expression)*)? ')')
+      | applyExpression ('.' | '.>') ident
+      | primaryExpression
+
+    MapEntry ::=
+        keyExpression ':' expression
+
+    comprehensionExpression ::=
+        consExpression '|' generators
+
+    primaryExpression ::=
+        numericLit
+      | stringLit
+      | '(' infix ')'
+      | '(' expression infix ')'
+      | '(' infixNoMinus expression ')'
+      | '(' expression ')'
+      | ident
+      | ('true' | 'false')
+      | '(' ')'
+      | ('(' nonAssignmentExpression ',') nonAssignmentExpression (',' nonAssignmentExpression)* ')'
+      | '[' comprehensionExpression ']'
+      | '[' (nonAssignmentExpression (',' nonAssignmentExpression)*)? ']'
+      | 'null'
+      | '{' (keyExpression (',' keyExpression)*)? '}'
+      | '{' MapEntry (',' MapEntry)* '}'
+      | '$' ident
+      | '?' ident
+
+    infixNoMinus ::= '+' | '*' | '/' | '\' | '^' | '%' | '==' | '!=' | '<' | '>' | '<=' | '>=' | ':' | '#' | 'and' | 'or' | 'xor'
+
+    infix ::= infixNoMinus | '-'
+
+    pattern ::=
+        ident '@' typePattern
+      | typePattern
+
+    typePattern ::=
+        consPattern '::' ident
+      | consPattern
+
+    consPattern ::=
+        primaryPattern ':' consPattern
+      | primaryPattern
+
+    primaryPattern ::=
+        numericLit
+      | stringLit
+      | 'true' | 'false'
+      | '(' ')'
+      | 'null'
+      | ident '(' pattern (',' pattern)* ')'
+      | ident
+      | '(' pattern ',' pattern (',' pattern)* ')'
+      | '[' (pattern (',' pattern)*)? ']'
+      | '{' '}'
+      | '(' pattern '|' pattern ('|' pattern)* ')'
+      | '(' pattern ')'
 
 ## Lexical Grammar
 
