@@ -51,7 +51,7 @@ object REPL extends App
 		{
 			case ":help" =>
 				out.println( ":help                      print this summary" )
-				out.println( ":quit                      exit the interpreter" )
+				out.println( ":quit                      exit the REPL" )
 				out.println
 			case ":quit" =>
 				sys.exit

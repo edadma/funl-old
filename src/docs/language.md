@@ -84,6 +84,18 @@ For example to print the number `123` write
 
 ### Conditional
 
+A conditional expression takes on a value conditionally based on a boolean expression.  The syntax for conditionals is:
+
+	'if' booleanExpression ('then' expressionOrBlock | blockExpression) elif* elsePart
+
+where
+
+    expressionOrBlock ::= expression | blockExpression
+
+    elif ::= optionalNewline 'elif' booleanExpression ('then' expressionOrBlock | blockExpression)
+
+    elsePart ::= (optionalNewline 'else' expressionOrBlock)?
+
 ### Case
 
 ### Conditional Loops
@@ -136,3 +148,5 @@ produces
 ## Declarations
 
 ### Import
+
+### Definition

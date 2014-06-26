@@ -114,8 +114,7 @@ Here is the grammar used to parse FunL presented in EBNF.
 
     expressionOrBlock ::= expression | blockExpression
 
-    elif ::=
-        optionalNewline 'elif' booleanExpression ('then' expressionOrBlock | blockExpression)
+    elif ::= optionalNewline 'elif' booleanExpression ('then' expressionOrBlock | blockExpression)
 
     elsePart ::= (optionalNewline 'else' expressionOrBlock)?
 
