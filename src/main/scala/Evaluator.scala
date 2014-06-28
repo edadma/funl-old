@@ -585,16 +585,19 @@ class Evaluator
 				case _ => BinaryExprAST( l, op, r )
 			}
 
-		def rewrap( arg: Any ): AnyRef =
-			arg match
-			{
-				case x: BigInt if x.isValidLong => x.longValue.asInstanceOf[AnyRef]
-				case x: ScalaNumber => x.underlying
-				case x: Closure => x.function
-				case x => x.asInstanceOf[AnyRef]
-			}
+		def rewrap( objs: List[Any], types: Array[Class[_]] ) =
+			for ((o, t) <- objs zip types)
+				yield
+					(o, t.getName) match
+					{
+						case (x: BigInt, _) if x.isValidLong => x.longValue.asInstanceOf[AnyRef]
+						case (x: ScalaNumber, _) => x.underlying
+						case (x: Closure, "funl.interp.Evaluator$Closure") => x
+						case (x: Closure, _) => x.function
+						case (x, _) => x.asInstanceOf[AnyRef]
+					}
 
-		def assignable( objs: List[Any], types: Array[Class[_]]) =
+		def assignable( objs: List[Any], types: Array[Class[_]] ) =
 			(objs zip types).forall(
 				{case (a, t) =>
 					val cls = a.getClass
@@ -973,14 +976,14 @@ class Evaluator
 											case Some( cm ) => push( cm.invoke(o, argList) )
 										}
 								case Some( cm ) =>
-									push( cm.invoke(o, argList map rewrap: _*) )
+									push( cm.invoke(o, rewrap(argList, cm.getParameterTypes): _*) )
 							}
 					case c: Class[Any] =>
 						c.getConstructors.toList.filter( _.getParameterTypes.length == argList.length ).
 							find( cm => assignable(argList, cm.getParameterTypes) ) match
 							{
 								case None => RuntimeException( "no constructor with matching signatures for: " + argList )
-								case Some( cm ) => push( cm.newInstance( argList map rewrap: _* ) )
+								case Some( cm ) => push( cm.newInstance( rewrap(argList, cm.getParameterTypes): _* ) )
 							}
 					case p: Product =>
 						push( p.productElement(argList.head.asInstanceOf[Int]) )

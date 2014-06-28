@@ -1,7 +1,1 @@
-data Tree = Empty | Node( value, left, right )
-
-case Node('a', 3, 4)
-	Node(a, b, c) -> println( a, b, c )
-	a -> println( a )
-	
-println( Empty, Node(1, Empty, Node('a', Empty, Empty)) )
+println( [1, 2, 3, 4, 5].filter((2|)) )
