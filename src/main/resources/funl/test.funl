@@ -1,1 +1,6 @@
-for i <- 1.. do println( i )
+def
+  hailstone( 1 ) = [1]
+  hailstone( n ) = n # hailstone( if 2|n then n/2 else n*3 + 1 )
+
+for i <- 1:10000
+	a(hailstone( i ).length())

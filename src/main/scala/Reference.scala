@@ -36,8 +36,6 @@ abstract class RangeReference extends Reference
 
 class VariableReference( init: Any ) extends Reference
 {
-	def this() = this( null )
-	
 	private var _value: Any = init
 
 	def value = _value

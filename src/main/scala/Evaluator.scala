@@ -70,8 +70,19 @@ class Evaluator
 				}
 			}
 
-		def function =
-		{
+		def function0 =
+			new scala.runtime.AbstractFunction0[Any]
+			{
+			implicit val env = new Environment
+
+				def apply =
+				{
+					invoke( Closure.this, Nil )
+					pop
+				}
+			}
+
+		def function1 =
 			new scala.runtime.AbstractFunction1[Any, Any]
 			{
 			implicit val env = new Environment
@@ -82,7 +93,6 @@ class Evaluator
 					pop
 				}
 			}
-		}
 		
 		override def toString = "<closure>"
 	}
@@ -715,7 +725,8 @@ class Evaluator
 						case (x: BigInt, _) if x.isValidLong => x.longValue.asInstanceOf[AnyRef]
 						case (x: ScalaNumber, _) => x.underlying
 						case (x: Closure, "funl.interp.Evaluator$Closure") => x
-						case (x: Closure, _) => x.function
+						case (x: Closure, "scala.Function0") => x.function0
+						case (x: Closure, "scala.Function1") => x.function1
 						case (x, _) => x.asInstanceOf[AnyRef]
 					}
 
@@ -728,7 +739,7 @@ class Evaluator
 						t.getName == "double" && cls.getName == "java.lang.Double" ||
 						t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
 						t.getName == "long" && (cls.getName == "java.lang.Integer" || cls.getName == "scala.math.BigInt") ||
-						t.getName == "scala.Function1" && cls.getName == "funl.interp.Evaluator$Closure" ||
+						(t.getName == "scala.Function0" || t.getName == "scala.Function1") && cls.getName == "funl.interp.Evaluator$Closure" ||
 						t.isAssignableFrom( cls )
 				})
 		
