@@ -204,7 +204,7 @@ trait ReadOnlyReference extends Reference
 	def assign( v: Any ) = RuntimeException( name + " is read-only" )
 }
 
-class ConstantReference( val name: String, val value: Any ) extends ReadOnlyReference
+case class ConstantReference( name: String, value: Any ) extends ReadOnlyReference
 
 class ImmutableSeqReference( seq: ImmutableSeq[Any], index: Int ) extends ReadOnlyReference
 {

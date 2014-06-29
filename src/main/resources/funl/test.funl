@@ -1,3 +1,5 @@
 data Bla
 
-println( Bla )
+case 123
+	Bla -> println( 'first' )
+	_ -> println( 'otherwise' )

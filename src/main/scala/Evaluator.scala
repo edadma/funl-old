@@ -360,6 +360,24 @@ class Evaluator
 				unify( map, a, pat ) && typecheck( a, typename )
 			case VariablePatternAST( "_" ) => true
 			case VariablePatternAST( n ) =>
+				if (map.isInstanceOf[Activation])
+					varSearch( n, map.asInstanceOf[Activation], false ) match
+					{
+						case Some( rpat: Record ) if rpat.args.length == 0 =>
+							return a match
+							{
+								case r: Record => r.name == rpat.name && r.args.length == 0
+								case _ => false
+							}
+						case Some( ConstantReference(_, ppat: Product) ) if ppat.productArity == 0 =>
+							return a match
+							{
+								case p: Product => p.productPrefix == ppat.productPrefix && p.productArity == 0
+								case _ => false
+							}
+						case a => println(a)
+					}
+					
 				if (map contains n)
 					a == deref( map(n) )
 				else
@@ -488,48 +506,39 @@ class Evaluator
 		
 		exitActivation
 	}
-	
+
+	def varSearch( name: String, a: Activation, createvars: Boolean )( implicit env: Environment ): Option[Any] =
+		a.scope find (_ contains name) match
+		{
+			case None =>
+				if (a.referencing != null)
+					varSearch( name, a.referencing, createvars )
+				else
+					currentModule.get( name ) match
+					{
+						case None =>
+							if (createvars)
+							{
+							val ref = new VariableReference( NEW )
+
+								ref.assign( ref )
+								currentActivation(name) = ref
+								Some( ref )
+							}
+							else
+								None
+						case v => v
+					}
+			case Some( map ) => Some( map(name) )
+		}
+
 	def apply( l: List[AST] )( implicit env: Environment ): Any =
 		for (s <- l)
 			apply( s )
 
 	def apply( t: AST, createvars: Boolean = false )( implicit env: Environment ): Any =
 	{
-		def vars( name: String ) =
-		{
-			def vars( a: Activation ): Option[Any] =
-			{
-				a.scope find (_ contains name) match
-				{
-					case None =>
-						if (a.referencing != null)
-							vars( a.referencing )
-						else
-							currentModule.get( name ) match
-							{
-								case None =>
-									if (createvars)
-										Some( newVar(name) )
-									else
-										RuntimeException( "unknown variable: " + name )
-								case v => v
-							}
-					case Some( map ) => Some( map(name) )
-				}
-			}
-
-			vars( env.activations.top )
-		}
-		
-		def newVar( name: String ) =
-		{
-		val ref = new VariableReference( NEW )
-
-			ref.assign( ref )
-			currentActivation(name) = ref
-			
-			ref
-		}
+		def vars( name: String ) = varSearch( name, env.activations.top, createvars )
 
 		def declare( key: String, value: Any ) =
 		{
@@ -1016,7 +1025,8 @@ class Evaluator
 					push( !o.asInstanceOf[Boolean] )
 				else
 					push( Math('not, o) )
-			case VariableExprAST( v ) => push( vars(v).get )
+			case VariableExprAST( v ) =>
+				push( vars(v).getOrElse(RuntimeException( "unknown variable: " + v )) )
 			case CaseFunctionExprAST( cases ) => push( (new Closure(currentActivation.copy, currentModule, cases)).computeReferencing )
 			case f@FunctionExprAST( _, _ ) => push( (new Closure(currentActivation.copy, currentModule, List(f))).computeReferencing )
 			case ApplyExprAST( f, args, tailrecursive ) =>
