@@ -376,7 +376,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"?" ~> ident ^^
 			(TestExprAST( _ ))
 
-	lazy val infixNoMinus = "+" | "*" | "/" | """\""" | "^" | "%" | "|" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
+	lazy val infixNoMinus = "+" | "*" | "/" | """\""" | "^" | "%" | "|" | "/|" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
 	
 	lazy val infix = infixNoMinus | "-"
 	
