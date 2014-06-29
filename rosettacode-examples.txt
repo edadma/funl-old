@@ -596,17 +596,9 @@ Integer_sequence
 --------------------
 
 =={{header|FunL}}==
-The following uses built-in method <code>from</code> in Scala's <code>Stream</code> (class companion) object, but has a limit (2147483647).
-<lang funl>native scala.collection.immutable.Stream
+The following has no limit since FunL has arbitrary size integers.
 
-for i <- Stream.from( 1 ) do println( i )</lang>
-
-This version has no limit because it uses FunL's arbitrary size integers.
-
-<lang funl>def from( n ) = n # from( n + 1 )
-
-for i <- from( 1 )
-  println( i )</lang>
+<lang funl>for i <- 1.. do println( i )</lang>
 
 --------------------
 Least_common_multiple
