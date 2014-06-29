@@ -299,6 +299,140 @@ class Evaluator
 
 	def currentModule( implicit env: Environment ) = env.activations.top.module
 
+	def clear( map: SymbolMapContainer, p: PatternAST )( implicit env: Environment ) =
+	{
+	var vars: List[String] = Nil
+
+		def clear( p: PatternAST )
+		{
+			p match
+			{
+				case AliasPatternAST( alias, pat ) =>
+					map remove alias
+					vars = alias :: vars
+					clear( pat )
+				case TypePatternAST( pat, _ ) =>
+					clear( pat )
+				case VariablePatternAST( n ) =>
+					vars = n :: vars
+					map remove n
+				case TuplePatternAST( t ) =>
+					for (e <- t)
+						clear( e )
+				case RecordPatternAST( n, l ) =>
+					for (e <- l)
+						clear( e )
+				case ListPatternAST( f ) =>
+					for (e <- f)
+						clear( e )
+				case ConsPatternAST( head, tail ) =>
+					clear( head )
+					clear( tail )
+				case _ =>
+			}
+		}
+
+		clear( p )
+		vars
+	}
+
+	def unify( map: SymbolMapContainer, a: Any, p: PatternAST )( implicit env: Environment ): Boolean =
+		p match
+		{
+			case LiteralPatternAST( v ) => a == v
+			case EmptySetPatternAST => a == Set.empty
+			case VoidPatternAST => a == ()
+			case NullPatternAST => a == null
+			case AliasPatternAST( alias, pat ) =>
+				if (map contains alias)
+					a == map(alias) && unify( map, a, pat )
+				else
+				{
+					if (unify( map, a, pat ))
+					{
+						map(alias) = new ConstantReference( alias, a )
+						true
+					}
+					else
+						false
+				}
+			case TypePatternAST( pat, typename ) =>
+				unify( map, a, pat ) && typecheck( a, typename )
+			case VariablePatternAST( "_" ) => true
+			case VariablePatternAST( n ) =>
+				if (map contains n)
+					a == deref( map(n) )
+				else
+				{
+					map(n) = new ConstantReference( n, a )
+					true
+				}
+			case TuplePatternAST( t ) =>
+				a match
+				{
+					case v: Vector[Any] => v.length == t.length && (v zip t).forall( {case (ve, te) => unify(map, ve, te)} )
+					case v: Array[Any] => v.length == t.length && (v zip t).forall( {case (ve, te) => unify(map, ve, te)} )
+					case p: Product => p.productArity == t.length && t.zipWithIndex.forall {case (te, i) => unify( map, p.productElement(i), te )}
+					case _ => false
+				}
+			case RecordPatternAST( n, l ) =>
+				a match
+				{
+					case r: Record => r.name == n && r.args.length == l.length && (r.args zip l).forall( pair => unify(map, pair._1, pair._2) )
+					case _ => false
+				}
+			case ListPatternAST( ps ) =>
+				a match
+				{
+					case Nil => ps == Nil
+					case l: LSeq if !l.isDefinedAt(ps.length) && l.length == ps.length =>
+						(l zip ps).forall( pair => unify(map, pair._1, pair._2) )
+					case _ => false
+				}
+			case ConsPatternAST( head, tail ) =>
+				a match
+				{
+					case Nil => false
+					case l: LSeq => unify( map, l.head, head ) && unify( map, l.tail, tail )
+					case _ => false
+				}
+			case AltPatternAST( alts ) =>
+				alts exists (unify( map, a, _ ))
+		}
+
+	def pattern( map: SymbolMapContainer, args: List[Any], parms: List[PatternAST] )( implicit env: Environment ) =
+	{
+		def pattern( ah: Any, at: List[Any], ph: PatternAST, pt: List[PatternAST] ): Boolean =
+		{
+			if (unify( map, ah, ph ))
+			{
+				if (at == Nil && pt == Nil)
+					true
+				else if (at != Nil && pt != Nil)
+					pattern( at.head, at.tail, pt.head, pt.tail )
+				else
+				{
+					map.clear
+					false
+				}
+			}
+			else
+			{
+				map.clear
+				false
+			}
+		}
+
+		if (args == Nil && parms == Nil)
+			true
+		else if (args == Nil && parms != Nil)
+			pattern( (), Nil, parms.head, parms.tail )
+		else if (args != Nil && parms == Nil)
+			false
+		else
+			pattern( args.head, args.tail, parms.head, parms.tail )
+	}
+
 	def invoke( c: Closure, argList: List[Any] )( implicit env: Environment )
 	{
 		def occur( argList: List[Any] )
@@ -361,27 +495,6 @@ class Evaluator
 
 	def apply( t: AST, createvars: Boolean = false )( implicit env: Environment ): Any =
 	{
-// 		def vars( m: String, name: String ) =
-// 		{
-// 			def vars( a: Activation ): Any =
-// 			{
-// 				a.scope find (_ contains name) match
-// 				{
-// 					case None =>
-// 						if (a.closure != null && a.closure.referencing != null)
-// 							vars( a.closure.referencing )
-// 						else if (symbolExists( m, name ))
-// 							symbol( m, name )
-// 						else if (createvars)
-// 							newVar( name )
-// 						else
-// 							RuntimeException( "unknown variable: " + name )
-// 					case Some( map ) => map(name)
-// 				}
-// 			}
-// 			
-// 			vars( activations.top )
-// 		}
 		def vars( name: String ) =
 		{
 			def vars( a: Activation ): Option[Any] =
@@ -1332,43 +1445,6 @@ class Evaluator
 				push( typecheck(eval(e), t) )
 		}
 	}
-	
-	def clear( map: SymbolMapContainer, p: PatternAST ) =
-	{
-	var vars: List[String] = Nil
-	
-		def clear( p: PatternAST )
-		{
-			p match
-			{
-				case AliasPatternAST( alias, pat ) =>
-					map remove alias
-					vars = alias :: vars
-					clear( pat )
-				case TypePatternAST( pat, _ ) =>
-					clear( pat )
-				case VariablePatternAST( n ) =>
-					vars = n :: vars
-					map remove n
-				case TuplePatternAST( t ) =>
-					for (e <- t)
-						clear( e )
-				case RecordPatternAST( n, l ) =>
-					for (e <- l)
-						clear( e )
-				case ListPatternAST( f ) =>
-					for (e <- f)
-						clear( e )
-				case ConsPatternAST( head, tail ) =>
-					clear( head )
-					clear( tail )
-				case _ =>
-			}
-		}
-
-		clear( p )
-		vars
-	}
 
 	def typecheck( a: Any, t: String ) =
 		t match
@@ -1387,103 +1463,6 @@ class Evaluator
 			case _ /*if datatypes.contains( t )*/ => a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == t
 			case _ => RuntimeException( "unknown type: " + t )
 		}
-	
-	def unify( map: SymbolMapContainer, a: Any, p: PatternAST ): Boolean =
-		p match
-		{
-			case LiteralPatternAST( v ) => a == v
-			case EmptySetPatternAST => a == Set.empty
-			case VoidPatternAST => a == ()
-			case NullPatternAST => a == null
-			case AliasPatternAST( alias, pat ) =>
-				if (map contains alias)
-					a == map(alias) && unify( map, a, pat )
-				else
-				{
-					if (unify( map, a, pat ))
-					{
-						map(alias) = new ConstantReference( alias, a )
-						true
-					}
-					else
-						false
-				}
-			case TypePatternAST( pat, typename ) =>
-				unify( map, a, pat ) && typecheck( a, typename )
-			case VariablePatternAST( "_" ) => true
-			case VariablePatternAST( n ) =>
-				if (map contains n)
-					a == deref( map(n) )
-				else
-				{
-					map(n) = new ConstantReference( n, a )
-					true
-				}
-			case TuplePatternAST( t ) =>
-				a match
-				{
-					case v: Vector[Any] => v.length == t.length && (v zip t).forall( {case (ve, te) => unify(map, ve, te)} )
-          case v: Array[Any] => v.length == t.length && (v zip t).forall( {case (ve, te) => unify(map, ve, te)} )
-					case p: Product => p.productArity == t.length && t.zipWithIndex.forall {case (te, i) => unify( map, p.productElement(i), te )}
-					case _ => false
-				}
-			case RecordPatternAST( n, l ) =>
-				a match
-				{
-					case r: Record => r.name == n && r.args.length == l.length && (r.args zip l).forall( pair => unify(map, pair._1, pair._2) )
-					case _ => false
-				}
-			case ListPatternAST( ps ) =>
-				a match
-				{
-					case Nil => ps == Nil
-					case l: LSeq if !l.isDefinedAt(ps.length) && l.length == ps.length =>
-						(l zip ps).forall( pair => unify(map, pair._1, pair._2) )
-					case _ => false
-				}
-			case ConsPatternAST( head, tail ) =>
-				a match
-				{
-					case Nil => false
-					case l: LSeq => unify( map, l.head, head ) && unify( map, l.tail, tail )
-					case _ => false
-				}
-			case AltPatternAST( alts ) =>
-				alts exists (unify( map, a, _ ))
-		}
-
-	def pattern( map: SymbolMapContainer, args: List[Any], parms: List[PatternAST] ) =
-	{
-		def pattern( ah: Any, at: List[Any], ph: PatternAST, pt: List[PatternAST] ): Boolean =
-		{
-			if (unify( map, ah, ph ))
-			{
-				if (at == Nil && pt == Nil)
-					true
-				else if (at != Nil && pt != Nil)
-					pattern( at.head, at.tail, pt.head, pt.tail )
-				else
-				{
-					map.clear
-					false
-				}
-			}
-			else
-			{
-				map.clear
-				false
-			}
-		}
-
-		if (args == Nil && parms == Nil)
-			true
-		else if (args == Nil && parms != Nil)
-			pattern( (), Nil, parms.head, parms.tail )
-		else if (args != Nil && parms == Nil)
-			false
-		else
-			pattern( args.head, args.tail, parms.head, parms.tail )
-	}
 
 	def deref( v: Any ) =
 		if (v.isInstanceOf[Reference])
