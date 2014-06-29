@@ -375,7 +375,7 @@ class Evaluator
 								case p: Product => p.productPrefix == ppat.productPrefix && p.productArity == 0
 								case _ => false
 							}
-						case a => println(a)
+						case _ =>
 					}
 					
 				if (map contains n)
