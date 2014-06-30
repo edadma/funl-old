@@ -726,6 +726,7 @@ class Evaluator
 						case (x: ScalaNumber, _) => x.underlying
 						case (x: Closure, "funl.interp.Evaluator$Closure") => x
 						case (x: Closure, "scala.Function0") => x.function0
+//						case (x, "scala.Function0") => thunk( x ).function0
 						case (x: Closure, "scala.Function1") => x.function1
 						case (x, _) => x.asInstanceOf[AnyRef]
 					}
@@ -823,8 +824,6 @@ class Evaluator
 
 					declare( a.getOrElse(n), (a => method.invoke(null, a)): Function )
 				}
-// 			case ConstAST( m, name, expr ) =>
-// 				assign( m, name, eval(expr) )
 			case VarAST( n, v ) =>
 				declare( n, new VariableReference(if (v == None) null else eval(v.get)) )
 			case DataAST( n, cs ) =>
