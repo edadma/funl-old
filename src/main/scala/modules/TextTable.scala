@@ -98,7 +98,7 @@ class TextTable
 			colaligns = Array.fill[Alignment]( columns )( LEFT )
 		}
 		else if (columns != s.length)
-			sys.error( "table is " + columns + "column(s) wide" )
+			sys.error( "table is " + columns + " column(s) wide" )
 
 		table += s.map( _.toString ).toIndexedSeq
 		widths = null
