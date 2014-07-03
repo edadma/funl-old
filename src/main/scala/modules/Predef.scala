@@ -117,6 +117,8 @@ object Predef
 	def set( a: List[Any] ) =
 		if (a isEmpty)
 			new HashSet[Any]
+		else if (a.head.isInstanceOf[collection.Set[Any]])
+			HashSet( a.head.asInstanceOf[collection.Set[Any]].toSeq: _* )
 		else if (a.head.isInstanceOf[Seq[Any]])
 			HashSet( a.head.asInstanceOf[Seq[Any]]: _* )
 		else

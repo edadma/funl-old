@@ -141,6 +141,14 @@ produces
 
 ### Simple Loop
 
+  The simple loop is for situation where you either want to terminate the loop using a `break` or `return`, or the application doesn't terminate.  For example
+  
+    n = 1
+    
+    for println( n++ )
+  
+  prints numbers starting from 1 without end.
+  
 ### Sections
 
 ### Lambda Expressions

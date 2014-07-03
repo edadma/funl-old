@@ -1,22 +1,23 @@
-import integers.choose
-import util.TextTable
+A = {1, 2, 3}
+B = {3, 4, 5}
+C = {1, 2, 3, 4, 5}
+D = {2, 1, 3}
 
-def
-	catalan( n ) = choose( 2n, n )/(n + 1)
+println( '2 is in A: ' + (2 in A) )
+println( '4 is in A: ' + (4 in A) )
+println( 'A union B: ' + A.union(B) )
+println( 'A intersect B: ' + A.intersect(B) )
+println( 'A difference B: ' + A.diff(B) )
+println( 'A subset of B: ' + A.subsetOf(B) )
+println( 'A subset of B: ' + A.subsetOf(C) )
+println( 'A equal B: ' + (A == B) )
+println( 'A equal D: ' + (A == D) )
 
-	catalan2( n ) = product( (n + k)/k | k <- 2..n )
+S = set( A )
 
-	catalan3( 0 ) = 1
-	catalan3( n ) = 2*(2n - 1)/(n + 1)*catalan3( n - 1 )
-
-t = TextTable()
-t.header( 'n', 'definition', 'product', 'recursive' )
-t.line()
-
-for i <- 1..4
-  t.rightAlignment( i )
-
-for i <- 0..15
-	t.row( i, catalan(i), catalan2(i), catalan3(i) )
-	
-println( t )
+println( 'S (mutable version of A): ' + S )
+S.add( 4 )
+println( 'S with 4 added: ' + S )
+println( 'S subset of C: ' + S.subsetOf(C) )
+S.remove( 1 )
+println( 'S after 1 removed: ' + S )
