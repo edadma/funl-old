@@ -1,0 +1,7 @@
+data
+	Card( color, symbol, number, shading )
+	Color = Red | Green | Purple
+	Symbol = Oval | Squiggle | Diamond
+	Shading = Solid | Open | Striped
+	
+println( Card(Green, Squiggle, 2, Solid) )

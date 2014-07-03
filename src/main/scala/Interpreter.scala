@@ -153,27 +153,78 @@ object Interpreter
 		parse( module, new CharSequenceReader(source) )
 	}
 
+	def parseLiterate( module: String, input: InputStream ): AST =
+	{
+	val lines = Source.fromInputStream( input ).getLines
+	val source = new StringBuilder
+	var appending = false
+
+		def append( line: String )
+		{
+			source append line
+			source append '\n'
+		}
+		
+		for (l <- lines)
+		{
+			l.indexOf( "~~" ) match
+			{
+				case -1 =>
+					if (appending)
+						append( l )
+				case idx =>
+					if (appending)
+					{
+						append( l.substring(0, idx) )
+						appending = false
+					}
+					else
+						l.indexOf( "~~", idx + 2 ) match
+						{
+							case -1 =>
+								append( l.substring(idx + 2) )
+								appending = true
+							case end => append( l.substring(idx + 2, end) )
+						}
+			}
+		}
+
+		parse( module, new CharSequenceReader(source) )
+	}
+
 //		val r = new PagedSeqReader( PagedSeq fromFile (args.head + ".fun") )
 	def parse( module: String, name: Option[String] = None ): AST =
 	{
-	val filename = module + ".funl"
+		moduleInput( module, "funl" ) match
+		{
+			case Some( input ) => parse( name.getOrElse(module), input )
+			case None =>
+				moduleInput( module, "lf" ) match
+				{
+					case Some( input ) => parseLiterate( name.getOrElse(module), input )
+					case None => sys.error( "module '" + module + "' not found" )
+				}
+		}
+	}
+
+	def moduleInput( module: String, ending: String ) =
+	{
+	val filename = module + "." + ending
 	val resource = funl.Main.getClass.getResourceAsStream( filename )
-	val input =
+	
 		if (resource eq null)
 		{
 		val file = new File( filename )
 
 			if (!file.exists || !file.isFile)
-				sys.error( "module '" + module + "' not found" )
+				None
 			else
-				new FileInputStream( file )
+				Some( new FileInputStream(file) )
 		}
 		else
-			resource
-	
-		parse( name.getOrElse(module), input )
+			Some( resource )
 	}
-
+	
 	case class PARSE_FAILURE( message: String )
 
 	def statement( m: String, s: String ): Any =
