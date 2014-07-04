@@ -1,6 +1,6 @@
 /*     ______            __                                      *\
 **    / ____/_  __ ___  / /     FunL Programming Language        **
-**   / __/ / / / / __ \/ /      (c) 2014, Edward A. Maxedon, Sr. **
+**   / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr. **
 **  / /   / /_/ / / / / /__     http://funl-lang.org/            **
 ** /_/    \____/_/ /_/____/                                      **
 \*                                                               */
@@ -32,19 +32,21 @@ object Main extends App
 	{
 //	val m = opts('input)
   val m = args(0)
-	val l = parse( m, Some("-main-") )
+  
+		execute( m, Some("-main-"), "args" -> args.tail.toVector )
+//	val l = parse( m, Some("-main-") )
 	
 // 		if (opts contains 'b)
 // 		{
 // 			println( "binary" )
 // 		}
 // 		else
-		{
-		val eval = new Evaluator
-		implicit val env = new eval.Environment
-
-			eval.assign( "-main-", "args" -> args.tail.toVector )
-			eval( l )
-		}
+// 		{
+// 		val eval = new Evaluator
+// 		implicit val env = new eval.Environment
+// 
+// 			eval.assign( "-main-", "args" -> args.tail.toVector )
+// 			eval( l )
+// 		}
 	}
 }

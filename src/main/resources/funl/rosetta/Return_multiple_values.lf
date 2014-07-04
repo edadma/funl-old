@@ -1,0 +1,13 @@
+=={{header|FunL}}==
+{{trans|Scala}}
+<lang funl>~~def addsub( x, y ) = (x + y, x - y)
+
+val (sum, difference) = addsub( 33, 12 )
+
+println( sum, difference, addsub(33, 12) )~~</lang>
+
+{{out}}
+
+<pre>
+45, 21, (45, 21)
+</pre>

@@ -7,7 +7,7 @@
 
 package funl.interp
 
-import java.io.{File, InputStream, FileInputStream}
+import java.io.{File, InputStream, FileInputStream, ByteArrayOutputStream}
 
 // import scala.util.parsing.input.PagedSeqReader
 // import scala.collection.immutable.PagedSeq
@@ -195,13 +195,15 @@ object Interpreter
 //		val r = new PagedSeqReader( PagedSeq fromFile (args.head + ".fun") )
 	def parse( module: String, name: Option[String] = None ): AST =
 	{
+	val m = name.getOrElse( module )
+	
 		moduleInput( module, "funl" ) match
 		{
-			case Some( input ) => parse( name.getOrElse(module), input )
+			case Some( input ) => parse( m, input )
 			case None =>
 				moduleInput( module, "lf" ) match
 				{
-					case Some( input ) => parseLiterate( name.getOrElse(module), input )
+					case Some( input ) => parseLiterate( m, input )
 					case None => sys.error( "module '" + module + "' not found" )
 				}
 		}
@@ -223,6 +225,24 @@ object Interpreter
 		}
 		else
 			Some( resource )
+	}
+
+	def execute( module: String, name: Option[String], vs: (String, Any)* )
+	{
+	val m = name.getOrElse( module )
+	val l = parse( module, name )
+	val eval = new Evaluator
+
+		eval.assign( m, vs: _* )
+		eval( l )( new eval.Environment )
+	}
+	
+	def executeCaptureOutput( module: String, name: Option[String], vs: (String, Any)* ) =
+	{
+	val out = new ByteArrayOutputStream
+	
+		Console.withOut( out )( execute(module, name, vs: _*) )
+		out.toString
 	}
 	
 	case class PARSE_FAILURE( message: String )
