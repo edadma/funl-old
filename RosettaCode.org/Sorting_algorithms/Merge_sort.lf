@@ -1,0 +1,23 @@
+=={{header|FunL}}==
+<lang funl>~~def
+  sort( [] )          =  []
+  sort( [x] )         =  [x]
+  sort( xs )          =
+    val (l, r) = xs.splitAt( xs.length()\2 )
+    merge( sort(l), sort(r) )
+
+  merge( [], xs )     =  xs
+  merge( xs, [] )     =  xs
+  merge( x:xs, y:ys )
+    | x <= y          =  x : merge( xs, y:ys )
+    | otherwise       =  y : merge( x:xs, ys )
+    
+println( sort([94, 37, 16, 56, 72, 48, 17, 27, 58, 67]) )
+println( sort(['Sofía', 'Alysha', 'Sophia', 'Maya', 'Emma', 'Olivia', 'Emily']) )~~</lang>
+
+{{out}}
+
+<pre>
+[16, 17, 27, 37, 48, 56, 58, 67, 72, 94]
+[Alysha, Emily, Emma, Maya, Olivia, Sofía, Sophia]
+</pre>
