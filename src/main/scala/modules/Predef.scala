@@ -141,8 +141,30 @@ object Predef
 	def int( a: List[Any] ) =
 		a match
 		{
+			case List( n: BigInt ) => n
 			case List( n: Number ) => n.intValue
 			case List( s: String ) => s.toInt
+		}
+
+	def bin( a: List[Any] ) =
+		a match
+		{
+			case List( n: BigInt ) => n.toString( 2 )
+			case List( n: Int ) => Integer.toBinaryString( n )
+		}
+
+	def oct( a: List[Any] ) =
+		a match
+		{
+			case List( n: BigInt ) => n.toString( 8 )
+			case List( n: Int ) => Integer.toOctalString( n )
+		}
+
+	def hex( a: List[Any] ) =
+		a match
+		{
+			case List( n: BigInt ) => n.toString( 16 )
+			case List( n: Int ) => Integer.toHexString( n )
 		}
 
   def chr( code: Int ) = code.toChar.toString
