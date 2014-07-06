@@ -25,4 +25,10 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
 	"Sorting_algorithms/Merge_sort" in {executeCaptureOutput( "RosettaCode.org/Sorting_algorithms/Merge_sort", Some("-main-") ).trim shouldBe
 		"""	|[16, 17, 27, 37, 48, 56, 58, 67, 72, 94]
 				|[Alysha, Emily, Emma, Maya, Olivia, Sofía, Sophia]""".stripMargin}
+	"Sorting_algorithms/Heapsort" in {executeCaptureOutput( "RosettaCode.org/Sorting_algorithms/Heapsort", Some("-main-") ).trim shouldBe "ArraySeq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)"}
+	"SHA-256" in {executeCaptureOutput( "RosettaCode.org/SHA-256", Some("-main-") ).trim shouldBe
+		"""	|FunL: "Rosetta code" ~> 764faf5c61ac315f1497f9dfa542713965b785e5cc2f707d6468d7d1124cdfcf
+				|Java: "Rosetta code" ~> 764faf5c61ac315f1497f9dfa542713965b785e5cc2f707d6468d7d1124cdfcf
+				|FunL: "" ~> e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+				|Java: "" ~> e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855""".stripMargin}
 }
