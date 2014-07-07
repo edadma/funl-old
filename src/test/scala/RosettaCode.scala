@@ -55,4 +55,8 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
 				|Ackermann( 3, 2 ) = 29
 				|Ackermann( 3, 3 ) = 61
 				|Ackermann( 3, 4 ) = 125""".stripMargin}
+  "Hamming_numbers" in {executeCaptureOutput( "RosettaCode.org/Hamming_numbers", Some("-main-") ).trim shouldBe
+    """ |[1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 27, 30, 32, 36]
+				|2125764000
+				|8100000000""".stripMargin}
 }

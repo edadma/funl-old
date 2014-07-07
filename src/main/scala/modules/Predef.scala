@@ -188,4 +188,12 @@ object Predef
   }
 
   def none = None
+
+// Scala interop: implicit Ordering
+
+// 	def min( a: List[Any] ) =
+// 		a match
+// 		{
+// 			case List( c: Iterable[Any] ) => c.min
+// 		}
 }

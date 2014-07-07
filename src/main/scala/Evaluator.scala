@@ -346,7 +346,7 @@ class Evaluator
 		vars
 	}
 
-	def unify( map: SymbolMapContainer, a: Any, p: PatternAST )( implicit env: Environment ): Boolean =
+	def unify( map: SymbolMapContainer, a: =>Any, p: PatternAST )( implicit env: Environment ): Boolean =
 		p match
 		{
 			case LiteralPatternAST( v ) => a == v
@@ -672,7 +672,10 @@ class Evaluator
 								else
 									clear( currentActivation(itenv), ps(i) )
 
-								if (!unify( currentActivation(itenv), deref(is(i).next), ps(i) ))
+							// force the iterator's next() to be called, since unit()'s second parameter is call-by-name
+							val next = deref( is(i).next )
+							
+								if (!unify( currentActivation(itenv), next, ps(i) ))
 									RuntimeException( "unification error in iterator" )
 
 								if (fs(i) == None || beval( fs(i).get )( itenv ))

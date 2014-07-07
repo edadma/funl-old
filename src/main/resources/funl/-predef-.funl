@@ -14,6 +14,7 @@ function funl.modules.Predef.{
 	error, require, assert,
 	array, seq, list, dict, set, tuple, vector,
 	int, bin, oct, hex
+//	min
 	}
 
 native funl.modules.Predef.{
@@ -47,7 +48,7 @@ def
 	head( [] )                = error( "head: empty list" )
 	
 	map( f, [] )                = []
-	map( f, x:xs::Stream )      = f( x ) # map( f, xs )
+	map( f, inx@x:_::Stream )   = f( x ) # map( f, inx.tail() )
 	map( f, x:xs )              = f( x ) : map( f, xs )
 	map( f, (a::Array|a::Iterable) ) = map( f, list(a) )
 

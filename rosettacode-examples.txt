@@ -58,19 +58,6 @@ A%2BB
 <lang funl>println( sum(map(int, readLine().split(' +'))) )</lang>
 
 --------------------
-Ackermann_function
---------------------
-
-=={{header|FunL}}==
-<lang funl>def
-  ackermann( 0, n ) = n + 1
-  ackermann( m, 0 ) = ackermann( m - 1, 1 )
-  ackermann( m, n ) = ackermann( m - 1, ackermann(m, n - 1) )
-
-for m <- 0..3, n <- 0..4
-  println( m, n, ackermann(m, n) )</lang>
-
---------------------
 Bernoulli_numbers
 --------------------
 
