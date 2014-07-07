@@ -1,0 +1,26 @@
+=={{header|FunL}}==
+FunL uses Scala type <code>scala.collection.immutable.Set</code> as it's set type, which has a built-in method <code>subsets</code> returning an (Scala) iterator over subsets.
+
+<lang funl>def powerset( s ) = s.subsets().toSet()</lang>
+
+The powerset function could be implemented in FunL directly as:
+
+<lang funl>def
+  powerset( {} ) = {{}}
+  powerset( s ) =
+    acc = powerset( s.tail() )
+    acc + map( x -> {s.head()} + x, acc )</lang>
+
+or, alternatively as:
+
+<lang funl>~~import lists.foldr
+
+def powerset( s ) = foldr( (x, acc) -> acc + map( a -> {x} + a, acc), {{}}, s )
+
+println( powerset({1, 2, 3, 4}) )~~</lang>
+
+{{out}}
+
+<pre>
+{{}, {4}, {1, 2}, {1, 3}, {2, 3, 4}, {3}, {1, 2, 3, 4}, {1, 4}, {1, 2, 3}, {2}, {1, 2, 4}, {1}, {3, 4}, {2, 3}, {2, 4}, {1, 3, 4}}
+</pre>

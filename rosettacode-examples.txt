@@ -493,27 +493,6 @@ for i <- 0..10
 </pre>
 
 --------------------
-Generator/Exponential
---------------------
-
-=={{header|FunL}}==
-{{trans|Scala}} (for the filter)
-<lang funl>import util.from
-
-def powers( m ) = map( (^ m), from(0) )
-
-def
-  filtered( s@sh:_, ch:ct ) | sh > ch = filtered( s, ct )
-  filtered( sh:st, c@ch:_ ) | sh < ch = sh # filtered( st, c )
-  filtered( _:st, c ) = filtered( st, c )
-
-println( filtered(powers(2), powers(3)).drop(20).take(10) )</lang>
-{{out}}
-<pre>
-[529, 576, 625, 676, 784, 841, 900, 961, 1024, 1089]
-</pre>
-
---------------------
 Greatest_common_divisor
 --------------------
 
@@ -859,65 +838,6 @@ triangle( 10 )</lang>
       1   7  21  35  35  21   7   1
     1   8  28  56  70  56  28   8   1
   1   9  36  84 126 126  84  36   9   1
-</pre>
-
---------------------
-Pi
---------------------
-
-=={{header|FunL}}==
-The code for <code>compute_pi()</code> is from [http://www.cs.ox.ac.uk/people/jeremy.gibbons/publications/spigot.pdf].  The number of digits may be given on the command line as an argument.  If there's no argument, the program will run until interrupted.
-
-<lang funl>def compute_pi =
-  def g( q, r, t, k, n, l ) =
-    if 4*q + r - t < n*t
-      n # g( 10*q, 10*(r - n*t), t, k, (10*(3*q + r))\t - 10*n, l )
-    else
-      g( q*k, (2*q + r)*l, t*l, k + 1, (q*(7*k + 2) + r*l)\(t*l), l + 2 )
-
-  g( 1, 0, 1, 1, 3, 3 )
-
-if _name_ == '-main-'
-  print( compute_pi().head() + '.' )
-
-  if args.isEmpty()
-    for d <- compute_pi().tail()
-      print( d )
-  else
-    for d <- compute_pi().tail().take( int(args(0)) )
-      print( d )
-
-    println()</lang>
-
---------------------
-Power_set
---------------------
-
-=={{header|FunL}}==
-FunL uses Scala type <code>scala.collection.immutable.Set</code> as it's set type, which has a built-in method <code>subsets</code> returning an (Scala) iterator over subsets.
-
-<lang funl>def powerset( s ) = s.subsets().toSet()</lang>
-
-The powerset function could be implemented in FunL directly as:
-
-<lang funl>def
-  powerset( {} ) = {{}}
-  powerset( s ) =
-    acc = powerset( s.tail() )
-    acc + map( x -> {s.head()} + x, acc )</lang>
-
-or, alternatively as:
-
-<lang funl>import lists.foldr
-
-def powerset( s ) = foldr( (x, acc) -> acc + map( a -> {x} + a, acc), {{}}, s )
-
-println( powerset({1, 2, 3, 4}) )</lang>
-
-{{out}}
-
-<pre>
-ArraySeq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)
 </pre>
 
 --------------------
