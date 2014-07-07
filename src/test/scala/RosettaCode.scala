@@ -59,4 +59,9 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
     """ |[1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 27, 30, 32, 36]
 				|2125764000
 				|8100000000""".stripMargin}
+  "Matrix_arithmetic" in {executeCaptureOutput( "RosettaCode.org/Matrix_arithmetic", Some("-main-") ).trim shouldBe
+    """ |((1, 2), (3, 4)), perm: 10, det: -2
+				|((-2, 2, -3), (-1, 1, 3), (2, 0, -1)), perm: 10, det: 18
+				|((1, 2, 3, 4), (4, 5, 6, 7), (7, 8, 9, 10), (10, 11, 12, 13)), perm: 29556, det: 0
+				|((0, 1, 2, 3, 4), (5, 6, 7, 8, 9), (10, 11, 12, 13, 14), (15, 16, 17, 18, 19), (20, 21, 22, 23, 24)), perm: 6778800, det: 0""".stripMargin}
 }
