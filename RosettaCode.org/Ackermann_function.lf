@@ -1,0 +1,33 @@
+=={{header|FunL}}==
+<lang funl>~~def
+  ackermann( 0, n ) = n + 1
+  ackermann( m, 0 ) = ackermann( m - 1, 1 )
+  ackermann( m, n ) = ackermann( m - 1, ackermann(m, n - 1) )
+
+for m <- 0..3, n <- 0..4
+  printf( 'Ackermann( %d, %d ) = %d\n', m, n, ackermann(m, n) )~~</lang>
+
+{{out}}
+
+<pre>
+Ackermann( 0, 0 ) = 1
+Ackermann( 0, 1 ) = 2
+Ackermann( 0, 2 ) = 3
+Ackermann( 0, 3 ) = 4
+Ackermann( 0, 4 ) = 5
+Ackermann( 1, 0 ) = 2
+Ackermann( 1, 1 ) = 3
+Ackermann( 1, 2 ) = 4
+Ackermann( 1, 3 ) = 5
+Ackermann( 1, 4 ) = 6
+Ackermann( 2, 0 ) = 3
+Ackermann( 2, 1 ) = 5
+Ackermann( 2, 2 ) = 7
+Ackermann( 2, 3 ) = 9
+Ackermann( 2, 4 ) = 11
+Ackermann( 3, 0 ) = 5
+Ackermann( 3, 1 ) = 13
+Ackermann( 3, 2 ) = 29
+Ackermann( 3, 3 ) = 61
+Ackermann( 3, 4 ) = 125
+</pre>
