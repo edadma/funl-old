@@ -1176,10 +1176,8 @@ class Evaluator
 				push( iterator(e, gs) )
 			case ListComprehensionExprAST( IteratorExprAST(e, gs) ) =>
 				push( iterator(e, gs).toStream )
-// 				val buf = new ListBuffer[Any]
-// 
-// 				forLoop( gs, buf += eval(e), None )
-// 				push( buf.toList )
+      case SetComprehensionExprAST( IteratorExprAST(e, gs) ) =>
+        push( iterator(e, gs).toSet )
 			case ListExprAST( l ) =>
 				apply( l )
 				push( list(l.length) )

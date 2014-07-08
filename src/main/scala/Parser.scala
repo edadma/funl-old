@@ -71,7 +71,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",",
 				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
-				"=>", "+=", "-=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "::", "@")
+				"=>", "+=", "-=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "\\%", "::", "@")
 		}
 
 	import lexical.{Newline, Indent, Dedent}
@@ -283,7 +283,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		multiplicativeExpression
 
 	lazy val multiplicativeExpression: PackratParser[ExprAST] =
-		multiplicativeExpression ~ ("*" | "/" | """\""" | "%") ~ exponentialExpression ^^
+		multiplicativeExpression ~ ("*" | "/" | """\""" | "%" | "\\%") ~ exponentialExpression ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
 		multiplicativeExpression ~ applyExpression ^^
 			{case l ~ r => BinaryExprAST( l, '*, r )} |
@@ -367,6 +367,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case l => ListExprAST( l )} |
 		"null" ^^
 			(_ => NullExprAST) |
+    "{" ~> comprehensionExpression <~ "}" ^^
+      (SetComprehensionExprAST( _ )) |
 		"{" ~> repsep(keyExpression, ",") <~ "}" ^^
 			(SetExprAST( _ )) |
 		"{" ~> rep1sep(MapEntry, ",") <~ "}" ^^
@@ -376,7 +378,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"?" ~> ident ^^
 			(TestExprAST( _ ))
 
-	lazy val infixNoMinus = "+" | "*" | "/" | """\""" | "^" | "%" | "|" | "/|" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
+	lazy val infixNoMinus = "+" | "*" | "/" | """\""" | "\\%" | "^" | "%" | "|" | "/|" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
 	
 	lazy val infix = infixNoMinus | "-"
 	

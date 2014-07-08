@@ -1,0 +1,5 @@
+def factors( n ) = {d | d <- 1..n if d|n}
+
+println( factors(10) )
+println( {1, 2, 3} )
+println( {}.getClass() )

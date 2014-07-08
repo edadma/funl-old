@@ -35,6 +35,7 @@ case class LeftSectionExprAST( e: ExprAST, op: Symbol ) extends ExprAST
 case class RightSectionExprAST( op: Symbol, e: ExprAST ) extends ExprAST
 case class IteratorExprAST( e: ExprAST, gen: List[GeneratorAST] ) extends ExprAST
 case class ListComprehensionExprAST( iterator: IteratorExprAST ) extends ExprAST
+case class SetComprehensionExprAST( iterator: IteratorExprAST ) extends ExprAST
 case class TypeExprAST( e: ExprAST, t: String ) extends ExprAST
 case class SysvarExprAST( name: String ) extends ExprAST
 case class TestExprAST( name: String ) extends ExprAST
