@@ -64,4 +64,10 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
 				|((-2, 2, -3), (-1, 1, 3), (2, 0, -1)), perm: 10, det: 18
 				|((1, 2, 3, 4), (4, 5, 6, 7), (7, 8, 9, 10), (10, 11, 12, 13)), perm: 29556, det: 0
 				|((0, 1, 2, 3, 4), (5, 6, 7, 8, 9), (10, 11, 12, 13, 14), (15, 16, 17, 18, 19), (20, 21, 22, 23, 24)), perm: 6778800, det: 0""".stripMargin}
+  "Factors_of_an_integer" in {executeCaptureOutput( "RosettaCode.org/Factors_of_an_integer", Some("-main-") ).trim shouldBe
+    """ |The set of factors of 103 is {1, 103}
+        |The set of factors of 316 is {158, 4, 79, 1, 2, 316}
+        |The set of factors of 519 is {1, 3, 173, 519}
+        |The set of factors of 639 is {9, 639, 71, 213, 1, 3}
+        |The set of factors of 760 is {8, 19, 4, 40, 152, 5, 10, 76, 1, 95, 190, 760, 20, 2, 38, 380}""".stripMargin}
 }
