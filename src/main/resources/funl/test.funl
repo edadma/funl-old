@@ -1,6 +1,7 @@
-def factors( n ) = {d | d <- 1..n if d|n}
-
+import integers.egcd
 import util.rnd
 
-for x <- [103, 316, 519, 639, 760]
-  println( 'The set of factors of ' + x + ' is ' + factors(x) )
+for _ <- 1..100
+	val (a, b) = (rnd(-1000, 1000), rnd(-1000, 1000))
+	val (g, x, y) = egcd( a, b )
+	if g != a x + b y then println( a, b, g, x, y )

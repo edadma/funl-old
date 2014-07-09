@@ -70,4 +70,5 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
         |The set of factors of 519 is {1, 3, 173, 519}
         |The set of factors of 639 is {9, 639, 71, 213, 1, 3}
         |The set of factors of 760 is {8, 19, 4, 40, 152, 5, 10, 76, 1, 95, 190, 760, 20, 2, 38, 380}""".stripMargin}
+	"Modular_inverse" in {executeCaptureOutput( "RosettaCode.org/Modular_inverse", Some("-main-") ).trim shouldBe "1969"}
 }
