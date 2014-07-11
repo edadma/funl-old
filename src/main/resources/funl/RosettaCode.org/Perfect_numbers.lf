@@ -1,0 +1,16 @@
+=={{header|FunL}}==
+<lang funl>~~import integers.factors
+
+def perfect( n ) = sum( factors(n) ) == 2n
+
+for i <- 1..500
+  if perfect(i)
+    println( i )~~</lang>
+
+{{out}}
+
+<pre>
+6
+28
+496
+</pre>

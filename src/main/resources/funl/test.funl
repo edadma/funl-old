@@ -1,7 +1,7 @@
-import integers.egcd
-import util.rnd
+import integers.factors
 
-for _ <- 1..100
-	val (a, b) = (rnd(-1000, 1000), rnd(-1000, 1000))
-	val (g, x, y) = egcd( a, b )
-	if g != a x + b y then println( a, b, g, x, y )
+def perfect( n ) = sum( factors(n) ) == 2n
+
+for i <- 1..500
+	if perfect(i)
+		println( i )
