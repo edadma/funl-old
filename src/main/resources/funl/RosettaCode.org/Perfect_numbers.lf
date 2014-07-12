@@ -1,11 +1,7 @@
 =={{header|FunL}}==
-<lang funl>~~import integers.factors
+<lang funl>~~def perfect( n ) = sum( d | d <- 1..n if d|n ) == 2n
 
-def perfect( n ) = sum( factors(n) ) == 2n
-
-for i <- 1..500
-  if perfect( i )
-    println( i )~~</lang>
+println( (1..500).filter(perfect) )~~</lang>
 
 {{out}}
 
