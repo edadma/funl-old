@@ -1,0 +1,41 @@
+=={{header|FunL}}==
+<lang funl>~~def mersenne( p ) =
+  if p == 2 then return true
+  
+  var s = 4
+  var M = 2^p - 1
+  
+  repeat p - 2
+    s = (s*s - 2) mod M
+
+  s == 0
+
+import integers.primes
+
+for p <- primes().filter( mersenne ).take(20)
+  println( 'M' + p )~~</lang>
+
+{{out}}
+
+<pre>
+M2
+M3
+M5
+M7
+M13
+M17
+M19
+M31
+M61
+M89
+M107
+M127
+M521
+M607
+M1279
+M2203
+M2281
+M3217
+M4253
+M4423
+</pre>

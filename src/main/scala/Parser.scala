@@ -285,7 +285,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		multiplicativeExpression
 
 	lazy val multiplicativeExpression: PackratParser[ExprAST] =
-		multiplicativeExpression ~ ("*" | "/" | """\""" | "%" | "\\%") ~ exponentialExpression ^^
+		multiplicativeExpression ~ ("*" | "/" | """\""" | "%" | "\\%" | "mod") ~ exponentialExpression ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
 		multiplicativeExpression ~ applyExpression ^^
 			{case l ~ r => BinaryExprAST( l, '*, r )} |
@@ -380,7 +380,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"?" ~> ident ^^
 			(TestExprAST( _ ))
 
-	lazy val infixNoMinus = "+" | "*" | "/" | """\""" | "\\%" | "^" | "%" | "|" | "/|" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
+	lazy val infixNoMinus = "+" | "*" | "/" | """\""" | "\\%" | "^" | "%" | "mod" | "|" | "/|" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
 	
 	lazy val infix = infixNoMinus | "-"
 	
