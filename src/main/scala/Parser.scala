@@ -66,7 +66,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			reserved += (
 				"and", "break", "by", "case", "class", "continue", "data", "def", "do", "elif",
 				"else", "false", "for", "function", "if", "import", "in", "is", "mod",
-				"native", "not", "null", "of", "or", "otherwise", "private", "return", "then", "true",
+				"native", "not", "null", "of", "or", "otherwise", "private", "return", "repeat", "then", "true",
 				"until", "val", "var", "while", "xor", "yield", "shiftright", "shiftleft", "rotateright", "rotateleft"
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",",
@@ -220,14 +220,16 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			{case c ~ t ~ ei ~ e => ConditionalExprAST( (c, t) +: ei, e )} |
 		"for" ~> generators ~ ("do" ~> expressionOrBlock | blockExpression) ~ elsePart ^^
 			{case g ~ b ~ e => ForExprAST( g, b, e )} |
-    "for" ~> expressionOrBlock ^^
-      (ForeverExprAST( _ )) |
+		"for" ~> expressionOrBlock ^^
+			(ForeverExprAST( _ )) |
+		"repeat" ~> expression ~ ("do" ~> expressionOrBlock | blockExpression) ~ elsePart ^^
+			{case c ~ b ~ e => RepeatExprAST( c, b, e )} |
 		"while" ~> expression ~ ("do" ~> expressionOrBlock | blockExpression) ~ elsePart ^^
 			{case c ~ b ~ e => WhileExprAST( c, b, e )} |
 		"do" ~> expression ~ (optionalNewline ~> "while" ~> expression) ~ elsePart ^^
 			{case b ~ c ~ e => DoWhileExprAST( b, c, e )} |
 		"do" ~> expression ~ (optionalNewline ~> "until" ~> expression) ~ elsePart ^^
-			{case b ~ c ~ e => RepeatExprAST( b, c, e )} |
+			{case b ~ c ~ e => DoUntilExprAST( b, c, e )} |
 		"break" ^^^ BreakExprAST |
 		"continue" ^^^ ContinueExprAST |
 		"return" ~> opt(expression) ^^

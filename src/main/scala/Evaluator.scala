@@ -1281,6 +1281,46 @@ class Evaluator
 				}
 
 				exitScope
+			case RepeatExprAST( count, body, e ) =>
+				enterScope
+				
+				val st = env.copy
+
+				void
+
+				try
+				{
+					for (_ <- 1 to ieval(count))
+					{
+						currentActivation.clear
+						pop
+
+						try
+						{
+							apply( body )
+						}
+						catch
+						{
+							case _: ContinueThrowable =>
+								restoreEnvironment( st )
+								void
+						}
+					}
+
+					if (e != None)
+					{
+						pop
+						apply( e.get )
+					}
+				}
+				catch
+				{
+					case _: BreakThrowable =>
+						restoreEnvironment( st )
+						void
+				}
+
+				exitScope
 			case WhileExprAST( cond, body, e ) =>
 				enterScope
 				
@@ -1361,7 +1401,7 @@ class Evaluator
 				}
 
 				exitScope
-			case RepeatExprAST( body, cond, e ) =>
+			case DoUntilExprAST( body, cond, e ) =>
 				enterScope
 
 				val st = env.copy

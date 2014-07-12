@@ -64,7 +64,8 @@ case class ForeverExprAST( body: ExprAST ) extends ExprAST
 case class ForExprAST( gen: List[GeneratorAST], body: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class WhileExprAST( cond: ExprAST, body: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class DoWhileExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
-case class RepeatExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
+case class DoUntilExprAST( body: ExprAST, cond: ExprAST, e: Option[ExprAST] ) extends ExprAST
+case class RepeatExprAST( count: ExprAST, body: ExprAST, e: Option[ExprAST] ) extends ExprAST
 case class RangeExprAST( f: ExprAST, t: ExprAST, b: Option[ExprAST], inclusize: Boolean ) extends ExprAST
 case class UnboundedStreamExprAST( f: ExprAST, b: Option[ExprAST] ) extends ExprAST
 case class CaseFunctionExprAST( cases: List[FunctionExprAST] ) extends ExprAST

@@ -4,7 +4,7 @@
 def perfect( n ) = sum( factors(n) ) == 2n
 
 for i <- 1..500
-  if perfect(i)
+  if perfect( i )
     println( i )~~</lang>
 
 {{out}}

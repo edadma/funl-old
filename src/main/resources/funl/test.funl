@@ -1,7 +1,1 @@
-import integers.factors
-
-def perfect( n ) = sum( factors(n) ) == 2n
-
-for i <- 1..500
-	if perfect(i)
-		println( i )
+repeat 0 do println( 123 )
