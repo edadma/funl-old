@@ -12,7 +12,7 @@
 
 import integers.primes
 
-for p <- primes().filter( mersenne ).take(20)
+for p <- primes().filter( mersenne ).take( 20 )
   println( 'M' + p )~~</lang>
 
 {{out}}
