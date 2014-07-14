@@ -1,1 +1,1 @@
-repeat 0 do println( 123 )
+[1, 2, 3].foreach( pr )

@@ -244,6 +244,8 @@ class Evaluator
 	def neval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Number]
 	
 	def ieval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Int]
+  
+  def bieval( t: AST )( implicit env: Environment ) = Math.toBigInt( eval(t).asInstanceOf[Number] )
 	
 	def deval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Number].doubleValue
 	
@@ -725,7 +727,8 @@ class Evaluator
 				yield
 					(o, t.getName) match
 					{
-						case (x: BigInt, _) if x.isValidLong => x.longValue.asInstanceOf[AnyRef]
+						case (x: Number, "java.lang.Number") => x
+            case (x: BigInt, _) if x.isValidLong => x.longValue.asInstanceOf[AnyRef]
 						case (x: ScalaNumber, _) => x.underlying
 						case (x: Closure, "funl.interp.Evaluator$Closure") => x
 						case (x: Closure, "scala.Function0") => x.function0
@@ -1449,6 +1452,8 @@ class Evaluator
 					case d: Double if inclusive => push( d to deval(t) by (if (b == None) 1 else deval(b.get)) )
 					case i: Int => push( i until ieval(t) by (if (b == None) 1 else ieval(b.get)) )
 					case d: Double => push( d until deval(t) by (if (b == None) 1 else deval(b.get)) )
+          case i: BigInt if inclusive => push( i to bieval(t) by (if (b == None) 1 else bieval(b.get)) )
+          case i: BigInt => push( i until bieval(t) by (if (b == None) 1 else bieval(b.get)) )
 					case _ => RuntimeException( "expected a number as the initial value of a range" )
 				}
 			case UnboundedStreamExprAST( f, b ) =>

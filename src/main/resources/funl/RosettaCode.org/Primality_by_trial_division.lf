@@ -1,0 +1,16 @@
+=={{header|FunL}}==
+<lang funl>~~import math.sqrt
+
+def
+  isPrime( 2 )      =  true
+  isPrime( n )
+    | n < 3 or 2|n  =  false
+    | otherwise     =  (3..int(sqrt(n)) by 2).forall( (/|n) )
+
+println( (10^10..10^10+50).filter(isPrime) )~~</lang>
+
+{{out}}
+
+<pre>
+(10000000019, 10000000033)
+</pre>
