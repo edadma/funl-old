@@ -56,8 +56,8 @@ class Connectives extends FreeSpec with PropertyChecks with Matchers
 	{
 		forAll (pq) { (p: Boolean, q: Boolean) =>
 			var a = 1
-			val _p = (_: List[Any]) => {a *= 2; p}
-			val _q = (_: List[Any]) => {a *= 3; q}
+			val _p = (_: Any) => {a *= 2; p}
+			val _q = (_: Any) => {a *= 3; q}
 
 			{a = 1; expression( "p() or q()", "p" -> _p, "q" -> _q ); a} shouldBe {a = 1; _p(Nil) || _q(Nil); a}
 			{a = 1; expression( "p() and q()", "p" -> _p, "q" -> _q ); a} shouldBe {a = 1; _p(Nil) && _q(Nil); a}
@@ -65,9 +65,9 @@ class Connectives extends FreeSpec with PropertyChecks with Matchers
 
 		forAll (pqr) { (p: Boolean, q: Boolean, r: Boolean) =>
 			var a = 1
-			val _p = (_: List[Any]) => {a *= 2; p}
-			val _q = (_: List[Any]) => {a *= 3; q}
-			val _r = (_: List[Any]) => {a *= 5; r}
+			val _p = (_: Any) => {a *= 2; p}
+			val _q = (_: Any) => {a *= 3; q}
+			val _r = (_: Any) => {a *= 5; r}
 
 			{a = 1; expression( "p() or q() and r()", "p" -> _p, "q" -> _q, "r" -> _r ); a} shouldBe {a = 1; _p(Nil) || _q(Nil) && _r(Nil); a}
 			{a = 1; expression( "p() and q() or r()", "p" -> _p, "q" -> _q, "r" -> _r ); a} shouldBe {a = 1; _p(Nil) && _q(Nil) || _r(Nil); a}

@@ -5,6 +5,8 @@
 ** /_/    \____/_/ /_/____/                                     **
 \*                                                              */
 
-function funl.modules.Util.{rnd, sleep}
+function funl.modules.Util.{rnd}
+
+native java.lang.Thread.sleep
 
 native funl.modules.TextTable
