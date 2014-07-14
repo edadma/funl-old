@@ -9,37 +9,47 @@ package funl.modules
 
 import collection.mutable.{HashSet, HashMap, ArrayBuffer, ArraySeq}
 
-import funl.interp.Function
+import funl.interp.{Function, ArgList, RuntimeException}
 import funl.interp.Interpreter._
-import funl.interp.RuntimeException
 
 
 object Predef
 {
-	def println( a: List[Any] ) = Console.println( a map (display(_)) mkString(", ") )
+	def println( a: Any ) =
+		a match
+		{
+			case ArgList( l ) => Console.println( l map (display(_)) mkString(", ") )
+			case _ => Console.println( display(a) )
+		}
 	
-	def print( a: List[Any] ) = Console.print( a map (display(_)) mkString(", ") )
-
-	def printf( a: List[Any] ) =
+	def print( a: Any ) =
 		a match
 		{
-			case (text: String) :: args => Console.printf( text, args: _* )
+			case ArgList( l ) => Console.print( l map (display(_)) mkString(", ") )
+			case _ => Console.print( display(a) )
 		}
 
-	def format( a: List[Any] ) =
+
+	def printf( a: Any ) =
 		a match
 		{
-			case (text: String) :: args => text format (args : _*)
+			case ArgList( (text: String) :: args ) => Console.printf( text, args: _* )
 		}
 
-	def readLine( a: List[Any] ) =
+	def format( a: Any ) =
 		a match
 		{
-			case Nil => io.StdIn.readLine
-			case (text: String) :: args => io.StdIn.readLine( text, args: _* )
+			case ArgList( (text: String) :: args ) => text format (args : _*)
 		}
 
-	def error( a: List[Any] ) {error( a.head.toString )}
+	def readLine( a: Any ) =
+		a match
+		{
+			case ArgList( Nil ) => io.StdIn.readLine
+			case ArgList( (text: String) :: args ) => io.StdIn.readLine( text, args: _* )
+		}
+
+	def error( a: Any ) {error( a.toString )}
 
 	def error( msg: String )
 	{
@@ -48,123 +58,126 @@ object Predef
 // 		sys.exit( 1 )
 	}
 	
-	def assert( a: List[Any] ) =
+	def assert( a: Any ) =
 		a match
 		{
-			case List( b: Boolean ) => if (!b) error( "assertion failed" )
-			case List( b: Boolean, s: String ) => if (!b) error( s )
+			case ArgList( List(b: Boolean, s: String) ) => if (!b) error( s )
+			case b: Boolean => if (!b) error( "assertion failed" )
 		}
 
-	def require( a: List[Any] ) =
+	def require( a: Any ) =
 		a match
 		{
-			case List( b: Boolean ) => if (!b) error( "requirement failed" )
-			case List( b: Boolean, s: String ) => if (!b) error( s )
+			case b: Boolean => if (!b) error( "requirement failed" )
+			case ArgList( List(b: Boolean, s: String) ) => if (!b) error( s )
 		}
 
-	def array( a: List[Any] ) =
+	def array( a: Any ) =
 		a match
 		{
-			case List( n: Int ) => ArraySeq.fill[Any]( n )( null )
-			case List( n1: Int, n2: Int ) => ArraySeq.fill[Any]( n1, n2 )( null )
-			case List( init: Array[Any] ) => ArraySeq[Any]( init: _* )
-			case List( init: Array[Byte] ) => ArraySeq[Any]( init: _* )
-			case List( init: Array[Int] ) => ArraySeq[Any]( init: _* )
-			case List( init: Seq[Seq[Any]] ) if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
+			case n: Int => ArraySeq.fill[Any]( n )( null )
+			case ArgList( List(n1: Int, n2: Int) ) => ArraySeq.fill[Any]( n1, n2 )( null )
+			case init: Array[Any] => ArraySeq[Any]( init: _* )
+			case init: Array[Byte] => ArraySeq[Any]( init: _* )
+			case init: Array[Int] => ArraySeq[Any]( init: _* )
+			case init: Seq[Seq[Any]] if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
 				ArraySeq[Any]( (init map (e => ArraySeq[Any](e: _*))): _* )
-			case List( init: Seq[Any] ) => ArraySeq[Any]( init: _* )
-			case List( init: Iterable[Any] ) => ArraySeq[Any]( init.toSeq: _* )
+			case init: Seq[Any] => ArraySeq[Any]( init: _* )
+			case init: Iterable[Any] => ArraySeq[Any]( init.toSeq: _* )
 		}
 
-	def vector( a: List[Any] ) =
+	def vector( a: Any ) =
 		a match
 		{
-// 			case List( n: Int, f: Function ) => Vector.fill[Any]( n )( null )
-// 			case List( n1: Int, n2: Int, f: Function ) => Vector.fill[Any]( n1, n2 )( null )
-			case List( init: Array[Any] ) => Vector[Any]( init: _* )
-			case List( init: Array[Byte] ) => Vector[Any]( init: _* )
-			case List( init: Array[Int] ) => Vector[Any]( init: _* )
-			case List( init: Seq[Seq[Any]] ) if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
+			case ArgList( Nil ) => Vector()
+			case init: Array[Any] => Vector[Any]( init: _* )
+			case init: Array[Byte] => Vector[Any]( init: _* )
+			case init: Array[Int] => Vector[Any]( init: _* )
+			case init: Seq[Seq[Any]] if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
 				Vector[Any]( (init map (e => Vector[Any](e: _*))): _* )
-			case List( init: Seq[Any] ) => Vector[Any]( init: _* )
-			case List( init: Iterable[Any] ) => Vector[Any]( init.toSeq: _* )
+			case init: Seq[Any] => Vector[Any]( init: _* )
+			case init: Iterable[Any] => Vector[Any]( init.toSeq: _* )
 		}
 
-	def seq( a: List[Any] ) =
+	def seq( a: Any ) =
 		a match
 		{
-			case Nil => new ArrayBuffer[Any]
-//			case List( n: Int ) => ArrayBuffer.fill[Any]( n )( null )
-			case List( init: Array[Any] ) => ArrayBuffer[Any]( init: _* )
-			case List( init: Array[Byte] ) => ArrayBuffer[Any]( init: _* )
-			case List( init: Array[Int] ) => ArrayBuffer[Any]( init: _* )
-			case List( init: Seq[Any] ) => ArrayBuffer[Any]( init: _* )
-			case List( init: Iterable[Any] ) => ArrayBuffer[Any]( init.toSeq: _* )
-			case _ => ArrayBuffer[Any]( a: _* )
+			case ArgList( Nil ) => new ArrayBuffer[Any]
+			case n: Int => ArrayBuffer.fill[Any]( n )( null )
+//			case ArgList( l ) => ArrayBuffer[Any]( l: _* )
+			case init: Array[Any] => ArrayBuffer[Any]( init: _* )
+			case init: Array[Byte] => ArrayBuffer[Any]( init: _* )
+			case init: Array[Int] => ArrayBuffer[Any]( init: _* )
+			case init: Seq[Any] => ArrayBuffer[Any]( init: _* )
+			case init: Iterable[Any] => ArrayBuffer[Any]( init.toSeq: _* )
+//			case _ => ArrayBuffer[Any]( a )
 		}
 
-	def list( a: List[Any] ) =
+	def list( a: Any ) =
 		a match
 		{
-			case Nil => Nil
-			case List( init: Array[Any] ) => List[Any]( init: _* )
-			case List( init: Array[Byte] ) => List[Any]( init: _* )
-			case List( init: Array[Int] ) => List[Any]( init: _* )
-			case List( init: Seq[Any] ) => List[Any]( init: _* )
-			case List( init: Iterable[Any] ) => List[Any]( init.toSeq: _* )
+			case ArgList( Nil ) => Nil
+			case init: Array[Any] => List[Any]( init: _* )
+			case init: Array[Byte] => List[Any]( init: _* )
+			case init: Array[Int] => List[Any]( init: _* )
+			case init: Seq[Seq[Any]] if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
+				List[Any]( (init map (e => List[Any](e: _*))): _* )
+			case init: Seq[Any] => List[Any]( init: _* )
+			case init: Iterable[Any] => List[Any]( init.toSeq: _* )
 		}
 
-	def set( a: List[Any] ) =
-		if (a isEmpty)
-			new HashSet[Any]
-		else if (a.head.isInstanceOf[collection.Set[Any]])
-			HashSet( a.head.asInstanceOf[collection.Set[Any]].toSeq: _* )
-		else if (a.head.isInstanceOf[Seq[Any]])
-			HashSet( a.head.asInstanceOf[Seq[Any]]: _* )
-		else
-			HashSet( a: _* )
-	
-	def dict( a: List[Any] ) =
-		if (a isEmpty)
-			new HashMap[Any, Any]
-		else
-			HashMap( a.head.asInstanceOf[collection.Map[Any, Any]].toSeq: _* )
-
-	def tuple( a: List[Any] ) =
+	def set( a: Any ) =
 		a match
 		{
-			case Nil => Vector()
-			case List( c: Iterable[_] ) => c.toVector
-			case List( a: Array[_] ) => a.toVector
+			case ArgList( Nil ) => new HashSet[Any]
+			case ArgList( l ) => HashSet( l: _* )
+			case x: collection.Set[Any] => HashSet( x.toSeq: _* )
+			case x: Seq[Any] => HashSet( x: _* )
+			case _ => HashSet( a )
+		}
+		
+	def dict( a: Any ) =
+		a match
+		{
+			case ArgList( Nil ) => new HashMap[Any, Any]
+			case _ => HashMap( a.asInstanceOf[collection.Map[Any, Any]].toSeq: _* )
+		}
+		
+	def tuple( a: Any ) =
+		a match
+		{
+			case ArgList( Nil ) => Vector()
+			case c: Iterable[_] => c.toVector
+			case a: Array[_] => a.toVector
 		}
 
-	def int( a: List[Any] ) =
+	def int( a: Any ) =
 		a match
 		{
-			case List( n: BigInt ) => n
-			case List( n: Number ) => n.intValue
-			case List( s: String ) => s.toInt
+			case n: BigInt => n
+			case n: Number => n.intValue
+			case s: String => s.toInt
 		}
 
-	def bin( a: List[Any] ) =
+	def bin( a: Any ) =
 		a match
 		{
-			case List( n: BigInt ) => n.toString( 2 )
-			case List( n: Int ) => Integer.toBinaryString( n )
+			case n: BigInt => n.toString( 2 )
+			case n: Int => Integer.toBinaryString( n )
 		}
 
-	def oct( a: List[Any] ) =
+	def oct( a: Any ) =
 		a match
 		{
-			case List( n: BigInt ) => n.toString( 8 )
-			case List( n: Int ) => Integer.toOctalString( n )
+			case n: BigInt => n.toString( 8 )
+			case n: Int => Integer.toOctalString( n )
 		}
 
-	def hex( a: List[Any] ) =
+	def hex( a: Any ) =
 		a match
 		{
-			case List( n: BigInt ) => n.toString( 16 )
-			case List( n: Int ) => Integer.toHexString( n )
+			case n: BigInt => n.toString( 16 )
+			case n: Int => Integer.toHexString( n )
 		}
 
   def chr( code: Int ) = code.toChar.toString

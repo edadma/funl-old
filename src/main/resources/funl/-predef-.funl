@@ -10,7 +10,7 @@ native java.lang.System.gc
 native scala.collection.mutable.StringBuilder
 
 function funl.modules.Predef.{
-	print, println, printf, format, readLine,
+	println, print, printf, format, readLine,
 	error, require, assert,
 	array, seq, list, dict, set, tuple, vector,
 	int, bin, oct, hex

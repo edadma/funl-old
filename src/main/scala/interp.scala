@@ -13,8 +13,10 @@ package object interp
 	
 	def symbolMap: SymbolMap = collection.immutable.HashMap.empty
 	
-	type Function = List[Any] => Any
+	type Function = Any => Any
 	
+	case class ArgList( args: List[Any] )
+    
 	type LSeq = collection.LinearSeq[Any]
 
 	trait SymbolMapContainer

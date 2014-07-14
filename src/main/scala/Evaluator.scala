@@ -823,11 +823,11 @@ class Evaluator
 			case FunctionAST( cls, names ) =>
 				for ((n, a) <- names)
 				{
-				val method = Class.forName( cls ).getMethod( n, classOf[List[Any]] )
+				val method = Class.forName( cls ).getMethod( n, classOf[Any] )
 
 					if ((method.getModifiers&Modifier.STATIC) != Modifier.STATIC) RuntimeException( "function method must be static" )
 
-					declare( a.getOrElse(n), (a => method.invoke(null, a)): Function )
+					declare( a.getOrElse(n), (a => method.invoke(null, a.asInstanceOf[Object])): Function )
 				}
 // 			case ConstAST( m, name, expr ) =>
 // 				assign( m, name, eval(expr) )
@@ -1050,7 +1050,8 @@ class Evaluator
 				apply( f, createvars )
 				apply( args )
 
-			val argList = list( args.length )
+			val argListLength = args.length
+			val argList = list( argListLength )
 
 				pop match
 				{
@@ -1095,7 +1096,10 @@ class Evaluator
 						else
 							invoke( c, argList )
 					case b: Function =>
-						push( b(argList) )
+						if (argListLength == 1)
+							push( b(argList.head) )
+						else
+							push( b(ArgList(argList)) )
 					case Constructor( m, t, n, fields ) =>
 						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 
