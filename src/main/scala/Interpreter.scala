@@ -119,6 +119,7 @@ object Interpreter
 			case s: collection.Set[_] => s.map( display(_) ).mkString( "{", ", ", "}" )
 			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => displayQuoted(k) + ": " + display(v)} ).mkString( "{", ", ", "}" )
 			case t: Vector[_] => t.map( display(_) ).mkString( "(", ", ", ")" )
+			case Some( a ) => "Some(" + display(a) + ")"
 			case _ => String.valueOf( a )
 		}
 
