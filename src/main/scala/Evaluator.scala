@@ -93,6 +93,18 @@ class Evaluator
 					pop
 				}
 			}
+
+		def function2 =
+			new scala.runtime.AbstractFunction2[Any, Any, Any]
+			{
+			implicit val env = new Environment
+
+				def apply( arg1: Any, arg2: Any ) =
+				{
+					invoke( Closure.this, List(arg1, arg2) )
+					pop
+				}
+			}
 		
 		override def toString = "<closure>"
 	}
@@ -733,6 +745,7 @@ class Evaluator
 						case (x: Closure, "funl.interp.Evaluator$Closure") => x
 						case (x: Closure, "scala.Function0") => x.function0
 						case (x: Closure, "scala.Function1") => x.function1
+						case (x: Closure, "scala.Function2") => x.function2
 						case (x, _) => x.asInstanceOf[AnyRef]
 					}
 
@@ -745,9 +758,9 @@ class Evaluator
 						t.getName == "double" && cls.getName == "java.lang.Double" ||
 						t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
 						t.getName == "long" && (cls.getName == "java.lang.Integer" || cls.getName == "scala.math.BigInt") ||
-						(t.getName == "scala.Function0" || t.getName == "scala.Function1") && cls.getName == "funl.interp.Evaluator$Closure" ||
+						(t.getName == "scala.Function0" || t.getName == "scala.Function1" || t.getName == "scala.Function2") && cls.getName == "funl.interp.Evaluator$Closure" ||
 						t.isAssignableFrom( cls )
-				})
+				} )
 		
 		t match
 		{
@@ -829,8 +842,6 @@ class Evaluator
 
 					declare( a.getOrElse(n), (a => method.invoke(null, a.asInstanceOf[Object])): Function )
 				}
-// 			case ConstAST( m, name, expr ) =>
-// 				assign( m, name, eval(expr) )
 			case VarAST( n, v ) =>
 				declare( n, new VariableReference(if (v == None) null else eval(v.get)) )
 			case DataAST( n, cs ) =>
