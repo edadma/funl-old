@@ -1,12 +1,6 @@
 =={{header|FunL}}==
 <lang funl>~~def subsetSum( s, w, v ) =
-  def sumset( a ) =
-    var res = 0
-    
-    for i <- a
-      res += w(i)
-      
-    res
+  def sumset( a ) = foldl1( (+), map(w, a) )
     
   for i <- s.subsets() if i != {}
     if sumset( i ) == v
