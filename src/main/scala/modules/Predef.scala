@@ -155,6 +155,7 @@ object Predef
 		a match
 		{
 			case n: BigInt => n
+			case d: BigDecimal => funl.lia.Math.maybeDemote( d.toBigInt )
 			case n: Number => n.intValue
 			case s: String => s.toInt
 		}
