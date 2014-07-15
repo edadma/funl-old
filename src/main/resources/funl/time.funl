@@ -5,6 +5,10 @@
 ** /_/    \____/_/ /_/____/                                     **
 \*                                                              */
 
-function funl.modules.Util.{rnd}
+native java.lang.Thread.sleep
 
-native funl.modules.TextTable
+val Millisecond = 1
+val Second      = 1000 Millisecond
+val Minute      = 60 Second
+val Hour        = 60 Minute
+val Day         = 24 Hour
