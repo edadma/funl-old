@@ -29,7 +29,7 @@ object REPL extends App
 	reader.setBellEnabled( false )
 	reader.setPrompt( "FunL> " )
 
-	for {line <- """	|    ______            __
+	for {line <- """|    ______            __
 									|   / ____/_  __ ___  / /     FunL Programming Language
 									|  / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr.
 									| / /   / /_/ / / / / /__     http://funl-lang.org/
@@ -47,7 +47,7 @@ object REPL extends App
 	
 	while ({line = reader.readLine; line != null})
 	{
-		line match
+		line.trim match
 		{
 			case ":help" =>
 				out.println( ":help                      print this summary" )
@@ -55,6 +55,8 @@ object REPL extends App
 				out.println
 			case ":quit" =>
 				sys.exit
+			case "" =>
+        out.println
 			case _ =>
 				try
 				{

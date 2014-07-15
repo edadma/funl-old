@@ -1,0 +1,40 @@
+/*     ______            __                                     *\
+**    / ____/_  __ ___  / /     FunL Programming Language       **
+**   / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr. **
+**  / /   / /_/ / / / / /__     http://funl-lang.org/           **
+** /_/    \____/_/ /_/____/                                     **
+\*                                                              */
+
+native scala.{Console => C}
+
+val (BLACK, BLACK_B, BLINK, BLUE, BLUE_B, BOLD, CYAN, CYAN_B, GREEN, GREEN_B, INVISIBLE, MAGENTA, MAGENTA_B, RED, RED_B, RESET, REVERSED, UNDERLINED,
+		 WHITE, WHITE_B, YELLOW, YELLOW_B) =
+	(C.BLACK(), C.BLACK_B(), C.BLINK(), C.BLUE(), C.BLUE_B(), C.BOLD(), C.CYAN(), C.CYAN_B(), C.GREEN(), C.GREEN_B(), C.INVISIBLE(), C.MAGENTA(), C.MAGENTA_B(),
+	 C.RED(), C.RED_B(), C.RESET(), C.REVERSED(), C.UNDERLINED(), C.WHITE(), C.WHITE_B(), C.YELLOW(), C.YELLOW_B())
+
+def
+	black = print( BLACK )
+	black_b = print( BLACK_B )
+	blink = print( BLINK )
+	blue = print( BLUE() )
+	blue_b = print( BLUE_B )
+	bold = print( BOLD )
+	cyan = print( CYAN )
+	cyan_b = print( CYAN_B )
+	green = print( GREEN )
+	green_b = print( GREEN_B )
+	invisible = print( INVISIBLE )
+	magenta = print( MAGENTA )
+	magenta_b = print( MAGENTA_B )
+	red = print( RED )
+	red_b = print( RED_B )
+	reset = print( RESET )
+	reversed = print( REVERSED )
+	underlined = print( UNDERLINED )
+	white = print( WHITE )
+	white_b = print( WHITE_B )
+	yellow = print( YELLOW )
+	yellow_b = print( YELLOW_B )
+
+	clear = print( '\u001B[2J' )
+	position( r, c ) = print( '\u001B[' + r + ';' + c + 'H' )

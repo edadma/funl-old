@@ -1,0 +1,5 @@
+=={{header|FunL}}==
+<lang funl>~~import console.position
+
+position( 6, 3 )
+println( 'Hello' )~~</lang>
