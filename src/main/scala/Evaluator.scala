@@ -161,7 +161,7 @@ class Evaluator
 				case _ => false
 			}
 			
-		override def toString = name + (if (args isEmpty) "" else args.mkString("( ", ", ", " )"))
+		override def toString = name + (if (args isEmpty) "" else args.mkString("(", ", ", ")"))
 	}
 
 	class BreakThrowable extends Throwable
@@ -1174,15 +1174,17 @@ class Evaluator
 				var result: Any = null
 				
 				for ((l, r) <- (lhs map (reval)) zip (rhs map (eval)))
-				{
-					if (op == '=)
+					op match
 					{
-						l.assign( r )
-						result = r
+						case '= =>
+							l.assign( r )
+							result = r
+						case '-= if l.value.isInstanceOf[collection.generic.Shrinkable[Any]] =>
+							l.value.asInstanceOf[collection.generic.Shrinkable[Any]] -= r
+							result = l.value
+						case _ =>
+							result = assignOperation( l, Symbol(op.toString.charAt(1).toString), r.asInstanceOf[Number] )
 					}
-					else
-						result = assignOperation( l, Symbol(op.toString.charAt(1).toString), r.asInstanceOf[Number] )
-				}
 				
 				push( result )
 			case VectorExprAST( l ) =>

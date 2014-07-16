@@ -19,7 +19,11 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	override val lexical: IndentationLexical =
 		new IndentationLexical( false, true, List("[", "(", "{"), List("]", ")", "}") )
 		{
-			override def token: Parser[Token] = hexParser | decimalParser | super.token
+			override def token: Parser[Token] = stringParser | hexParser | decimalParser | super.token
+
+			private def stringParser: Parser[Token] =
+        (''' ~ ''' ~ ''') ~> rep(guard(not(''' ~ ''' ~ ''')) ~> elem("", ch => true)) <~ (''' ~ ''' ~ ''') ^^
+          {case l => StringLit( l mkString "" )}
 
 			private def decimalParser: Parser[Token] =
 				rep1(digit) ~ optFraction ~ optExponent ^^
