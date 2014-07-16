@@ -8,6 +8,7 @@
 native java.lang.System.gc
 
 native scala.collection.mutable.StringBuilder
+native scala.collection.immutable.WrappedString
 
 function funl.modules.Predef.{
 	println, print, printf, format, readLine,

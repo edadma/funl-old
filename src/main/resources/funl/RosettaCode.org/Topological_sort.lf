@@ -1,3 +1,39 @@
+=={{header|FunL}}==
+<lang funl>~~def topsort( graph ) =    
+  val L = seq()
+  val S = seq()
+  val g = dict( graph )
+  
+  for (v, es) <- g
+    g(v) = seq( es )
+
+  for (v, es) <- g if es.isEmpty()
+    S.append( v )
+    
+  while not S.isEmpty()
+    val n = S.remove( 0 )
+    L.append( n )
+    
+    for (m, es) <- g if n in es
+      if (es -= n).isEmpty()
+        S.append( m )
+      
+  for (v, es) <- g
+    if not es.isEmpty()
+      return null
+      
+  L
+  
+// graph = {
+//   2: [11],
+//   9: [11, 8],
+//   10: [11, 3],
+//   11: [7, 5],
+//   8: [7, 3],
+//   7: [],
+//   5: [],
+//   3: []
+//   }
 dependencies = WrappedString( '''
   des_system_lib   std synopsys std_cell_lib des_system_lib dw02 dw01 ramlib ieee
   dw01             ieee dw01 dware gtech
@@ -21,6 +57,11 @@ for l <- dependencies if l.trim() != ''
     [a] -> graph(a) = []
     h:t ->
       graph(h) = t
-      d ++= t
-      
-println( graph )
+
+println( graph )  
+println( topsort(graph) )~~</lang>
+
+{{out}}
+
+<pre>
+</pre>

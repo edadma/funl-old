@@ -1176,14 +1176,17 @@ class Evaluator
 				for ((l, r) <- (lhs map (reval)) zip (rhs map (eval)))
 					op match
 					{
-						case '= =>
+						case "=" =>
 							l.assign( r )
 							result = r
-						case '-= if l.value.isInstanceOf[collection.generic.Shrinkable[Any]] =>
+						case "-=" if l.value.isInstanceOf[collection.generic.Shrinkable[Any]] =>
 							l.value.asInstanceOf[collection.generic.Shrinkable[Any]] -= r
 							result = l.value
+            case "++=" if l.value.isInstanceOf[collection.generic.Growable[Any]] =>
+              l.value.asInstanceOf[collection.generic.Growable[Any]] ++= r.asInstanceOf[scala.collection.TraversableOnce[Any]]
+              result = l.value
 						case _ =>
-							result = assignOperation( l, Symbol(op.toString.charAt(1).toString), r.asInstanceOf[Number] )
+							result = assignOperation( l, Symbol(op.substring(0, op.length - 1)), r.asInstanceOf[Number] )
 					}
 				
 				push( result )
