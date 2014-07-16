@@ -23,4 +23,5 @@ for l <- dependencies if l.trim() != ''
       graph(h) = t
       d ++= t
       
+println( d )
 println( graph )

@@ -11,7 +11,7 @@ import java.io.PrintWriter
 
 import jline.console.ConsoleReader
 
-import funl.interp.{Evaluator, Module}
+import funl.interp.{Evaluator, Module, ConstantReference}
 import funl.interp.Interpreter._
 
 
@@ -71,7 +71,7 @@ object REPL extends App
 							else
 								out.println( name + ": " + res.getClass.getName + " = " + display(res) )
 								
-							eval.assign( "REPL", name -> res )
+							eval.assign( "REPL", name -> ConstantReference(name, res) )
 							count += 1
 					}
 					

@@ -1182,6 +1182,12 @@ class Evaluator
 						case "-=" if l.value.isInstanceOf[collection.generic.Shrinkable[Any]] =>
 							l.value.asInstanceOf[collection.generic.Shrinkable[Any]] -= r
 							result = l.value
+            case "--=" if l.value.isInstanceOf[collection.generic.Shrinkable[Any]] =>
+              l.value.asInstanceOf[collection.generic.Shrinkable[Any]] --= r.asInstanceOf[scala.collection.TraversableOnce[Any]]
+              result = l.value
+            case "+=" if l.value.isInstanceOf[collection.generic.Growable[Any]] =>
+              l.value.asInstanceOf[collection.generic.Growable[Any]] += r
+              result = l.value
             case "++=" if l.value.isInstanceOf[collection.generic.Growable[Any]] =>
               l.value.asInstanceOf[collection.generic.Growable[Any]] ++= r.asInstanceOf[scala.collection.TraversableOnce[Any]]
               result = l.value

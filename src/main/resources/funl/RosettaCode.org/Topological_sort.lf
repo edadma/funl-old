@@ -57,7 +57,8 @@ for l <- dependencies if l.trim() != ''
     [a] -> graph(a) = []
     h:t ->
       graph(h) = t
-
+      d ++= t
+      
 println( graph )  
 println( topsort(graph) )~~</lang>
 
