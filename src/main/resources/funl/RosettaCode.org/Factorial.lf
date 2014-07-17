@@ -1,0 +1,34 @@
+=={{header|FunL}}==
+=== Procedural ===
+<lang funl>def factorial( n ) =
+  if n < 0
+    error( "factorial: n should be non-negative" )
+  else
+    res = 1
+
+    for i <- 2..n
+      res *= i
+
+    res</lang>
+
+=== Recursive ===
+<lang funl>def
+  factorial( (0|1) ) = 1
+  factorial( n )
+    | n > 0 = n*factorial( n - 1 )
+    | otherwise = error( 'factorial: n should be non-negative' )</lang>
+
+=== Tail-recursive ===
+<lang funl>def factorial( n )
+  | n >= 0 =
+    def
+      fact( acc, 0 ) = acc
+      fact( acc, n ) = fact( acc*n, n - 1 )
+
+    fact( 1, n )
+  | otherwise = error( 'factorial: n should be non-negative' )</lang>
+
+=== Using a library function ===
+<lang funl>def factorial( n )
+  | n >= 0 = product( 1..n )
+  | otherwise = error( 'factorial: n should be non-negative' )</lang>

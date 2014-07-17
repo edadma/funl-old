@@ -1,3 +1,0 @@
-a = Some( 123 )
-case a of
-  Some( x ) -> println( x )
