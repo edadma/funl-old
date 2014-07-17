@@ -3,9 +3,7 @@ Function to compute set of factors:
 <lang funl>~~def factors( n ) = {d | d <- 1..n if d|n}~~</lang>
 
 Test:
-<lang funl>~~import util.rnd
-
-for x <- [103, 316, 519, 639, 760]
+<lang funl>~~for x <- [103, 316, 519, 639, 760]
   println( 'The set of factors of ' + x + ' is ' + factors(x) )~~</lang>
   
 {{out}}

@@ -23,6 +23,8 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test"
 
 libraryDependencies += "jline" % "jline" % "2.11"
 
+libraryDependencies += "org.apache.derby" % "derby" % "10.10.2.0"
+
 //libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT"
 
 //libraryDependencies += "org.scala-lang" % "scala-swing" % scalaVersion.value
