@@ -23,7 +23,7 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test"
 
 libraryDependencies += "jline" % "jline" % "2.11"
 
-libraryDependencies += "org.apache.derby" % "derby" % "10.10.2.0"
+libraryDependencies += "com.h2database" % "h2" % "1.3.148"
 
 //libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT"
 

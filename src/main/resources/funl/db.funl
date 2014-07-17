@@ -5,4 +5,4 @@
 ** /_/    \____/_/ /_/____/                                     **
 \*                                                              */
 
-native funl.modules.TextTable
+native java.sql.DriverManager

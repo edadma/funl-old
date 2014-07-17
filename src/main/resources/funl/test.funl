@@ -1,0 +1,9 @@
+import db.*
+import util.*
+
+Class.forName( 'org.h2.Driver' )
+conn = DriverManager.getConnection( "jdbc:h2:~/test", "sa", "" )
+statement = conn.createStatement()
+statement.execute( "select * from test;" )
+print( TextTable.apply(statement.getResultSet()) )
+conn.close()
