@@ -6,6 +6,9 @@
 \*                                                              */
 
 native java.lang.Thread.sleep
+native java.util.Date
+native java.util.TimeZone
+native java.text.SimpleDateFormat
 
 val Millisecond = 1
 val Second      = 1000 Millisecond
