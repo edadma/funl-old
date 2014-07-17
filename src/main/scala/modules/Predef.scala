@@ -8,6 +8,7 @@
 package funl.modules
 
 import collection.mutable.{HashSet, HashMap, ArrayBuffer, ArraySeq}
+import util.Random.{nextInt, nextDouble}
 
 import funl.interp.{Function, ArgList, RuntimeException}
 import funl.interp.Interpreter._
@@ -202,6 +203,15 @@ object Predef
   }
 
   def none = None
+  
+  def rnd( a: Any ): Any =
+    a match
+    {
+      case ArgList( Nil ) => nextDouble
+      case ArgList( List(l: Int, u: Int) ) if l <= u => nextInt( u - l ) + l
+      case n: Int => nextInt( n )
+      case r: collection.immutable.Range => nextInt( r.last + 1 - r.start ) + r.start
+    }
 
 // Scala interop: implicit Ordering
 
