@@ -1,0 +1,24 @@
+=={{header|FunL}}==
+FunL has pre-defined function <code>choose</code> in module <code>integers</code>, which is defined as:
+<lang funl>~~def
+  choose( n, k ) | k < 0 or k > n = 0
+  choose( n, 0 ) = 1
+  choose( n, n ) = 1
+  choose( n, k ) = product( (n - i)/(i + 1) | i <- 0:min( k, n - k ) )
+
+println( choose(5, 3) )
+println( choose(60, 30) )~~</lang>
+
+{{out}}
+
+<pre>
+10
+118264581564861424
+</pre>
+
+Here it is defined using the suggested formula for this task.
+<lang funl>import integers.factorial
+
+def
+  binomial( n, k ) | k < 0 or k > n = 0
+  binomial( n, k ) = factorial( n )/factorial( n - k )/factorial( k )</lang>

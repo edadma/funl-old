@@ -1,0 +1,16 @@
+=={{header|FunL}}==
+<lang funl>~~import time.{TimeZone, Date, SimpleDateFormat, Hour}
+
+pattern = SimpleDateFormat( 'MMMM d yyyy h:mma zzz' )
+date = pattern.parse( 'March 7 2009 7:30pm EST' )
+later = Date( date.getTime() + 12 Hour )
+println( pattern.format(later) )    // Eastern Daylight Time
+pattern.setTimeZone( TimeZone.getTimeZone('America/Los_Angeles') )
+println( pattern.format(later) )    // U.S. Pacific Time~~</lang>
+
+{{out}}
+
+<pre>
+March 8 2009 8:30AM EDT
+March 8 2009 5:30AM PDT
+</pre>
