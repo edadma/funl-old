@@ -20,21 +20,11 @@
       
   for (v, es) <- g
     if not es.isEmpty()
-      return null
+      return None
       
-  L
+  Some( L.toList() )
   
-// graph = {
-//   2: [11],
-//   9: [11, 8],
-//   10: [11, 3],
-//   11: [7, 5],
-//   8: [7, 3],
-//   7: [],
-//   5: [],
-//   3: []
-//   }
-dependencies = WrappedString( '''
+dependencies = '''
   des_system_lib   std synopsys std_cell_lib des_system_lib dw02 dw01 ramlib ieee
   dw01             ieee dw01 dware gtech
   dw02             ieee dw02 dware
@@ -48,21 +38,31 @@ dependencies = WrappedString( '''
   ramlib           std ieee
   std_cell_lib     ieee std_cell_lib
   synopsys         
-  ''' ).lines()
-graph = dict()
-d = set()
+  '''
 
-for l <- dependencies if l.trim() != ''
+// convert dependencies data into a directed graph
+graph = dict()
+deps = set()
+
+for l <- WrappedString( dependencies ).lines() if l.trim() != ''
   case list(l.trim().split('\\s+')) of
     [a] -> graph(a) = []
     h:t ->
-      graph(h) = t
-      d ++= t
-      
-println( graph )  
-println( topsort(graph) )~~</lang>
+      d = set( t )
+      d -= h                  // remove self dependencies
+      graph(h) = d
+      deps ++= t
+
+// add graph vertices for dependencies not appearing in left column
+for e <- deps if e not in graph
+  graph(e) = []
+
+case topsort( graph ) of
+  None -> println( 'un-orderable' )
+  Some( ordering ) -> println( ordering )~~</lang>
 
 {{out}}
 
 <pre>
+[synopsys, ieee, std, dware, std_cell_lib, gtech, ramlib, dw06, dw05, dw02, dw07, dw01, dw03, dw04, des_system_lib]
 </pre>

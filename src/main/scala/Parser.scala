@@ -75,7 +75,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",",
 				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
-				"=>", "+=", "++=", "-=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "\\%", "::", "@")
+				"=>", "+=", "++=", "-=", "--=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "\\%", "::", "@")
 		}
 
 	import lexical.{Newline, Indent, Dedent}
@@ -185,7 +185,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		Indent ~> statements <~ Dedent ^^
 			(BlockExprAST( _ ))
 
-	lazy val assignment = "=" | "+=" | "++=" | "-=" | "*=" | "/=" | "\\=" | "^="
+	lazy val assignment = "=" | "+=" | "++=" | "-=" | "--=" | "*=" | "/=" | "\\=" | "^="
 	
 	lazy val expression: PackratParser[ExprAST] =
 		rep1sep(lvalueExpression, ",") ~ assignment ~ rep1sep(nonAssignmentExpression, ",") ^^
@@ -193,7 +193,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
   nonAssignmentExpression
 
  	lazy val lambdaExpression =
- 	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> booleanExpression) ~ ("->" ~> expression) ^^
+ 	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> booleanExpression) ~ ("->" ~> expressionOrBlock) ^^
 		{case p ~ g ~ b => FunctionExprAST( p, List(FunctionPartExprAST(g, b)) )}
 
 	lazy val caseFunctionExpression =

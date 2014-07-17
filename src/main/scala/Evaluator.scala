@@ -421,6 +421,7 @@ class Evaluator
 				a match
 				{
 					case r: Record => r.name == n && r.args.length == l.length && (r.args zip l).forall( pair => unify(map, pair._1, pair._2) )
+					case p: Product => p.productPrefix == n && p.productArity == l.length && l.zipWithIndex.forall {case (te, i) => unify( map, p.productElement(i), te )}
 					case _ => false
 				}
 			case ListPatternAST( ps ) =>
