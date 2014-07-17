@@ -2,7 +2,7 @@
 === Procedural ===
 <lang funl>def factorial( n ) =
   if n < 0
-    error( "factorial: n should be non-negative" )
+    error( 'factorial: n should be non-negative' )
   else
     res = 1
 

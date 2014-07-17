@@ -1,0 +1,4 @@
+=={{header|FunL}}==
+<lang funl>~~println( System.getenv('PATH') )
+println( $home )
+println( $user )~~</lang>

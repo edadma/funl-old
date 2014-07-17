@@ -192,6 +192,10 @@ class Evaluator
 		}
 	sysvar( "date" ) {new java.util.Date}
 	sysvar( "os" ) {System.getProperty( "os.name" )}
+  sysvar( "user" ) {System.getProperty( "user.name" )}
+  sysvar( "home" ) {System.getProperty( "user.home" )}
+  sysvar( "fs" ) {System.getProperty( "file.separator" )}
+  sysvar( "ls" ) {System.getProperty( "line.separator" )}
 	sysvar( "stdin" ) {scala.io.StdIn.readLine}
 	
 	def module( m: String ) = synchronized
