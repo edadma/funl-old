@@ -2,8 +2,12 @@ import db.*
 import util.*
 
 Class.forName( 'org.h2.Driver' )
-conn = DriverManager.getConnection( "jdbc:h2:~/test", "sa", "" )
+conn = DriverManager.getConnection( "jdbc:h2:~/test1", "sa", "" )
 statement = conn.createStatement()
-statement.execute( "select * from test;" )
+statement.execute( "CREATE TABLE TEST1(ID INT PRIMARY KEY, NAME VARCHAR(255))" )
+statement = conn.createStatement()
+statement.execute( "INSERT INTO TEST1 VALUES(3, 'Hello'), (4, 'World')" )
+statement = conn.createStatement()
+statement.execute( "select * from test1;" )
 print( TextTable.apply(statement.getResultSet()) )
 conn.close()
