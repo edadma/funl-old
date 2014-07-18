@@ -1,0 +1,21 @@
+=={{header|FunL}}==
+<lang funl>~~
+
+println( 'Hello ' + $user + '. Welcome to Bulls and Cows, an exciting' )
+println( 'game that will drive you nuts in no time.' )
+
+digits = set()
+
+while digits.size() < 4
+  digits += rnd( 1..9 )
+
+digits = digits.toVector()
+println( digits )
+
+
+
+
+
+
+
+~~</lang>
