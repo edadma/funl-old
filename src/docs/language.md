@@ -76,17 +76,29 @@ For example to print the number `123` write
 
 ### Arithmetic
 
+FunL has the following arithmetic operators: `+`, `-`, `*`, `/`, `\`, `%`, `mod`.
+
 ### Comparisons
+
+`<`, `<=`, `>`, `>=`, `==`, `!=`
+
+### Predicates
+
+`|`, `/|`, `in`, `not in`, `is`
 
 ### Logical
 
+`and`, `or`, `xor`, `not`
+
 ### Bitwise
+
+`and`, `or`, `xor`, `not`, `shirtright`, `shiftleft`, `rotateright`, `rotateleft`
 
 ### Conditional
 
 A conditional expression takes on a value conditionally based on a boolean expression.  The syntax for conditionals is:
 
-	'if' booleanExpression ('then' expressionOrBlock | blockExpression) elif* elsePart
+    'if' booleanExpression ('then' expressionOrBlock | blockExpression) elif* elsePart
 
 where
 
@@ -98,7 +110,32 @@ where
 
 ### Case
 
+A case expression has the syntax
+
+    'case' expression ('of' functionExpression | caseFunctionExpression)
+    
+where
+
+    lambdaExpression ::=
+      ('(' pattern (',' pattern)* ')' | pattern) ('|' booleanExpression)? '->' expression
+
+    caseFunctionExpression ::=
+        Indent lambdaExpression (Newline lambdaExpression)* Dedent
+
+    functionExpression ::=
+        lambdaExpression | caseFunctionExpression
+
 ### Conditional Loops
+
+FunL has four kinds of loop constructs that could be called "conditional";
+
+- while
+
+- do...while
+
+- do...until
+
+- repeat
 
 ### Iterator Loop
 

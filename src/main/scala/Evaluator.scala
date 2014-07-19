@@ -8,6 +8,7 @@
 package funl.interp
 
 import java.lang.reflect.{Method, Modifier}
+import java.util.concurrent.Callable
 
 import collection.mutable.{ArrayBuffer, ArrayStack, ListBuffer, HashMap, HashSet, Seq => MutableSeq, Map => MutableMap}
 import collection.immutable.{ListMap, Seq => ImmutableSeq, Map => ImmutableMap}
@@ -21,16 +22,22 @@ import Interpreter._
 
 class Evaluator
 {
-	class Closure( _referencing: =>Activation, val module: Module, val funcs: List[FunctionExprAST] )
+	abstract class Closure
 	{
-		lazy val referencing = _referencing
+		val module: Module
+		val funcs: List[FunctionExprAST]
+		def invoke( argList: List[Any] )( implicit env: Environment ): Unit
 
-		def computeReferencing =
-		{
-			referencing	// this line should not be removed; it forces 'referencing' to be computed
-			this
-		}
-		
+		def curry( args: Any* ) =
+			new Closure
+			{
+				val c = Closure.this
+				val module = c.module
+				val funcs = c.funcs
+				
+				def invoke( argList: List[Any] )( implicit env: Environment ) = c.invoke( (args ++ argList).toList )
+			}
+
 		def runnable = _runnable( Nil )
 		
 		def runnable( arg: Any ) =
@@ -45,7 +52,7 @@ class Evaluator
 			{
 				def run
 				{
-					invoke( Closure.this, args )( new Environment )
+					invoke( args )( new Environment )
 				}
 			}
 
@@ -59,13 +66,13 @@ class Evaluator
 			}
 
 		private def _callable( args: List[Any] ) =
-			new java.util.concurrent.Callable[Any]
+			new Callable[Any]
 			{
 			implicit val env = new Environment
 			
 				def call =
 				{
-					invoke( Closure.this, args )
+					invoke( args )
 					pop
 				}
 			}
@@ -77,7 +84,7 @@ class Evaluator
 
 				def apply =
 				{
-					invoke( Closure.this, Nil )
+					invoke( Nil )
 					pop
 				}
 			}
@@ -89,7 +96,7 @@ class Evaluator
 
 				def apply( arg: Any ) =
 				{
-					invoke( Closure.this, List(arg) )
+					invoke( List(arg) )
 					pop
 				}
 			}
@@ -101,12 +108,79 @@ class Evaluator
 
 				def apply( arg1: Any, arg2: Any ) =
 				{
-					invoke( Closure.this, List(arg1, arg2) )
+					invoke( List(arg1, arg2) )
 					pop
 				}
 			}
 		
 		override def toString = "<closure>"
+	}
+  
+	class BasicClosure( _referencing: =>Activation, val module: Module, val funcs: List[FunctionExprAST] ) extends Closure
+	{
+		lazy val referencing = _referencing
+
+		def computeReferencing =
+		{
+			referencing	// this line should not be removed; it forces 'referencing' to be computed
+			this
+		}
+		
+		def invoke( argList: List[Any] )( implicit env: Environment )
+		{
+			def occur( argList: List[Any] )
+			{
+				def findPart: Option[FunctionPartExprAST] =
+				{
+					for (alt <- funcs)
+						if (pattern( currentActivation, argList, alt.parms ))
+						{
+							for (part <- alt.parts)
+								part.cond match
+								{
+									case None => return Some( part )
+									case Some( cond ) =>
+										if (beval( cond ))
+											return Some( part )
+								}
+
+							currentActivation.clear
+						}
+
+					None
+				}
+
+				findPart match
+				{
+					case None => RuntimeException( "function application failure: " + funcs + " applied to " + argList )
+					case Some( part ) =>
+						apply( part.body ) match
+						{
+							case a: List[Any] =>
+								currentActivation.clear
+								occur( a )
+							case _ =>
+						}
+				}
+			}
+
+			enterActivation( BasicClosure.this, referencing, module )
+
+		val st = env.copy
+
+			try
+			{
+				occur( argList )
+			}
+			catch
+			{
+				case ReturnThrowable( ret ) =>
+					restoreEnvironment( st )
+					push( ret )
+			}
+			
+			exitActivation
+		}
 	}
 
 	class Activation( val closure: Closure, val referencing: Activation, val module: Module, val scope: ListStack[SymbolMap] = new ListStack ) extends SymbolMapContainer
@@ -479,7 +553,7 @@ class Evaluator
 		else
 			pattern( args.head, args.tail, parms.head, parms.tail )
 	}
-
+/*
 	def invoke( c: Closure, argList: List[Any] )( implicit env: Environment )
 	{
 		def occur( argList: List[Any] )
@@ -534,7 +608,7 @@ class Evaluator
 		}
 		
 		exitActivation
-	}
+	}*/
 
 	def varSearch( name: String, a: Activation, createvars: Boolean )( implicit env: Environment ): Option[Any] =
 		a.scope find (_ contains name) match
@@ -661,7 +735,7 @@ class Evaluator
 			exitScope
 		}
 
-		def thunk( t: ExprAST ) = (new Closure( currentActivation.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )).computeReferencing
+		def thunk( t: ExprAST ) = (new BasicClosure( currentActivation.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )).computeReferencing
 
 		def iterator( e: ExprAST, gs: List[GeneratorAST] ) =
 			new Iterator[Any]
@@ -763,7 +837,7 @@ class Evaluator
 						t.getName == "double" && cls.getName == "java.lang.Double" ||
 						t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
 						t.getName == "long" && (cls.getName == "java.lang.Integer" || cls.getName == "scala.math.BigInt") ||
-						(t.getName == "scala.Function0" || t.getName == "scala.Function1" || t.getName == "scala.Function2") && cls.getName == "funl.interp.Evaluator$Closure" ||
+						(t.getName == "scala.Function0" || t.getName == "scala.Function1" || t.getName == "scala.Function2") && a.isInstanceOf[Closure] ||
 						t.isAssignableFrom( cls )
 				} )
 		
@@ -864,8 +938,8 @@ class Evaluator
 			case DefAST( name, func ) =>
 				val c = declarationSymbolMapContainer.get(name) match
 				{
-					case None => new Closure( if (topLevel) null else env.activations.top.copy, currentModule, List(func) )
-					case Some( c: Closure ) => new Closure( if (topLevel) null else env.activations.top.copy, currentModule, c.funcs :+ func )
+					case None => new BasicClosure( if (topLevel) null else env.activations.top.copy, currentModule, List(func) )
+					case Some( c: Closure ) => new BasicClosure( if (topLevel) null else env.activations.top.copy, currentModule, c.funcs :+ func )
 					case _ => RuntimeException( "already declared: " + name )
 				}
 
@@ -894,15 +968,15 @@ class Evaluator
 			case ReturnExprAST( ret ) =>
 				throw new ReturnThrowable( eval(ret) )
 			case SectionExprAST( op ) =>
-				push( new Closure(null, currentModule,
+				push( new BasicClosure(null, currentModule,
 					List(FunctionExprAST(List(VariablePatternAST("$a"), VariablePatternAST("$b")),
 						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, VariableExprAST("$b"))))))) )
 			case LeftSectionExprAST( e, op ) =>
-				push( (new Closure(currentActivation.copy, currentModule,
+				push( (new BasicClosure(currentActivation.copy, currentModule,
 					List(FunctionExprAST(List(VariablePatternAST("$a")),
 						List(FunctionPartExprAST(None, section(e, op, VariableExprAST("$a")))))))).computeReferencing )
 			case RightSectionExprAST( op, e ) =>
-				push( (new Closure(currentActivation.copy, currentModule,
+				push( (new BasicClosure(currentActivation.copy, currentModule,
 					List(FunctionExprAST(List(VariablePatternAST("$a")),
 						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, e))))))).computeReferencing )
 			case LiteralExprAST( v ) => push( v )
@@ -1060,8 +1134,8 @@ class Evaluator
 					push( Math('not, o) )
 			case VariableExprAST( v ) =>
 				push( vars(v).getOrElse(RuntimeException( "unknown variable: " + v )) )
-			case CaseFunctionExprAST( cases ) => push( (new Closure(currentActivation.copy, currentModule, cases)).computeReferencing )
-			case f@FunctionExprAST( _, _ ) => push( (new Closure(currentActivation.copy, currentModule, List(f))).computeReferencing )
+			case CaseFunctionExprAST( cases ) => push( (new BasicClosure(currentActivation.copy, currentModule, cases)).computeReferencing )
+			case f@FunctionExprAST( _, _ ) => push( (new BasicClosure(currentActivation.copy, currentModule, List(f))).computeReferencing )
 			case ApplyExprAST( f, args, tailrecursive ) =>
 				apply( f, createvars )
 				apply( args )
@@ -1110,7 +1184,7 @@ class Evaluator
 						if (tailrecursive)
 							argList
 						else
-							invoke( c, argList )
+							c.invoke( argList )
 					case b: Function =>
 						if (argListLength == 1)
 							push( b(argList.head) )
@@ -1132,7 +1206,7 @@ class Evaluator
 											types.length == 1 && types(0).getName == "scala.collection.Seq"
 										}) match
 										{
-											case None => RuntimeException( "no class methods with matching signatures for: " + m.head.getName + ": " + argList.mkString(", ") )
+											case None => RuntimeException( "no methods with matching signatures for: " + m.head.getName + ": " + argList.mkString(", ") )
 											case Some( cm ) => push( cm.invoke(o, argList) )
 										}
 								case Some( cm ) =>

@@ -262,6 +262,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		iteratorExpression ~ ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" | "|" | "/|") ~ iteratorExpression ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
 		iteratorExpression ~ "is" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
+    iteratorExpression ~ "is" ~ "not" ~ ident ^^ {case e ~ _ ~ _ ~ t => NotExprAST( TypeExprAST(e, t) )} |
   iteratorExpression
 
 	lazy val iteratorExpression: PackratParser[ExprAST] =
