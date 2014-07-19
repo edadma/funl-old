@@ -251,26 +251,32 @@ class Evaluator
 	
 	var last: Option[Any] = None
 
-	def sysvar( k: String )( v: => Any )
+	def rosysvar( k: String )( v: => Any )
 	{
-		sysvars += k -> new SystemReference( k )( v )
+		sysvars += k -> new ReadOnlySystemReference( k )( v )
 	}
 
-	sysvar( "time" ) {compat.Platform.currentTime}
-	sysvar( "timeZone" ) {java.util.TimeZone.getDefault}
-	sysvar( "timeZoneOffset" )
+	def wosysvar( k: String, output: Any => Unit )
+	{
+		sysvars += k -> new WriteOnlySystemReference( k, output )
+	}
+
+	rosysvar( "time" ) {compat.Platform.currentTime}
+	rosysvar( "timeZone" ) {java.util.TimeZone.getDefault}
+	rosysvar( "timeZoneOffset" )
 		{
 		val tz = java.util.TimeZone.getDefault
 
 			tz.getRawOffset + tz.getDSTSavings
 		}
-	sysvar( "date" ) {new java.util.Date}
-	sysvar( "os" ) {System.getProperty( "os.name" )}
-  sysvar( "user" ) {System.getProperty( "user.name" )}
-  sysvar( "home" ) {System.getProperty( "user.home" )}
-  sysvar( "fs" ) {System.getProperty( "file.separator" )}
-  sysvar( "ls" ) {System.getProperty( "line.separator" )}
-	sysvar( "stdin" ) {scala.io.StdIn.readLine}
+	rosysvar( "date" ) {new java.util.Date}
+	rosysvar( "os" ) {System.getProperty( "os.name" )}
+  rosysvar( "user" ) {System.getProperty( "user.name" )}
+  rosysvar( "home" ) {System.getProperty( "user.home" )}
+  rosysvar( "fs" ) {System.getProperty( "file.separator" )}
+  rosysvar( "ls" ) {System.getProperty( "line.separator" )}
+	rosysvar( "stdin" ) {scala.io.StdIn.readLine}
+	wosysvar( "stdout", println )
 	
 	def module( m: String ) = synchronized
 	{

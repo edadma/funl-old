@@ -1,1 +1,1 @@
-println( [1, 2, 3].partition( (<2) ) )
+System.getenv( 'LANG' )

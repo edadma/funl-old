@@ -1,7 +1,5 @@
 =={{header|FunL}}==
-<lang funl>~~def partial( f, a ) = b -> f( a, b )
-
-val fs = map
+<lang funl>~~val fs = map
 
 val f1 = (* 2)
 

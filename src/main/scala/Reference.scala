@@ -250,4 +250,18 @@ class ByNameReference( val name: String )( thunk: => Any ) extends ReadOnlyRefer
 	def value = thunk
 }
 
-class SystemReference( sysvar: String )( thunk: => Any ) extends ByNameReference( "$" + sysvar )( thunk )
+class ReadOnlySystemReference( sysvar: String )( thunk: => Any ) extends ByNameReference( "$" + sysvar )( thunk )
+
+trait WriteOnlyReference extends Reference
+{
+	def name: String
+
+	def value: Any = RuntimeException( name + " is write-only" )
+}
+
+class OutputReference( val name: String, output: Any => Unit ) extends WriteOnlyReference
+{
+	def assign( v: Any ) = output( v )
+}
+
+class WriteOnlySystemReference( sysvar: String, output: Any => Unit ) extends OutputReference( "$" + sysvar, output )
