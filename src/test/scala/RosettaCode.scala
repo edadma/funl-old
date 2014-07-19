@@ -74,4 +74,9 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
   "Topological_sort" in {executeCaptureOutput( "RosettaCode.org/Topological_sort", Some("-main-") ).trim shouldBe
     "[synopsys, ieee, std, dware, std_cell_lib, gtech, ramlib, dw06, dw05, dw02, dw07, dw01, dw03, dw04, des_system_lib]"}
 	"Function_composition" in {executeCaptureOutput( "RosettaCode.org/Function_composition", Some("-main-") ).trim shouldBe "0.5"}
+  "Partial_function_application" in {executeCaptureOutput( "RosettaCode.org/Partial_function_application", Some("-main-") ).trim shouldBe
+    """ |[0, 2, 4, 6]
+				|[0, 1, 4, 9]
+				|[4, 8, 12, 16]
+				|[4, 16, 36, 64]""".stripMargin}
 }
