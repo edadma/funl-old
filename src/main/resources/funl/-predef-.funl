@@ -36,8 +36,6 @@ val None =
 	none()
 
 def
-	compose( f, g ) = x -> f( g(x) )
-
 	fst( (a, _) ) = a
 
 	snd( (_, b) ) = b
