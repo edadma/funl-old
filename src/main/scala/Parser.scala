@@ -73,7 +73,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				"native", "not", "null", "of", "or", "otherwise", "private", "return", "repeat", "then", "true",
 				"until", "val", "var", "while", "xor", "yield", "shiftright", "shiftleft", "rotateright", "rotateleft"
 				)
-			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",",
+			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", ";",
 				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
 				"=>", "+=", "++=", "-=", "--=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "\\%", "::", "@")
 		}
@@ -188,6 +188,17 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 	lazy val assignment = "=" | "+=" | "++=" | "-=" | "--=" | "*=" | "/=" | "\\=" | "^="
 	
 	lazy val expression: PackratParser[ExprAST] =
+		compoundExpression | assignmentExpression
+
+	lazy val compoundExpression: PackratParser[ExprAST] =
+		rep1sep( assignmentExpression, ";" ) ^^
+			(l =>
+				if (l.length == 1)
+					l.head
+				else
+					BlockExprAST( l map (e => ExpressionStatementAST(e)) ))
+
+	lazy val assignmentExpression: PackratParser[ExprAST] =
 		rep1sep(lvalueExpression, ",") ~ assignment ~ rep1sep(nonAssignmentExpression, ",") ^^
 			{case lhs ~ op ~ rhs => AssignmentExprAST( lhs, op, rhs )} |
   nonAssignmentExpression
@@ -385,7 +396,9 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 		"?" ~> ident ^^
 			(TestExprAST( _ ))
 
-	lazy val infixNoMinus = "+" | "*" | "/" | """\""" | "\\%" | "^" | "%" | "mod" | "|" | "/|" | "==" | "!=" | "<" | ">" | "<=" | ">=" | ":" | "#" | "and" | "or" | "xor"
+	lazy val infixNoMinus =
+		"+" | "*" | "/" | """\""" | "\\%" | "^" | "%" | "mod" | "|" | "/|" | "==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" |
+		":" | "#" | "and" | "or" | "xor"
 	
 	lazy val infix = infixNoMinus | "-"
 	

@@ -74,9 +74,16 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
   "Topological_sort" in {executeCaptureOutput( "RosettaCode.org/Topological_sort", Some("-main-") ).trim shouldBe
     "[synopsys, ieee, std, dware, std_cell_lib, gtech, ramlib, dw06, dw05, dw02, dw07, dw01, dw03, dw04, des_system_lib]"}
 	"Function_composition" in {executeCaptureOutput( "RosettaCode.org/Function_composition", Some("-main-") ).trim shouldBe "0.5"}
-  "Partial_function_application" in {executeCaptureOutput( "RosettaCode.org/Partial_function_application", Some("-main-") ).trim shouldBe
-    """ |[0, 2, 4, 6]
+	"Partial_function_application" in {executeCaptureOutput( "RosettaCode.org/Partial_function_application", Some("-main-") ).trim shouldBe
+		""" |[0, 2, 4, 6]
 				|[0, 1, 4, 9]
 				|[4, 8, 12, 16]
 				|[4, 16, 36, 64]""".stripMargin}
+// 	"Table_Creation_-_Address" in {executeCaptureOutput( "RosettaCode.org/Table_Creation_-_Address", Some("-main-") ).trim shouldBe
+// 		""" |+----+-----------------+---------------------------+----------+--------+---------+------------+----------------+
+// 				|| ID |      NAME       |          STREET           |   CITY   | REGION | COUNTRY |    CODE    |     PHONE      |
+// 				|+----+-----------------+---------------------------+----------+--------+---------+------------+----------------+
+// 				||  8 | Ince Leite      | 7876 Stony Fawn Boulevard | Easton   | ID     | US      | 83651-9235 | (208) 951-3024 |
+// 				||  6 | Ambria Schiller | 7100 Tawny Robin Highway  | Barlowes | ID     | US      | 83792-2043 | (208) 227-8887 |
+// 				|+----+-----------------+---------------------------+----------+--------+---------+------------+----------------+""".stripMargin}
 }

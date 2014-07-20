@@ -1061,6 +1061,8 @@ class Evaluator
 						val res =
 							if (r.isInstanceOf[collection.Map[Any, Any]])
 								r.asInstanceOf[collection.Map[Any, Any]].contains( l )
+							else if (r.isInstanceOf[String])
+								r.asInstanceOf[String].indexOf( l.toString ) > -1
 							else
 								traversable( r ) exists (_ == l)
 
