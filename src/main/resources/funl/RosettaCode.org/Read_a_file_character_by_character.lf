@@ -1,0 +1,13 @@
+=={{header|FunL}}==
+<lang funl>~~import io.{InputStreamReader, FileInputStream}
+
+r = InputStreamReader( FileInputStream('input.txt'), 'UTF-8' )
+
+for
+  ch = r.read()
+
+  if ch == -1 then break
+
+  print( chr(ch) )
+
+r.close()~~</lang>
