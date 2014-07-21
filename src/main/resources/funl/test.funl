@@ -1,1 +1,5 @@
-Regex( '''(\d\d\d)-(\d\d\d\d)''', ['three', 'four'] )
+import util.Regex
+
+r = Regex( '''(\d\d\d)-(\d\d\d\d)''', ['three', 'four'] )
+
+println( r.findAllMatchIn( '123-4567 768-8177' ).length() )
