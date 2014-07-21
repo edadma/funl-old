@@ -1,10 +1,9 @@
 =={{header|FunL}}==
 <lang funl>~~import io.{InputStreamReader, FileInputStream}
 
-r = InputStreamReader( FileInputStream('build.sbt'), 'UTF-8' )
+r = InputStreamReader( FileInputStream('input.txt'), 'UTF-8' )
 
-while ch = r.read(); ch != -1
+while (ch = r.read()) != -1
   print( chr(ch) )
 
-//println( ch )
 r.close()~~</lang>

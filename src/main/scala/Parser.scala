@@ -196,7 +196,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				if (l.length == 1)
 					l.head
 				else
-					BlockExprAST( l map (e => ExpressionStatementAST(e)) ))
+					CompoundExprAST( l map (e => ExpressionStatementAST(e)) ))
 
 	lazy val assignmentExpression: PackratParser[ExprAST] =
 		rep1sep(lvalueExpression, ",") ~ assignment ~ rep1sep(nonAssignmentExpression, ",") ^^

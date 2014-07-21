@@ -847,6 +847,15 @@ class Evaluator
 						t.isAssignableFrom( cls )
 				} )
 		
+		def compound( l: List[StatementAST] ): Any =
+			if (l.tail == Nil)
+				apply( l.head.asInstanceOf[ExpressionStatementAST].e )
+			else
+			{
+				apply( l.head )
+				compound( l.tail )
+			}
+
 		t match
 		{
 			case ModuleAST( m, s ) =>
@@ -1333,23 +1342,14 @@ class Evaluator
 			case NullExprAST => push( null )
 			case BlockExprAST( Nil ) => push( () )
 			case BlockExprAST( l ) =>
-				val it = l.iterator
-				var res: Any = ()
-				
-				enterScope
-				
-				while (it hasNext)
-				{
-				val s = it next
-				
-					if (it.hasNext || !s.isInstanceOf[ExpressionStatementAST])
-						apply( s )
-					else
-						res = apply( s.asInstanceOf[ExpressionStatementAST].e )
-				}
+				var res: Any = null
 
+				enterScope				
+				res = compound( l )
 				exitScope
 				res
+			case CompoundExprAST( l ) =>
+				compound( l )
 			case ConditionalExprAST( cond, no ) =>
 				cond find (i => beval( i._1 )) match
 				{
