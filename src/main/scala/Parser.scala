@@ -9,7 +9,7 @@ package funl.interp
 
 import util.parsing.combinator.PackratParsers
 import util.parsing.combinator.syntactical.StandardTokenParsers
-import util.parsing.input.Reader
+import util.parsing.input.{Reader, CharSequenceReader}
 
 import funl.indentation._
 
@@ -23,7 +23,11 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 
 			private def stringParser: Parser[Token] =
         (''' ~ ''' ~ ''') ~> rep(guard(not(''' ~ ''' ~ ''')) ~> elem("", ch => true)) <~ (''' ~ ''' ~ ''') ^^
-          {case l => StringLit( l mkString "" )}
+          {case l => StringLit( l mkString "" )} |
+        ''' ~> rep(guard(not(''')) ~> (('\\' ~ ''' ^^^ "\\'") | elem("", ch => true))) <~ ''' ^^
+          {case l => StringLit( escape(l mkString "") )} |
+        '"' ~> rep(guard(not('"')) ~> (('\\' ~ '"' ^^^ "\\\"") | elem("", ch => true))) <~ '"' ^^
+          {case l => StringLit( escape(l mkString "") )}
 
 			private def decimalParser: Parser[Token] =
 				rep1(digit) ~ optFraction ~ optExponent ^^
@@ -76,6 +80,63 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", ";",
 				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
 				"=>", "+=", "++=", "-=", "--=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "\\%", "::", "@")
+		}
+
+		def escape( s: String) =
+		{
+		val buf = new StringBuilder
+			
+			def chr( r: Reader[Char] )
+			{
+					if (!r.atEnd)
+					{
+						if (r.first == '\\')
+						{
+							if (r.rest.atEnd)
+								RuntimeException( "unexpected end of string" )
+
+							if (r.rest.first == 'u')
+							{
+							var u = r.rest.rest
+							
+								def nextc =
+									if (u.atEnd)
+										RuntimeException( "unexpected end of string inside unicode sequence" )
+									else
+									{
+									val res = u.first
+
+										u = u.rest
+										res
+									}
+
+								buf append Integer.valueOf( new String(Array(nextc, nextc, nextc, nextc)), 16 ).toChar
+								chr( u )
+							}
+							else
+							{
+								buf.append(
+									Map (
+										'\\' -> '\\', '\'' -> '\'', '"' -> '"', '/' -> '/', 'b' -> '\b', 'f' -> '\f', 'n' -> '\n', 'r' -> '\r', 't' -> '\t'
+									).get(r.rest.first) match
+									{
+										case Some( c ) => c
+										case _ => RuntimeException( "illegal escape character " + r.rest.first )
+									} )
+
+								chr( r.rest.rest )
+							}
+						}
+						else
+						{
+							buf append r.first	
+							chr( r.rest )
+						}
+					}
+			}
+
+			chr( new CharSequenceReader(s) )
+			buf.toString()
 		}
 
 	import lexical.{Newline, Indent, Dedent}
