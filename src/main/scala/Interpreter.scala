@@ -99,7 +99,13 @@ object Interpreter
 	def displayQuoted( a: Any ): String =
 		a match
 		{
-			case s: String => "'" + s + "'"
+			case s: String =>
+				var t = s
+				
+				for ((k, v) <- List( "\\" -> "\\\\", "\"" -> "\\\"", "\t" -> "\\t", "\b" -> "\\b", "\f" -> "\\f", "\n" -> "\\n", "\r" -> "\\r", "\b" -> "\\b" ))
+					t = t.replaceAllLiterally( k, v )
+					
+				'"' + t + '"'
 			case _ => display( a )
 		}
 
@@ -107,7 +113,7 @@ object Interpreter
 		a match
 		{
 			case a: Array[_] => a.map( display(_) ).mkString( "Array(", ", ", ")" )
-			case l: List[_] => l.map( display(_) ).mkString( "[", ", ", "]" )
+			case l: List[_] => l.map( displayQuoted(_) ).mkString( "[", ", ", "]" )
 			case s: Stream[_] =>
 				val howMany = 100
 				val bunch = s take (howMany + 1)
@@ -117,7 +123,7 @@ object Interpreter
 				else
 					display( bunch toList )
 			case s: collection.Set[_] => s.map( display(_) ).mkString( "{", ", ", "}" )
-			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => displayQuoted(k) + ": " + display(v)} ).mkString( "{", ", ", "}" )
+			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => displayQuoted(k) + ": " + displayQuoted(v)} ).mkString( "{", ", ", "}" )
 			case t: Vector[_] => t.map( display(_) ).mkString( "(", ", ", ")" )
 			case Some( a ) => "Some(" + display(a) + ")"
 			case _ => String.valueOf( a )
@@ -295,14 +301,14 @@ object Interpreter
 	def expression( s: String, vs: (String, Any)* ) =
 	{
 	val eval = new Evaluator
-	val parser = new Parser( "module" )
+	val parser = new Parser( "-expression-" )
 	implicit val env = new eval.Environment
 
 		parser.parseExpression( new CharSequenceReader(s) ) match
 		{
 			case parser.Success( l, _ ) =>
-				eval.enterActivation( null, null, eval.module("module") )
-				eval.assign( "module", vs: _* )
+				eval.enterActivation( null, null, eval.module("-expression-") )
+				eval.assign( "-expression-", vs: _* )
 				eval.eval( l )
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
 			case parser.Error( m, r ) => PARSE_FAILURE( m )

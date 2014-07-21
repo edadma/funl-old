@@ -64,5 +64,5 @@ case topsort( graph ) of
 {{out}}
 
 <pre>
-[synopsys, ieee, std, dware, std_cell_lib, gtech, ramlib, dw06, dw05, dw02, dw07, dw01, dw03, dw04, des_system_lib]
+["synopsys", "ieee", "std", "dware", "std_cell_lib", "gtech", "ramlib", "dw06", "dw05", "dw02", "dw07", "dw01", "dw03", "dw04", "des_system_lib"]
 </pre>

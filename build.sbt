@@ -25,6 +25,8 @@ libraryDependencies += "jline" % "jline" % "2.11"
 
 libraryDependencies += "com.h2database" % "h2" % "1.3.148"
 
+//libraryDependencies += "org.codehaus.jackson" % "jackson-core-lgpl" % "1.9.13"
+
 //libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT"
 
 //libraryDependencies += "org.scala-lang" % "scala-swing" % scalaVersion.value

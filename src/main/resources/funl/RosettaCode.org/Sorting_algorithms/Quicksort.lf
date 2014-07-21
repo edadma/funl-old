@@ -18,5 +18,5 @@ println( qsort(["Juan", "Daniel", "Miguel", "William", "Liam", "Ethan", "Jacob"]
 
 <pre>
 [0, 1, 2, 2, 3, 4]
-[Daniel, Ethan, Jacob, Juan, Liam, Miguel, William]
+["Daniel", "Ethan", "Jacob", "Juan", "Liam", "Miguel", "William"]
 </pre>

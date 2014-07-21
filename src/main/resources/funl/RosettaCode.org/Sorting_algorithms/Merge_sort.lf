@@ -19,5 +19,5 @@ println( sort(['Sofía', 'Alysha', 'Sophia', 'Maya', 'Emma', 'Olivia', 'Emily'])
 
 <pre>
 [16, 17, 27, 37, 48, 56, 58, 67, 72, 94]
-[Alysha, Emily, Emma, Maya, Olivia, Sofía, Sophia]
+["Alysha", "Emily", "Emma", "Maya", "Olivia", "Sofía", "Sophia"]
 </pre>

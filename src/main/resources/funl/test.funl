@@ -1,1 +1,0 @@
-println( map( v -> System.getenv(v), ["LC_ALL", "LC_CTYPE", "LANG"]).filter( (!= null) ).exists( ('UTF' in) ) )

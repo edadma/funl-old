@@ -213,6 +213,16 @@ object Predef
       case r: collection.immutable.Range => nextInt( r.last + 1 - r.start ) + r.start
     }
 
+	def eval( a: Any ): Any =
+		a match
+		{
+			case s: String => expression( s )
+		}
+		
+		
+		
+		
+		
 // Scala interop: implicit Ordering
 
 // 	def min( a: List[Any] ) =

@@ -21,10 +21,10 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
 				|[1, 2, 3, 4, 5, 6, 7, 8, 9]""".stripMargin}
 	"Sorting_algorithms/Quicksort" in {executeCaptureOutput( "RosettaCode.org/Sorting_algorithms/Quicksort", Some("-main-") ).trim shouldBe
 		"""	|[0, 1, 2, 2, 3, 4]
-				|[Daniel, Ethan, Jacob, Juan, Liam, Miguel, William]""".stripMargin}
+				|["Daniel", "Ethan", "Jacob", "Juan", "Liam", "Miguel", "William"]""".stripMargin}
 	"Sorting_algorithms/Merge_sort" in {executeCaptureOutput( "RosettaCode.org/Sorting_algorithms/Merge_sort", Some("-main-") ).trim shouldBe
 		"""	|[16, 17, 27, 37, 48, 56, 58, 67, 72, 94]
-				|[Alysha, Emily, Emma, Maya, Olivia, Sofía, Sophia]""".stripMargin}
+				|["Alysha", "Emily", "Emma", "Maya", "Olivia", "Sofía", "Sophia"]""".stripMargin}
 	"Sorting_algorithms/Heapsort" in {executeCaptureOutput( "RosettaCode.org/Sorting_algorithms/Heapsort", Some("-main-") ).trim shouldBe "ArraySeq(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)"}
 	"SHA-256" in {executeCaptureOutput( "RosettaCode.org/SHA-256", Some("-main-") ).trim shouldBe
 		"""	|FunL: "Rosetta code" ~> 764faf5c61ac315f1497f9dfa542713965b785e5cc2f707d6468d7d1124cdfcf
@@ -72,13 +72,14 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
         |The set of factors of 760 is {8, 19, 4, 40, 152, 5, 10, 76, 1, 95, 190, 760, 20, 2, 38, 380}""".stripMargin}
 	"Modular_inverse" in {executeCaptureOutput( "RosettaCode.org/Modular_inverse", Some("-main-") ).trim shouldBe "1969"}
   "Topological_sort" in {executeCaptureOutput( "RosettaCode.org/Topological_sort", Some("-main-") ).trim shouldBe
-    "[synopsys, ieee, std, dware, std_cell_lib, gtech, ramlib, dw06, dw05, dw02, dw07, dw01, dw03, dw04, des_system_lib]"}
+    """["synopsys", "ieee", "std", "dware", "std_cell_lib", "gtech", "ramlib", "dw06", "dw05", "dw02", "dw07", "dw01", "dw03", "dw04", "des_system_lib"]"""}
 	"Function_composition" in {executeCaptureOutput( "RosettaCode.org/Function_composition", Some("-main-") ).trim shouldBe "0.5"}
 	"Partial_function_application" in {executeCaptureOutput( "RosettaCode.org/Partial_function_application", Some("-main-") ).trim shouldBe
 		""" |[0, 2, 4, 6]
 				|[0, 1, 4, 9]
 				|[4, 8, 12, 16]
 				|[4, 16, 36, 64]""".stripMargin}
+	"JSON" in {executeCaptureOutput( "RosettaCode.org/JSON", Some("-main-") ).trim shouldBe """{"foo": 1, "bar": [10, "apples"]}"""}
 // 	"Table_Creation_-_Address" in {executeCaptureOutput( "RosettaCode.org/Table_Creation_-_Address", Some("-main-") ).trim shouldBe
 // 		""" |+----+-----------------+---------------------------+----------+--------+---------+------------+----------------+
 // 				|| ID |      NAME       |          STREET           |   CITY   | REGION | COUNTRY |    CODE    |     PHONE      |

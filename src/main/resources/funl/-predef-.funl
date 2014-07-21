@@ -14,7 +14,7 @@ function funl.modules.Predef.{
 	error, require, assert,
 	array, seq, list, dict, set, tuple, vector,
 	int, bin, oct, hex,
-	rnd
+	rnd, eval
 //	min
 	}
 

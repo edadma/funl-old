@@ -1,0 +1,8 @@
+=={{header|FunL}}==
+<lang funl>~~println( eval('{ "foo": 1, "bar": [10, "apples"] }') )~~</lang>
+
+{{out}}
+
+<pre>
+{"foo": 1, "bar": [10, "apples"]}
+</pre>
