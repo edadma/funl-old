@@ -1,0 +1,14 @@
+=={{header|FunL}}==
+<lang funl>~~import util.Regex
+
+def countSubstring( str, substr ) = Regex( substr, [] ).findAllMatchIn( str ).length()
+
+println( countSubstring("the three truths", "th") )
+println( countSubstring("ababababab", "abab") )~~</lang>
+
+{{out}}
+
+<pre>
+3
+2
+</pre>
