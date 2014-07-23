@@ -1,5 +1,3 @@
-import util.Regex
+native funl.json.{JSONReader, DefaultJSONWriter}
 
-r = Regex( '''(\d\d\d)-(\d\d\d\d)''', ['three', 'four'] )
-
-println( r.findAllMatchIn( '123-4567 768-8177' ).length() )
+DefaultJSONWriter.write({"one": 1})

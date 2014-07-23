@@ -835,6 +835,7 @@ class Evaluator
 					}
 
 		def assignable( objs: List[Any], types: Array[Class[_]] ) =
+		{
 			(objs zip types).forall(
 				{case (a, t) =>
 					val cls = a.getClass
@@ -846,6 +847,7 @@ class Evaluator
 						(t.getName == "scala.Function0" || t.getName == "scala.Function1" || t.getName == "scala.Function2") && a.isInstanceOf[Closure] ||
 						t.isAssignableFrom( cls )
 				} )
+		}
 		
 		def compound( l: List[StatementAST] ): Any =
 			if (l.tail == Nil)

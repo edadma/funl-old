@@ -1,8 +1,21 @@
 =={{header|FunL}}==
+Since FunL map syntax is conforms to JSON, the built-in function <code>eval()</code> can be used to parse a JSON string.  Built-in <code>println()</code> also produces JSON conformant output.  This method only uses built-in functions but is comparatively slow.
 <lang funl>~~println( eval('{ "foo": 1, "bar": [10, "apples"] }') )~~</lang>
+
+Using module <code>json</code> gives better performance and also pretty prints the JSON output.
+<lang funl>~~import json.*
+
+println( DefaultJSONWriter.toString(DefaultJSONReader.fromString('{ "foo": 1, "bar": [10, "apples"] }')) )~~</lang>
 
 {{out}}
 
 <pre>
 {"foo": 1, "bar": [10, "apples"]}
+{
+  "foo": 1.0,
+  "bar": [
+    10.0,
+    "apples"
+  ]
+}
 </pre>

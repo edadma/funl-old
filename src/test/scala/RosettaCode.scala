@@ -79,7 +79,15 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
 				|[0, 1, 4, 9]
 				|[4, 8, 12, 16]
 				|[4, 16, 36, 64]""".stripMargin}
-	"JSON" in {executeCaptureOutput( "RosettaCode.org/JSON", Some("-main-") ).trim shouldBe """{"foo": 1, "bar": [10, "apples"]}"""}
+	"JSON" in {executeCaptureOutput( "RosettaCode.org/JSON", Some("-main-") ).trim shouldBe 
+		"""	|{"foo": 1, "bar": [10, "apples"]}
+				|{
+				|  "foo": 1.0,
+				|  "bar": [
+				|    10.0,
+				|    "apples"
+				|  ]
+				|}""".stripMargin}
 // 	"Table_Creation_-_Address" in {executeCaptureOutput( "RosettaCode.org/Table_Creation_-_Address", Some("-main-") ).trim shouldBe
 // 		""" |+----+-----------------+---------------------------+----------+--------+---------+------------+----------------+
 // 				|| ID |      NAME       |          STREET           |   CITY   | REGION | COUNTRY |    CODE    |     PHONE      |
