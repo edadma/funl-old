@@ -6,9 +6,7 @@
 \*                                                              */
 
 native scala.io.Source
-native java.io.File
-native java.io.RandomAccessFile
-native java.io.{InputStreamReader, FileInputStream, FileReader}
+native java.io.{File, RandomAccessFile, InputStreamReader, FileInputStream, FileReader}
 
 function funl.modules.IO.{readFile}
 
