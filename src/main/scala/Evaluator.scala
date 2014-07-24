@@ -1205,7 +1205,7 @@ class Evaluator
 						c.getConstructors.toList.find( cm => assignable(argList, cm.getParameterTypes) ) match
 							{
 								case None => RuntimeException( "no constructor with matching signatures for: " + argList )
-								case Some( cm ) => push( cm.newInstance( rewrap(argList, cm.getParameterTypes): _* ) )
+								case Some( cm ) => push( cm.newInstance(rewrap(argList, cm.getParameterTypes): _*) )
 							}
 					case p: Product =>
 						push( p.productElement(argList.head.asInstanceOf[Int]) )

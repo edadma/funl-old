@@ -59,9 +59,8 @@ object Predef
 
 	def error( msg: String )
 	{
-		throw new RuntimeException( msg )
-// 		Console.err.println( msg )
-// 		sys.exit( 1 )
+		Console.err.println( msg )
+		sys.exit( 1 )
 	}
 	
 	def assert( a: Any ) =
