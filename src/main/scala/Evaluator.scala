@@ -1202,8 +1202,7 @@ class Evaluator
 									push( cm.invoke(o, rewrap(argList, cm.getParameterTypes): _*) )
 							}
 					case c: Class[Any] =>
-						c.getConstructors.toList.filter( _.getParameterTypes.length == argList.length ).
-							find( cm => assignable(argList, cm.getParameterTypes) ) match
+						c.getConstructors.toList.find( cm => assignable(argList, cm.getParameterTypes) ) match
 							{
 								case None => RuntimeException( "no constructor with matching signatures for: " + argList )
 								case Some( cm ) => push( cm.newInstance( rewrap(argList, cm.getParameterTypes): _* ) )
