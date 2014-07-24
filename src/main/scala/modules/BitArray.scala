@@ -5,7 +5,7 @@
 ** /_/    \____/_/ /_/____/                                     **
 \*                                                              */
 
-package funl.interp
+package funl.modules
 
 import collection.mutable.{AbstractBuffer}
 
@@ -14,12 +14,12 @@ class BitArray( init: Array[Byte] ) extends AbstractBuffer[Int]
 {
 	def this() = this( Array[Byte]() )
 	
-	def this( s: Seq[Any] ) =
+	def this( s: List[Any] ) =
 	this(
 		{
 		val array = new Array[Byte]( s.length )
 
-			for ((i, b) <- (0 until s.length) zip (s map (_.asInstanceOf[Number].intValue)))
+			for ((b, i) <- (s map (_.asInstanceOf[Number].intValue)) zipWithIndex)
 				array(i) = b.asInstanceOf[Byte]
 
 			array

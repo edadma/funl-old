@@ -23,7 +23,7 @@ native funl.modules.Predef.{
 	sum
   }
 
-native funl.interp.BitArray
+native funl.modules.BitArray
 
 val i =
 	native funl.lia.ComplexDouble

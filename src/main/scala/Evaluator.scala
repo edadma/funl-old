@@ -820,6 +820,29 @@ class Evaluator
 			}
 
 		def rewrap( objs: List[Any], types: Array[Class[_]] ) =
+		{
+		val varargs = types.length > 0 && types(types.length - 1).getName == "scala.collection.Seq"
+		
+			def wrap( l: List[Any], idx: Int ): List[Any] =
+				if (varargs && idx == types.length - 1)
+					List( l )
+				else if (!varargs && idx == types.length)
+					Nil
+				else
+					((l.head, types(idx).getName) match
+						{
+							case (x: Number, "java.lang.Number") => x
+							case (x: BigInt, _) if x.isValidLong => x.longValue.asInstanceOf[AnyRef]
+							case (x: ScalaNumber, _) => x.underlying
+							case (x: Closure, "funl.interp.Evaluator$Closure") => x
+							case (x: Closure, "scala.Function0") => x.function0
+							case (x: Closure, "scala.Function1") => x.function1
+							case (x: Closure, "scala.Function2") => x.function2
+							case (x, _) => x.asInstanceOf[AnyRef]
+						}) :: wrap( l.tail, idx + 1 )
+			
+			wrap( objs, 0 ).asInstanceOf[Seq[Object]]
+/*
 			for ((o, t) <- objs zip types)
 				yield
 					(o, t.getName) match
@@ -832,21 +855,31 @@ class Evaluator
 						case (x: Closure, "scala.Function1") => x.function1
 						case (x: Closure, "scala.Function2") => x.function2
 						case (x, _) => x.asInstanceOf[AnyRef]
-					}
-
+					}*/
+		}
+		
 		def assignable( objs: List[Any], types: Array[Class[_]] ) =
 		{
-			(objs zip types).forall(
-				{case (a, t) =>
-					val cls = a.getClass
+		val len = objs.length
+		val varargs = types.length > 0 && types(types.length - 1).getName == "scala.collection.Seq"
+		
+			if (varargs && len < types.length - 1 || !varargs && len != types.length)
+				false
+			else
+			{
+				(objs zip types zipWithIndex).forall(
+					{case ((a, t), idx) =>
+						val cls = a.getClass
 
-					t.getName == "int" && cls.getName == "java.lang.Integer" ||
-						t.getName == "double" && cls.getName == "java.lang.Double" ||
-						t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
-						t.getName == "long" && (cls.getName == "java.lang.Integer" || cls.getName == "scala.math.BigInt") ||
-						(t.getName == "scala.Function0" || t.getName == "scala.Function1" || t.getName == "scala.Function2") && a.isInstanceOf[Closure] ||
-						t.isAssignableFrom( cls )
-				} )
+						t.getName == "int" && cls.getName == "java.lang.Integer" ||
+							t.getName == "double" && cls.getName == "java.lang.Double" ||
+							t.getName == "boolean" && cls.getName == "java.lang.Boolean" ||
+							t.getName == "long" && (cls.getName == "java.lang.Integer" || cls.getName == "scala.math.BigInt") ||
+							(t.getName == "scala.Function0" || t.getName == "scala.Function1" || t.getName == "scala.Function2") && a.isInstanceOf[Closure] ||
+							t.getName == "scala.collection.Seq" && idx == types.length - 1 ||
+							t.isAssignableFrom( cls )
+					} )
+			}
 		}
 		
 		def compound( l: List[StatementAST] ): Any =
@@ -1162,20 +1195,9 @@ class Evaluator
 
 						push( new Record(m, t, n, fields, argList) )
 					case NativeMethod( o, m ) =>
-						m.filter( _.getParameterTypes.length == argList.length ).
-							find( cm => assignable(argList, cm.getParameterTypes) ) match
+						m.find( cm => assignable(argList, cm.getParameterTypes) ) match
 							{
-								case None =>
-									m.find( cm =>
-										{
-										val types = cm.getParameterTypes
-
-											types.length == 1 && types(0).getName == "scala.collection.Seq"
-										}) match
-										{
-											case None => RuntimeException( "no methods with matching signatures for: " + m.head.getName + ": " + argList.mkString(", ") )
-											case Some( cm ) => push( cm.invoke(o, argList) )
-										}
+								case None => RuntimeException( "no methods with matching signatures for: " + m.head.getName + ": " + argList.mkString(", ") )
 								case Some( cm ) =>
 									push( cm.invoke(o, rewrap(argList, cm.getParameterTypes): _*) )
 							}

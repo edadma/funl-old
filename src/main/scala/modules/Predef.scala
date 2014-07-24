@@ -16,6 +16,11 @@ import funl.interp.Interpreter._
 
 object Predef
 {
+	def test( a: Int, b: Int* )
+	{
+		println( "test: " + a, b )
+	}
+	
 	def println( a: Any ) =
 		a match
 		{
