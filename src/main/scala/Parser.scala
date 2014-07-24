@@ -10,12 +10,19 @@ package funl.interp
 import util.parsing.combinator.PackratParsers
 import util.parsing.combinator.syntactical.StandardTokenParsers
 import util.parsing.input.{Reader, CharSequenceReader}
+import collection.mutable.ListBuffer
 
 import funl.indentation._
 
 
 class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 {
+	private val VARIABLE_PATTERN = """\$([a-zA-Z_]+\d*)"""r
+	private val INTERPOLATED_PATTERN = """[\ue000-\ue002]([^\ue000-\ue002]+)"""r
+	private val INTERPOLATION_DELIMITER = '\ue000'
+	private val INTERPOLATION_LITERAL = '\ue000'
+	private val INTERPOLATION_VARIABLE = '\ue001'
+	
 	override val lexical: IndentationLexical =
 		new IndentationLexical( false, true, List("[", "(", "{"), List("]", ")", "}") )
 		{
@@ -24,10 +31,12 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 			private def stringParser: Parser[Token] =
         (''' ~ ''' ~ ''') ~> rep(guard(not(''' ~ ''' ~ ''')) ~> elem("", ch => true)) <~ (''' ~ ''' ~ ''') ^^
           {case l => StringLit( l mkString "" )} |
+        ('"' ~ '"' ~ '"') ~> rep(guard(not('"' ~ '"' ~ '"')) ~> elem("", ch => true)) <~ ('"' ~ '"' ~ '"') ^^
+          {case l => StringLit( interpolate(l mkString "", true) )} |
         ''' ~> rep(guard(not(''')) ~> (('\\' ~ ''' ^^^ "\\'") | elem("", ch => true))) <~ ''' ^^
           {case l => StringLit( escape(l mkString "") )} |
         '"' ~> rep(guard(not('"')) ~> (('\\' ~ '"' ^^^ "\\\"") | elem("", ch => true))) <~ '"' ^^
-          {case l => StringLit( escape(l mkString "") )}
+          {case l => StringLit( interpolate(l mkString "", true) )}
 
 			private def decimalParser: Parser[Token] =
 				rep1(digit) ~ optFraction ~ optExponent ^^
@@ -81,7 +90,40 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
 				"=>", "+=", "++=", "-=", "--=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "\\%", "::", "@")
 		}
-
+		
+		def interpolate( s: String, handleEscape: Boolean ): String =
+		{
+		val buf = new StringBuilder
+		var last = 0
+		var nonliteral = false
+		
+			def append( code: Char, s: String )
+			{
+				buf += code
+				buf append s
+			}
+			
+			def literal( s: String ) = append( INTERPOLATION_LITERAL, if (handleEscape) escape(s) else s )
+			
+			for (m <- VARIABLE_PATTERN.findAllMatchIn( s ))
+			{
+				if (m.start > last)
+					literal( s.substring(last, m.start) )
+					
+				append( INTERPOLATION_VARIABLE, m.group(1) )
+				nonliteral = true
+				last = m.end
+			}
+		
+			if (last < s.length)
+				literal( s.substring(last) )
+				
+			if (!nonliteral)
+				buf.deleteCharAt( 0 )
+				
+			buf.toString
+		}
+		
 		def escape( s: String) =
 		{
 		val buf = new StringBuilder
@@ -117,7 +159,7 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 							{
 								buf.append(
 									Map (
-										'\\' -> '\\', '\'' -> '\'', '"' -> '"', '/' -> '/', 'b' -> '\b', 'f' -> '\f', 'n' -> '\n', 'r' -> '\r', 't' -> '\t'
+										'\\' -> '\\', '\'' -> '\'', '"' -> '"', '$' -> '$', '/' -> '/', 'b' -> '\b', 'f' -> '\f', 'n' -> '\n', 'r' -> '\r', 't' -> '\t'
 									).get(r.rest.first) match
 									{
 										case Some( c ) => c
@@ -424,7 +466,22 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 						LiteralExprAST( bi )
 				}) |
 		stringLit ^^
-			(StringLiteralExprAST( _ )) |
+			(s =>
+				if (s.charAt(0) >= INTERPOLATION_DELIMITER)
+				{
+				val buf = new ListBuffer[ExprAST]
+				
+					for (m <- INTERPOLATED_PATTERN.findAllMatchIn( s ))
+						m.matched.charAt( 0 ) match
+						{
+							case INTERPOLATION_LITERAL => buf.append( StringLiteralExprAST(m.group(1)) )
+							case INTERPOLATION_VARIABLE => buf.append( VariableExprAST(m.group(1)) )
+						}
+						
+					InterpolationExprAST( buf.toList )
+				}
+				else
+					StringLiteralExprAST( s )) |
     "(" ~> infix <~ ")" ^^
       (o => SectionExprAST( Symbol(o) )) |
     "(" ~> expression ~ infix <~ ")" ^^
@@ -502,6 +559,8 @@ class Parser( module: String ) extends StandardTokenParsers with PackratParsers
 				}) |
 		stringLit ^^
 			(LiteralPatternAST( _ )) |
+// 				if (s.charAt(0) >= INTERPOLATION_DELIMITER)
+// 					RuntimeException( "string interpolation not allowed in pattern" )
 		("true" | "false") ^^
 			(b => LiteralPatternAST( b.toBoolean )) |
 		"(" ~ ")" ^^^

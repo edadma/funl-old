@@ -447,7 +447,11 @@ class Evaluator
 	def unify( map: SymbolMapContainer, a: =>Any, p: PatternAST )( implicit env: Environment ): Boolean =
 		p match
 		{
-			case LiteralPatternAST( v ) => a == v
+			case LiteralPatternAST( v ) =>
+				if (v.isInstanceOf[String] && v.asInstanceOf[String].charAt(0) >= '\ue000')
+					RuntimeException( "string interpolation not allowed in patterns" )
+					
+				a == v
 			case EmptySetPatternAST => a == Set.empty
 			case VoidPatternAST => a == ()
 			case NullPatternAST => a == null
@@ -1030,8 +1034,14 @@ class Evaluator
 					List(FunctionExprAST(List(VariablePatternAST("$a")),
 						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, e))))))).computeReferencing )
 			case LiteralExprAST( v ) => push( v )
-			case StringLiteralExprAST( s ) =>
-				push( s )
+			case StringLiteralExprAST( s ) => push( s )
+			case InterpolationExprAST( l ) =>
+				val buf = new StringBuilder
+				
+				for (e <- l)
+					buf append (eval( e ).toString)
+					
+				push( buf.toString )
 			case BinaryExprAST( left, op, right ) =>
 				val l = eval( left )
 

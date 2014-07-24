@@ -30,6 +30,7 @@ case class ExpressionStatementAST( e: ExprAST ) extends StatementAST
 case class GeneratorAST( pattern: PatternAST, traversable: ExprAST, filter: Option[ExprAST] ) extends AST
 
 trait ExprAST extends AST
+case class InterpolationExprAST( l: List[ExprAST] ) extends ExprAST
 case class SectionExprAST( op: Symbol ) extends ExprAST
 case class LeftSectionExprAST( e: ExprAST, op: Symbol ) extends ExprAST
 case class RightSectionExprAST( op: Symbol, e: ExprAST ) extends ExprAST
