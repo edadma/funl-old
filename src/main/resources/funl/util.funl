@@ -11,3 +11,8 @@ native funl.modules.TextTable
 native funl.modules.Util.{
 	ordering
 	}
+	
+val naturalOrdering =
+	native funl.interp.Interpreter.NATURAL_ORDERING
+	
+	NATURAL_ORDERING()

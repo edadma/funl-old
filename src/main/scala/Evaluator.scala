@@ -846,20 +846,6 @@ class Evaluator
 						}) :: wrap( l.tail, idx + 1 )
 			
 			wrap( objs, 0 ).asInstanceOf[Seq[Object]]
-/*
-			for ((o, t) <- objs zip types)
-				yield
-					(o, t.getName) match
-					{
-						case (x: Number, "java.lang.Number") => x
-            case (x: BigInt, _) if x.isValidLong => x.longValue.asInstanceOf[AnyRef]
-						case (x: ScalaNumber, _) => x.underlying
-						case (x: Closure, "funl.interp.Evaluator$Closure") => x
-						case (x: Closure, "scala.Function0") => x.function0
-						case (x: Closure, "scala.Function1") => x.function1
-						case (x: Closure, "scala.Function2") => x.function2
-						case (x, _) => x.asInstanceOf[AnyRef]
-					}*/
 		}
 		
 		def assignable( objs: List[Any], types: Array[Class[_]] ) =
@@ -1084,7 +1070,7 @@ class Evaluator
 						if (l.isInstanceOf[String])
 							push( l.asInstanceOf[String]*r.asInstanceOf[Int] )
 						else
-							push( Math(op, l, r) )					
+							push( Math(op, l, r) )
 					case '< | '> | '<= | '>= =>
 						val r = eval( right )
 

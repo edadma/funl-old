@@ -14,6 +14,8 @@ import java.io.{File, InputStream, FileInputStream, ByteArrayOutputStream}
 import util.parsing.input.{Reader, CharSequenceReader}
 import io.Source
 
+import funl.lia.Math
+
 
 object Interpreter
 {
@@ -24,6 +26,29 @@ object Interpreter
 			val name = p.getImplementationTitle
 			
 			p.getImplementationVersion
+		}
+	
+	val NATURAL_ORDERING =
+		new Ordering[Any]
+		{
+			def compare( x: Any, y: Any ): Int =
+				(x, y) match
+				{
+					case (a: Number, b: Number) =>
+						if (Math( '<, a, b ).asInstanceOf[Boolean])
+							-1
+						else if (Math( '>, a, b ).asInstanceOf[Boolean])
+							1
+						else
+							0
+					case (a: String, b: String) => a compare b
+					case (a: Seq[Any], b: Seq[Any]) =>
+						for ((u, v) <- a zip b)
+							if (u != v)
+								return compare( u, v )
+								
+						0
+				}
 		}
 
 	def markTailRecursion( m: ModuleAST )

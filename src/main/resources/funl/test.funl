@@ -1,8 +1,11 @@
-import util.ordering
+import util.naturalOrdering
+native scala.collection.mutable.PriorityQueue
 
-def comparator( a, b )
-	| a < b     = -1
-	| a > b     =  1
-	| otherwise = 0
+q = PriorityQueue( naturalOrdering )
 
-println( [1, 2, 3].max(ordering(comparator)) )
+q.enqueue( 1 )
+q.enqueue( 3 )
+q.enqueue( 2 )
+
+while not q.isEmpty()
+	println( q.dequeue() )

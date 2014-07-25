@@ -36,11 +36,4 @@ package object interp
 
 		def clear: Unit
 	}
-	
-// 	val NATURAL_ORDERING =
-// 		new Ordering[Any]
-// 		{
-// 			compare( x: Any, y: Any ) =
-// 			
-// 		}
 }
