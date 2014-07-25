@@ -5,16 +5,16 @@ Since FunL map syntax is conforms to JSON, the built-in function <code>eval()</c
 Using module <code>json</code> gives better performance and also pretty prints the JSON output.
 <lang funl>~~import json.*
 
-println( DefaultJSONWriter.toString(DefaultJSONReader.fromString('{ "foo": 1, "bar": [10, "apples"] }')) )~~</lang>
+DefaultJSONWriter.write( JSONReader(true, true).fromString('{ "foo": 1, "bar": [10, "apples"] }') )~~</lang>
 
 {{out}}
 
 <pre>
 {"foo": 1, "bar": [10, "apples"]}
 {
-  "foo": 1.0,
+  "foo": 1,
   "bar": [
-    10.0,
+    10,
     "apples"
   ]
 }
