@@ -1,0 +1,3 @@
+=={{header|FunL}}==
+<lang funl>~~X = 'little'
+println( "Mary had a $X lamb." )~~</lang>
