@@ -1,0 +1,8 @@
+import util.ordering
+
+def comparator( a, b )
+	| a < b     = -1
+	| a > b     =  1
+	| otherwise = 0
+
+println( [1, 2, 3].max(ordering(comparator)) )

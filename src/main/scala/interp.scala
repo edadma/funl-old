@@ -7,6 +7,9 @@
 
 package funl
 
+import funl.lia.Math
+
+
 package object interp
 {
 	type SymbolMap = collection.immutable.Map[String, Any]
@@ -33,4 +36,11 @@ package object interp
 
 		def clear: Unit
 	}
+	
+// 	val NATURAL_ORDERING =
+// 		new Ordering[Any]
+// 		{
+// 			compare( x: Any, y: Any ) =
+// 			
+// 		}
 }

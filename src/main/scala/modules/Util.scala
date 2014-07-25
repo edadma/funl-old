@@ -8,7 +8,7 @@
 package funl.modules
 
 import util.Random.{nextInt, nextDouble}
-import funl.interp.ArgList
+import funl.interp.{/*NATURAL_ORDERING,*/ ArgList}
 
 
 object Util
@@ -20,5 +20,11 @@ object Util
 			case ArgList( List(l: Int, u: Int) ) if l <= u => nextInt( u - l ) + l
 			case n: Int => nextInt( n )
 			case r: collection.immutable.Range => nextInt( r.last + 1 - r.start ) + r.start
+		}
+
+	def ordering( comparator: (Any, Any) => Int ) =
+		new Ordering[Any]
+		{
+			def compare( x: Any, y: Any ) = comparator( x, y )
 		}
 }
