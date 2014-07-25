@@ -1,0 +1,15 @@
+=={{header|FunL}}==
+FunL supports single and multidimensional arrays, which can be initialized from any sequence type.  Arrays are always zero based.
+<lang funl>~~println( array(5) )                         // one dimensional 5 element array (uninitialized)
+println( array(3, 2) )                      // two dimensional 3 by 2 element array (uninitialized)
+println( array([1, 2, 3, 4, 5]) )           // one dimensional 5 element array (initialized from a list)
+println( array(((1, 2), (3, 4), (5, 6))) )  // two dimensional 3 by 2 element array (initialized from a tuple containing row tuples)~~</lang>
+
+{{out}}
+
+<pre>
+ArraySeq(null, null, null, null, null)
+ArraySeq(ArraySeq(null, null), ArraySeq(null, null), ArraySeq(null, null))
+ArraySeq(1, 2, 3, 4, 5)
+ArraySeq(ArraySeq(1, 2), ArraySeq(3, 4), ArraySeq(5, 6))
+</pre>

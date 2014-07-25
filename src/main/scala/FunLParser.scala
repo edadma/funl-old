@@ -472,7 +472,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 				}) |
 		stringLit ^^
 			(s =>
-				if (s.charAt(0) >= INTERPOLATION_DELIMITER)
+				if (s.length > 0 && s.charAt(0) >= INTERPOLATION_DELIMITER)
 				{
 				val buf = new ListBuffer[ExprAST]
 				

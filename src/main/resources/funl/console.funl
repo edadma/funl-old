@@ -40,3 +40,5 @@ def
 	position( r, c ) = print( '\u001B[' + r + ';' + c + 'H' )
 	hide = print( '\u001B[?25l' )
 	show = print( '\u001B[?25h' )
+
+native scala.Console.readInt

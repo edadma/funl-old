@@ -1,8 +1,9 @@
-import console.readInt
+=={{header|FunL}}==
+<lang funl>~~import console.readInt
 
 a = readInt()
 b = readInt()
 
 val (_, c) = [((<), 'less than'), ((==), 'equal to'), ((>), 'greater than')].find( ((compare, _)) -> compare(a, b) ).get()
 
-println( "$a is $c $b." )
+println( "$a is $c $b." )~~</lang>
