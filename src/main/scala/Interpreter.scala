@@ -29,19 +29,24 @@ object Interpreter
 	def markTailRecursion( m: ModuleAST )
 	{
 		for (s <- m.statements)
-			s match
-			{
-				case DeclarationBlockAST( decls ) =>
-					for (c <- decls)
-						c match
-						{
-							case DefAST( name, func ) =>
-								for (p <- func.parts)
-									markTailRecursion( name, p.body )
-							case _ =>
-						}
-				case _ =>
-			}
+			markTailRecursion( s )
+	}
+	
+	def markTailRecursion( s: StatementAST )
+	{
+		s match
+		{
+			case DeclarationBlockAST( decls ) =>
+				for (c <- decls)
+					c match
+					{
+						case DefAST( name, func ) =>
+							for (p <- func.parts)
+								markTailRecursion( name, p.body )
+						case _ =>
+					}
+			case _ =>
+		}
 	}
 	
 	def markTailRecursion( n: String, e: ExprAST )
@@ -133,7 +138,7 @@ object Interpreter
 
 	def parse( module: String, input: Reader[Char] ): AST =
 	{
-	val parser = new Parser( module )
+	val parser = new FunLParser( module )
 
 		parser.parseSource( input ) match
 		{
@@ -265,11 +270,12 @@ object Interpreter
 
 	def statement( m: String, s: String, eval: Evaluator )( implicit env: eval.Environment ) =
 	{
-	val parser = new Parser( m )
+	val parser = new FunLParser( m )
 
 		parser.parseStatement( new CharSequenceReader(s) ) match
 		{
 			case parser.Success( l, _ ) =>
+				markTailRecursion( l )
 				eval.apply( l )
 				eval.last
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
@@ -282,12 +288,13 @@ object Interpreter
 	def snippet( code: String, module: String = "-snippet-" ) =
 	{
 	val eval = new Evaluator
-	val parser = new Parser( module )
+	val parser = new FunLParser( module )
 	implicit val env = new eval.Environment
 
 		parser.parseSource( new CharSequenceReader(code) ) match
 		{
 			case parser.Success( l, _ ) =>
+				markTailRecursion( l )
 				eval.enterActivation( null, null, eval.module(module) )
 				eval.apply( l )
 				eval.last
@@ -301,7 +308,7 @@ object Interpreter
 	def expression( s: String, vs: (String, Any)* ) =
 	{
 	val eval = new Evaluator
-	val parser = new Parser( "-expression-" )
+	val parser = new FunLParser( "-expression-" )
 	implicit val env = new eval.Environment
 
 		parser.parseExpression( new CharSequenceReader(s) ) match
