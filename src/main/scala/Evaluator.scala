@@ -11,7 +11,7 @@ import java.lang.reflect.{Method, Modifier}
 import java.util.concurrent.Callable
 
 import collection.mutable.{ArrayBuffer, ArrayStack, ListBuffer, HashMap, HashSet, Seq => MutableSeq, Map => MutableMap}
-import collection.immutable.{ListMap, Seq => ImmutableSeq, Map => ImmutableMap}
+import collection.immutable.{Seq => ImmutableSeq, Map => ImmutableMap}
 import util.parsing.input.{Reader, CharSequenceReader}
 import math._
 import compat.Platform._
@@ -220,20 +220,22 @@ class Evaluator
 
 	case class NativeMethod( o: Any, m: List[Method] )
 	
-	class Record( val module: Module, val datatype: String, val name: String, val fields: List[String], val args: List[Any] )
+	case class Record( module: Module, datatype: String, name: String, fields: List[String], args: Vector[Any] )
 	{
-		private val map = ListMap[String, Any]( (fields zip args): _* )
+		private val map = Map[String, Any]( (fields zip args): _* )
 
 		def get( key: String ) = map.get( key )
 
-		override def hashCode = datatype.hashCode ^ name.hashCode ^ fields.hashCode ^ args.hashCode
-
-		override def equals( o: Any ) =
-			o match
-			{
-				case r: Record => module == r.module && name == r.name && args == r.args
-				case _ => false
-			}
+		def length = args.length
+		
+// 		override def hashCode = datatype.hashCode ^ name.hashCode ^ fields.hashCode ^ args.hashCode
+// 
+// 		override def equals( o: Any ) =
+// 			o match
+// 			{
+// 				case r: Record => module == r.module && name == r.name && args == r.args
+// 				case _ => false
+// 			}
 			
 		override def toString = name + (if (args isEmpty) "" else args.mkString("(", ", ", ")"))
 	}
@@ -972,7 +974,7 @@ class Evaluator
 
 				for ((name, fields) <- cs)
 					if (fields isEmpty)
-						declare( name, new Record(currentModule, n, name, Nil, Nil) )
+						declare( name, new Record(currentModule, n, name, Nil, Vector()) )
 					else
 						declare( name, Constructor(currentModule, n, name, fields) )
 			case DefAST( name, func ) =>
@@ -1189,7 +1191,13 @@ class Evaluator
 					case Constructor( m, t, n, fields ) =>
 						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 
-						push( new Record(m, t, n, fields, argList) )
+						push( Record(m, t, n, fields, argList.toVector) )
+					case r@Record( _, _, _, _, args ) =>
+            argList match
+            {
+              case List( idx: Int ) => push( args(idx) )
+              case List( field: String ) => push( r.get(field).get )
+            }
 					case NativeMethod( o, m ) =>
 						m.find( cm => assignable(argList, cm.getParameterTypes) ) match
 							{
@@ -1550,7 +1558,7 @@ class Evaluator
 			case DotExprAST( e, f, lookup ) =>
 				eval( e ) match
 				{
-					case r: Record =>
+					case r: Record if lookup =>
 						r.get( f ) match
 						{
 							case None => RuntimeException( "unknown field: " + f )

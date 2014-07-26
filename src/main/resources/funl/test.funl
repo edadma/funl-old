@@ -1,11 +1,3 @@
-import util.naturalOrdering
-native scala.collection.mutable.PriorityQueue
+data Vector3D( x, y, x )
 
-q = PriorityQueue( naturalOrdering )
-
-q.enqueue( 1 )
-q.enqueue( 3 )
-q.enqueue( 2 )
-
-while not q.isEmpty()
-	println( q.dequeue() )
+println( Vector3D(3, 4, 5).>length() )
