@@ -82,9 +82,9 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
 	"JSON" in {executeCaptureOutput( "RosettaCode.org/JSON", Some("-main-") ).trim shouldBe 
 		"""	|{"foo": 1, "bar": [10, "apples"]}
 				|{
-				|  "foo": 1.0,
+				|  "foo": 1,
 				|  "bar": [
-				|    10.0,
+				|    10,
 				|    "apples"
 				|  ]
 				|}""".stripMargin}
