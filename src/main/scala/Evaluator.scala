@@ -220,10 +220,14 @@ class Evaluator
 
 	case class NativeMethod( o: Any, m: List[Method] )
 	
-	case class Record( module: Module, datatype: String, name: String, fields: List[String], args: Vector[Any] )
+	case class Record( module: Module, datatype: String, name: String, fields: List[String], args: Vector[Any] ) extends Seq[Any]
 	{
 		private val map = Map[String, Any]( (fields zip args): _* )
 
+		def apply( idx: Int ) = args( idx )
+		
+		def iterator = args.iterator
+		
 		def get( key: String ) = map.get( key )
 
 		def length = args.length
