@@ -162,6 +162,14 @@ object Predef
 			case s: String => s.toInt
 		}
 
+	def float( a: Any ) =
+		a match
+		{
+			case (_: Double) | (_: BigDecimal) => a
+			case n: Number => n.doubleValue
+			case s: String => s.toDouble
+		}
+
 	def bin( a: Any ) =
 		a match
 		{
