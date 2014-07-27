@@ -220,7 +220,7 @@ class Evaluator
 
 	case class NativeMethod( o: Any, m: List[Method] )
 	
-	case class Record( module: Module, datatype: String, name: String, fields: List[String], args: Vector[Any] ) extends Seq[Any]
+	class Record( val module: Module, val datatype: String, val name: String, val fields: List[String], val args: Vector[Any] ) extends Seq[Any]
 	{
 		private val map = Map[String, Any]( (fields zip args): _* )
 
@@ -232,14 +232,14 @@ class Evaluator
 
 		def length = args.length
 		
-// 		override def hashCode = datatype.hashCode ^ name.hashCode ^ fields.hashCode ^ args.hashCode
-// 
-// 		override def equals( o: Any ) =
-// 			o match
-// 			{
-// 				case r: Record => module == r.module && name == r.name && args == r.args
-// 				case _ => false
-// 			}
+		override def hashCode = datatype.hashCode ^ name.hashCode ^ fields.hashCode ^ args.hashCode
+
+		override def equals( o: Any ) =
+			o match
+			{
+				case r: Record => module == r.module && name == r.name && args == r.args
+				case _ => false
+			}
 			
 		override def toString = name + (if (args isEmpty) "" else args.mkString("(", ", ", ")"))
 	}
@@ -1211,11 +1211,11 @@ class Evaluator
 					case Constructor( m, t, n, fields ) =>
 						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 
-						push( Record(m, t, n, fields, argList.toVector) )
-					case r@Record( _, _, _, _, args ) =>
+						push( new Record(m, t, n, fields, argList.toVector) )
+					case r :Record =>
             argList match
             {
-              case List( idx: Int ) => push( args(idx) )
+              case List( idx: Int ) => push( r(idx) )
               case List( field: String ) => push( r.get(field).get )
             }
 					case NativeMethod( o, m ) =>
