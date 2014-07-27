@@ -6,9 +6,6 @@
 \*                                                               */
 
 def
-	length( [] )							= 0
-	length( _:t )						= 1 + length( t )
-
 	foldr( f, z, [] )				= z
 	foldr( f, z, x:xs )			= f( x, foldr(f, z, xs) )
 	foldr( f, z, (a::Array|a::Iterable) ) = foldr( f, z, list(a) )
@@ -19,14 +16,6 @@ def
 	foldr1( _, [] )					= error( "foldr1: empty list" )
 
 	splitAt( n, xs )					= (take( n, xs ), drop( n, xs ))
-
-	take( _, [] )						= []
-	take( n, _ ) | n <= 0		= []
-	take( n, x:xs )					= x : take( n - 1, xs )
-
-	drop( n, xs ) | n <= 0		= xs
-	drop( _, [] )						= []
-	drop( n, _:xs )					= drop( n - 1, xs )
 
 	concat( xss )           = foldr( (x, y) -> x + y, [], xss )
 
