@@ -88,6 +88,11 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
 				|    "apples"
 				|  ]
 				|}""".stripMargin}
+	"Vector_products" in {executeCaptureOutput( "RosettaCode.org/Vector_products", Some("-main-") ).trim shouldBe
+		""" |A·B = 49
+				|A×B = (5, 5, -7)
+				|A·(B×C) = 6
+				|A×(B×C) = (-267, 204, -3)""".stripMargin}
 // 	"Table_Creation_-_Address" in {executeCaptureOutput( "RosettaCode.org/Table_Creation_-_Address", Some("-main-") ).trim shouldBe
 // 		""" |+----+-----------------+---------------------------+----------+--------+---------+------------+----------------+
 // 				|| ID |      NAME       |          STREET           |   CITY   | REGION | COUNTRY |    CODE    |     PHONE      |

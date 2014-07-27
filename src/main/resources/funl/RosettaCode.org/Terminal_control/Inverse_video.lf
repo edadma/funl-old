@@ -1,0 +1,4 @@
+=={{header|FunL}}==
+<lang funl>~~import console.*
+
+println( "${REVERSED}This is reversed.$RESET This is normal." )~~</lang>
