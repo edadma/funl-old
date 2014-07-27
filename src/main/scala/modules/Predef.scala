@@ -183,36 +183,48 @@ object Predef
 			case n: Int => Integer.toHexString( n )
 		}
 
-  def chr( code: Int ) = code.toChar.toString
+	def chr( code: Int ) = code.toChar.toString
 
-  def ord( ch: String ) = ch.head.toInt
+	def ord( ch: String ) = ch.head.toInt
 
-  def isalpha( ch: String ) = ch.head.toChar.isLetter
+	def isalpha( ch: String ) = ch.head.toChar.isLetter
 
-  def isupper( ch: String ) = ch.head.toChar.isUpper
+	def isupper( ch: String ) = ch.head.toChar.isUpper
 
-  def islower( ch: String ) = ch.head.toChar.isLower
+	def islower( ch: String ) = ch.head.toChar.isLower
 
-  def sum( t: TraversableOnce[Any] ) =
-  {
+	private val INTEGER = """-?(?:0|[1-9]\d*)""".r.pattern
+	
+	private val DECIMAL = """-?(?:(?:0|[1-9]\d*)(?:\.\d*)?|\.\d+)(?:(?:e|E)(?:\+|-|)\d+)?""".r.pattern
+
+	def number( s: String ) =
+		if (INTEGER.matcher( s ).matches)
+			Some( s.toInt )
+		else if (DECIMAL.matcher( s ).matches)
+			Some( s.toDouble )
+		else
+			None
+
+	def sum( t: TraversableOnce[Any] ) =
+	{
 	var res: Any = 0
 
 		for (a <- t)
 			res = funl.lia.Math( '+, res, a )
 
 		res
-  }
+	}
 
-  def none = None
-  
-  def rnd( a: Any ): Any =
-    a match
-    {
-      case ArgList( Nil ) => nextDouble
-      case ArgList( List(l: Int, u: Int) ) if l <= u => nextInt( u - l ) + l
-      case n: Int => nextInt( n )
-      case r: collection.immutable.Range => nextInt( r.last + 1 - r.start ) + r.start
-    }
+	def none = None
+	
+	def rnd( a: Any ): Any =
+		a match
+		{
+			case ArgList( Nil ) => nextDouble
+			case ArgList( List(l: Int, u: Int) ) if l <= u => nextInt( u - l ) + l
+			case n: Int => nextInt( n )
+			case r: collection.immutable.Range => nextInt( r.last + 1 - r.start ) + r.start
+		}
 
 	def eval( a: Any ): Any =
 		a match

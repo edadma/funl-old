@@ -20,7 +20,7 @@ function funl.modules.Predef.{
 
 native funl.modules.Predef.{
   chr, ord, isalpha, isupper, islower,
-	sum
+	sum, number
   }
 
 native funl.modules.BitArray

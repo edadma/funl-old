@@ -46,9 +46,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 				fraction ~ optExponent ^^
 					{case frac ~ exp => NumericLit( frac + exp )}
 
-			private def chr( c: Char ): Parser[Char] = elem( "", ch => ch == c )
-
-			private def sign = chr( '+' ) | chr( '-' )
+			private def sign = elem('+') | elem('-')
 
 			private def optSign = opt( sign ) ^^
 				{
@@ -67,7 +65,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 					case Some( fraction ) => fraction
 				}
 
-			private def exponent = (chr('e') | chr('E')) ~ optSign ~ rep1(digit) ^^
+			private def exponent = (elem('e') | elem('E')) ~ optSign ~ rep1(digit) ^^
 				{case e ~ optSign ~ exp => e :: optSign :: (exp mkString "") :: Nil mkString ""}
 
 			private def optExponent: Parser[String] =
@@ -78,7 +76,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 				}
 
 			private def hexParser: Parser[Token] =
-				'0' ~> 'x' ~> rep1(digit | chr('a') | chr('b') | chr('c') | chr('d') | chr('e') | chr('f') | chr('A') | chr('B') | chr('C') | chr('D') | chr('E') | chr('F')) ^^
+				'0' ~> 'x' ~> rep1(digit | elem('a') | elem('b') | elem('c') | elem('d') | elem('e') | elem('f') | elem('A') | elem('B') | elem('C') | elem('D') | elem('E') | elem('F')) ^^
 					(d => NumericLit( "0x" + (d mkString "") ))
 				
 			reserved += (
