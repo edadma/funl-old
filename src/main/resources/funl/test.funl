@@ -1,8 +1,13 @@
-data Vector3D( x, y, x )
+a = (3, 4, 5)
+b = (4, 3, 5)
+c = (-5, -12, -13)
 
-u = Vector3D(3, 4, 5)
-v = Vector3D(6, 7, 8)
+def dot( u, v ) = sum( u(i)v(i) | i <- 0:u.>length() )
+def cross( u, v ) = (u(1)v(2) - u(2)v(1), u(2)v(0) - u(0)v(2), u(0)v(1) - u(1)v(0) )
+def scalarTriple( u, v, w ) = dot( u, cross(v, w) )
+def vectorTriple( u, v, w ) = cross( u, cross(v, w) )
 
-def dot( a, b ) = sum( a(i)*b(j) | i <- 0 .. 2 )
-
-println( dot(u, v) )
+println( dot(a, b) )
+println( cross(a, b) )
+println( scalarTriple(a, b, c) )
+println( vectorTriple(a, b, c) )

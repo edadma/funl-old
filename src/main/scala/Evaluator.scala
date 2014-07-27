@@ -1031,7 +1031,7 @@ class Evaluator
 				val buf = new StringBuilder
 				
 				for (e <- l)
-					buf append (eval( e ).toString)
+					buf append (display( eval(e) ))
 					
 				push( buf.toString )
 			case BinaryExprAST( left, op, right ) =>
