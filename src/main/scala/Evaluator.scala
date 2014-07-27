@@ -1188,10 +1188,24 @@ class Evaluator
 						else
 							c.invoke( argList )
 					case b: Function =>
+						def conv( l: List[Any] ): List[Any] =
+							l match
+							{
+								case Nil => Nil
+								case (c: Closure) :: tail =>
+									c.funcs.head.parms.length match
+									{
+										case 0 => c.function0 :: conv( tail )
+										case 1 => c.function1 :: conv( tail )
+										case 2 => c.function2 :: conv( tail )
+									}
+								case head :: tail => head :: conv( tail )
+							}
+							
 						if (argListLength == 1)
-							push( b(argList.head) )
+							push( b(conv(argList).head) )
 						else
-							push( b(ArgList(argList)) )
+							push( b(ArgList(conv(argList))) )
 					case Constructor( m, t, n, fields ) =>
 						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 

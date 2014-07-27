@@ -90,6 +90,8 @@ object Predef
 		a match
 		{
 			case ArgList( Nil ) => Vector()
+			case ArgList( List(n: Int, f: (Int => Any)) ) => Vector.tabulate[Any]( n )( f )
+			case ArgList( List(n1: Int, n2: Int, f: ((Int, Int) => Any)) ) => Vector.tabulate[Any]( n1, n2 )( f )
 			case init: Array[Any] => Vector[Any]( init: _* )
 			case init: Array[Byte] => Vector[Any]( init: _* )
 			case init: Array[Int] => Vector[Any]( init: _* )
