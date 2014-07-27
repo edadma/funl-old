@@ -369,6 +369,7 @@ class Evaluator
 			case tr: TraversableOnce[Any] => tr
 			case s: String => s.map( _.toString ).iterator
 			case a: Array[Any] => a.iterator
+			case p: Product => p.productIterator
 			case o => 	RuntimeException( "non traversable object: " + o )
 		}
 	
@@ -1093,6 +1094,8 @@ class Evaluator
 							push( comp(l.toString.compare(r.toString)) )
 						else if (l.isInstanceOf[Seq[Any]] && r.isInstanceOf[Seq[Any]])
 							push( comp(lexicographicalCompare(l.asInstanceOf[Seq[Any]], r.asInstanceOf[Seq[Any]])) )
+						else if (l.isInstanceOf[Product] && r.isInstanceOf[Product])
+							push( comp(lexicographicalCompare(l.asInstanceOf[Product].productIterator.toSeq, r.asInstanceOf[Product].productIterator.toSeq)) )
 						else
 							push( Math(op, l, r) )
 					case '== | '!= =>

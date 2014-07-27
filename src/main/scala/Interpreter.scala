@@ -46,6 +46,8 @@ object Interpreter
 					0
 			case (a: String, b: String) => a compare b
 			case (a: Seq[Any], b: Seq[Any]) => lexicographicalCompare( a, b )
+			case (a: Product, b: Product) if a.productPrefix == b.productPrefix => lexicographicalCompare( a.productIterator.toSeq, b.productIterator.toSeq )
+			case _ => RuntimeException( "non-comparable: " + x + ", " + y )
 		}
 
 	def lexicographicalCompare( a: Seq[Any], b: Seq[Any] ): Int =
