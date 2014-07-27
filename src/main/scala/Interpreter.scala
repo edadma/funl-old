@@ -31,26 +31,39 @@ object Interpreter
 	val NATURAL_ORDERING =
 		new Ordering[Any]
 		{
-			def compare( x: Any, y: Any ): Int =
-				(x, y) match
-				{
-					case (a: Number, b: Number) =>
-						if (Math( '<, a, b ).asInstanceOf[Boolean])
-							-1
-						else if (Math( '>, a, b ).asInstanceOf[Boolean])
-							1
-						else
-							0
-					case (a: String, b: String) => a compare b
-					case (a: Seq[Any], b: Seq[Any]) =>
-						for ((u, v) <- a zip b)
-							if (u != v)
-								return compare( u, v )
-								
-						0
-				}
+			def compare( x: Any, y: Any ): Int = naturalCompare( x, y )
 		}
 
+	def naturalCompare( x: Any, y: Any ): Int =
+		(x, y) match
+		{
+			case (a: Number, b: Number) =>
+				if (Math( '<, a, b ).asInstanceOf[Boolean])
+					-1
+				else if (Math( '>, a, b ).asInstanceOf[Boolean])
+					1
+				else
+					0
+			case (a: String, b: String) => a compare b
+			case (a: Seq[Any], b: Seq[Any]) => lexicographicalCompare( a, b )
+		}
+
+	def lexicographicalCompare( a: Seq[Any], b: Seq[Any] ): Int =
+	{
+		for ((u, v) <- a zip b)
+			if (u != v)
+				return naturalCompare( u, v )
+	
+		val (alen, blen) = (a.length, b.length)
+		
+		if (alen < blen)
+			-1
+		else if (alen > blen)
+			1
+		else
+			0
+	}
+	
 	def markTailRecursion( m: ModuleAST )
 	{
 		for (s <- m.statements)

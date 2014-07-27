@@ -1078,12 +1078,7 @@ class Evaluator
 						else
 							push( Math(op, l, r) )
 					case '< | '> | '<= | '>= =>
-						val r = eval( right )
-
-						if (l.isInstanceOf[String] || r.isInstanceOf[String])
-						{
-						val c = l.toString.compare( r.toString )
-						val res =
+						def comp( c: Int ) =
 							op match
 							{
 								case '< => c < 0
@@ -1092,8 +1087,12 @@ class Evaluator
 								case '>= => c >= 0
 							}
 							
-							push( res )
-						}
+						val r = eval( right )
+
+						if (l.isInstanceOf[String] || r.isInstanceOf[String])
+							push( comp(l.toString.compare(r.toString)) )
+						else if (l.isInstanceOf[Seq[Any]] && r.isInstanceOf[Seq[Any]])
+							push( comp(lexicographicalCompare(l.asInstanceOf[Seq[Any]], r.asInstanceOf[Seq[Any]])) )
 						else
 							push( Math(op, l, r) )
 					case '== | '!= =>
