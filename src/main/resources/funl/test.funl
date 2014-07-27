@@ -1,1 +1,1 @@
-println( [(4, 2), (1, 7), (5, 6)].sortWith((<)) )
+println( Some(123), None )
