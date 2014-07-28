@@ -5,9 +5,10 @@
 ** /_/    \____/_/ /_/____/                                     **
 \*                                                              */
 
-native funl.lia.Math.{
+function funl.lia.Math.{
 	sqrtFunction => sqrt, absFunction => abs,
-	cosFunction => cos, sinFunction => sin, acosFunction => acos, asinFunction => asin
+	cosFunction => cos, sinFunction => sin, acosFunction => acos, asinFunction => asin,
+  expFunction => exp
 	}
 
 native java.lang.Math.{PI => Pi, E}

@@ -1,0 +1,13 @@
+=={{header|FunL}}==
+FunL has built-in support for complex numbers.  <code>i</code> is predefined to represent the imaginary unit.
+<lang funl>~~import math.{exp, Pi}
+
+def rootsOfUnity( n ) = {exp( 2Pi i k/n ) | k <- 0:n}
+
+println( rootsOfUnity(3) )~~</lang>
+
+{{out}}
+
+<pre>
+{1.0, -0.4999999999999998+0.8660254037844387i, -0.5000000000000004-0.8660254037844385i}
+</pre>
