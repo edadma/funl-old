@@ -59,6 +59,7 @@ case class SetExprAST( l: List[ExprAST] ) extends ExprAST
 case class MapExprAST( l: List[TupleExprAST] ) extends ExprAST
 case object VoidExprAST extends ExprAST
 case object NullExprAST extends ExprAST
+case object EmptyMapExprAST extends ExprAST
 case class BlockExprAST( l: List[StatementAST] ) extends ExprAST
 case class CompoundExprAST( l: List[StatementAST] ) extends ExprAST
 case class ConditionalExprAST( cond: List[(ExprAST, ExprAST)], no: Option[ExprAST] ) extends ExprAST

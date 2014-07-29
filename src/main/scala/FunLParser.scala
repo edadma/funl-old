@@ -514,14 +514,16 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 			(ListComprehensionExprAST( _ )) |
 		"[" ~> repsep(nonAssignmentExpression, ",") <~ "]" ^^
 			{case l => ListExprAST( l )} |
-		"null" ^^
-			(_ => NullExprAST) |
+		"null" ^^^
+			NullExprAST |
     "{" ~> comprehensionExpression <~ "}" ^^
       (SetComprehensionExprAST( _ )) |
 		"{" ~> repsep(keyExpression, ",") <~ "}" ^^
 			(SetExprAST( _ )) |
 		"{" ~> rep1sep(MapEntry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
+    "{" ~ ":" ~ "}" ^^^
+      EmptyMapExprAST |
 		"$" ~> ident ^^
 			(SysvarExprAST( _ )) |
 		"?" ~> ident ^^

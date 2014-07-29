@@ -1335,6 +1335,7 @@ class Evaluator
 				push( list(l.length).asInstanceOf[List[(_, _)]].toMap )
 			case VoidExprAST => push( () )
 			case NullExprAST => push( null )
+      case EmptyMapExprAST => push( Map() )
 			case BlockExprAST( Nil ) => push( () )
 			case BlockExprAST( l ) =>
 				var res: Any = null
