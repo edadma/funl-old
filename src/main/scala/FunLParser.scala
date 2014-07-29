@@ -305,7 +305,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 					CompoundExprAST( l map (e => ExpressionStatementAST(e)) ))
 
 	lazy val assignmentExpression: PackratParser[ExprAST] =
-		rep1sep(lvalueExpression, ",") ~ assignment ~ rep1sep(nonAssignmentExpression, ",") ^^
+		rep1sep(lvalueExpression, ",") ~ assignment ~ (rep1sep(nonAssignmentExpression, ",") | blockExpression ^^ (List( _ ))) ^^
 			{case lhs ~ op ~ rhs => AssignmentExprAST( lhs, op, rhs )} |
   nonAssignmentExpression
 

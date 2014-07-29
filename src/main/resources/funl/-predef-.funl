@@ -35,6 +35,8 @@ val None =
 	native funl.modules.Predef.none
 	none()
 
+native scala.Tuple2
+
 def
 	fst( (a, _) ) = a
 

@@ -241,7 +241,7 @@ class Evaluator
 				case _ => false
 			}
 			
-		override def toString = name + (if (args isEmpty) "" else args.mkString("(", ", ", ")"))
+		override def toString = name + (if (args isEmpty) "" else args.map( display(_) ).mkString("(", ", ", ")"))
 	}
 
 	class BreakThrowable extends Throwable

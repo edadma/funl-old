@@ -83,7 +83,7 @@ object Predef
 			case init: Seq[Seq[Any]] if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
 				ArraySeq[Any]( (init map (e => ArraySeq[Any](e: _*))): _* )
 			case init: Seq[Any] => ArraySeq[Any]( init: _* )
-			case init: Iterable[Any] => ArraySeq[Any]( init.toSeq: _* )
+			case init: TraversableOnce[Any] => ArraySeq[Any]( init.toSeq: _* )
 		}
 
 	def vector( a: Any ) =
@@ -98,7 +98,7 @@ object Predef
 			case init: Seq[Seq[Any]] if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
 				Vector[Any]( (init map (e => Vector[Any](e: _*))): _* )
 			case init: Seq[Any] => Vector[Any]( init: _* )
-			case init: Iterable[Any] => Vector[Any]( init.toSeq: _* )
+			case init: TraversableOnce[Any] => Vector[Any]( init.toSeq: _* )
 		}
 
 	def seq( a: Any ) =
@@ -106,13 +106,13 @@ object Predef
 		{
 			case ArgList( Nil ) => new ArrayBuffer[Any]
 			case n: Int => ArrayBuffer.fill[Any]( n )( null )
-//			case ArgList( l ) => ArrayBuffer[Any]( l: _* )
 			case init: Array[Any] => ArrayBuffer[Any]( init: _* )
 			case init: Array[Byte] => ArrayBuffer[Any]( init: _* )
 			case init: Array[Int] => ArrayBuffer[Any]( init: _* )
+			case init: Seq[Seq[Any]] if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
+				ArrayBuffer[Any]( (init map (e => ArrayBuffer[Any](e: _*))): _* )
 			case init: Seq[Any] => ArrayBuffer[Any]( init: _* )
-			case init: Iterable[Any] => ArrayBuffer[Any]( init.toSeq: _* )
-//			case _ => ArrayBuffer[Any]( a )
+			case init: TraversableOnce[Any] => ArrayBuffer[Any]( init.toSeq: _* )
 		}
 
 	def list( a: Any ) =
@@ -125,7 +125,7 @@ object Predef
 			case init: Seq[Seq[Any]] if !init.isEmpty && init.head.isInstanceOf[Seq[Any]] =>
 				List[Any]( (init map (e => List[Any](e: _*))): _* )
 			case init: Seq[Any] => List[Any]( init: _* )
-			case init: Iterable[Any] => List[Any]( init.toSeq: _* )
+			case init: TraversableOnce[Any] => List[Any]( init.toSeq: _* )
 		}
 
 	def set( a: Any ) =
@@ -142,15 +142,16 @@ object Predef
 		a match
 		{
 			case ArgList( Nil ) => new HashMap[Any, Any]
-			case _ => HashMap( a.asInstanceOf[collection.Map[Any, Any]].toSeq: _* )
+			case s: collection.TraversableOnce[Vector[Any]] => HashMap( s.toSeq.map(v => (v(0), v(1))): _* )
+			case m: collection.Map[Any, Any] => HashMap( m.toSeq: _* )
 		}
 		
 	def tuple( a: Any ) =
 		a match
 		{
 			case ArgList( Nil ) => Vector()
-			case c: Iterable[_] => c.toVector
 			case a: Array[_] => a.toVector
+			case c: Iterable[_] => c.toVector
 		}
 
 	def int( a: Any ) =
