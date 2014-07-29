@@ -7,7 +7,7 @@ name := "FunL"
 
 version := "0.14-SNAPSHOT"
 
-scalaVersion := "2.11.1"
+scalaVersion := "2.11.2"
 
 scalacOptions ++= Seq( "-deprecation", "-feature", "-language:postfixOps", "-language:implicitConversions", "-language:existentials" )
 
@@ -24,8 +24,6 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test"
 libraryDependencies += "jline" % "jline" % "2.11"
 
 libraryDependencies += "com.h2database" % "h2" % "1.3.148"
-
-//libraryDependencies += "org.codehaus.jackson" % "jackson-core-lgpl" % "1.9.13"
 
 //libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT"
 

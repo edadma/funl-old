@@ -142,8 +142,8 @@ object Predef
 		a match
 		{
 			case ArgList( Nil ) => new HashMap[Any, Any]
-			case s: collection.TraversableOnce[Vector[Any]] => HashMap( s.toSeq.map(v => (v(0), v(1))): _* )
 			case m: collection.Map[Any, Any] => HashMap( m.toSeq: _* )
+			case s: collection.TraversableOnce[Vector[Any]] => HashMap( s.toSeq.map(v => (v(0), v(1))): _* )
 		}
 		
 	def tuple( a: Any ) =
