@@ -1067,6 +1067,10 @@ class Evaluator
 						
 						if (l.isInstanceOf[String] || r.isInstanceOf[String])
 							push( display(l) + display(r) )
+						else if (l.isInstanceOf[collection.Map[_, _]] && r.isInstanceOf[collection.Map[_, _]])
+							push( l.asInstanceOf[collection.Map[_, _]] ++ r.asInstanceOf[collection.Map[_, _]] )
+						else if (l.isInstanceOf[collection.Map[_, _]] && r.isInstanceOf[Iterable[_]])
+							push( l.asInstanceOf[collection.Map[Any, Any]] ++ r.asInstanceOf[Iterable[Vector[Any]]].map(v => (v(0), v(1))) )
 						else if (l.isInstanceOf[Iterable[_]] && r.isInstanceOf[Iterable[_]])
 							push( l.asInstanceOf[Iterable[_]] ++ r.asInstanceOf[Iterable[_]] )
 						else
