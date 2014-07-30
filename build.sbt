@@ -5,7 +5,7 @@ import LaikaKeys._
 
 name := "FunL"
 
-version := "0.14-SNAPSHOT"
+version := "0.15-SNAPSHOT"
 
 scalaVersion := "2.11.2"
 
@@ -39,7 +39,7 @@ libraryDependencies ++= Seq(
 	)
 
 libraryDependencies ++= Seq(
-	"org.funl-lang" %% "lia" % "0.10-SNAPSHOT",
+	"org.funl-lang" %% "lia" % "0.11-SNAPSHOT",
 	"org.funl-lang" %% "indentation-lexical" % "0.1-SNAPSHOT",
 	"org.funl-lang" %% "json" % "0.1-SNAPSHOT"
 	)
