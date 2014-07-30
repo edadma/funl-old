@@ -34,7 +34,7 @@ After executing the above command to run the REPL, you shoud see
 	 / /   / /_/ / / / / /__     http://funl-lang.org/
 	/_/    \____/_/ /_/____/
 	
-	Welcome to FunL version 0.14-SNAPSHOT
+	Welcome to FunL version 0.15-SNAPSHOT
 	Type in expressions to have them evaluated.
 	Type :help for more information.
 
