@@ -1,0 +1,49 @@
+m % P == n % P == 0
+mouse
+virtual methods: <string>.format, <list>.map
+
+http://rosettacode.org/wiki/ABC_Problem
+http://rosettacode.org/wiki/Anagrams
+http://rosettacode.org/wiki/Ludic_numbers
+http://rosettacode.org/wiki/Animate_a_pendulum
+http://rosettacode.org/wiki/Arithmetic-geometric_mean/Calculate_Pi
+http://rosettacode.org/wiki/Fast_Fourier_transform
+	http://en.wikipedia.org/wiki/Cooley%E2%80%93Tukey_FFT_algorithm
+http://rosettacode.org/wiki/Prime_decomposition
+http://rosettacode.org/wiki/Roots_of_unity
+http://rosettacode.org/wiki/Hello_world/Newbie
+http://rosettacode.org/wiki/Date_format
+
+http://rosettacode.org/wiki/Chinese_remainder_theorem
+http://rosettacode.org/wiki/Numerical_integration#Scala
+
+0.15 todo's
+-----------
+Closure should have arity so that assignable can be done properly
+scala Map.getOrElse
+improve conversion to Function0 to support Scala "call-by-name"
+// operator to return decimal results
+int( 3456784567845678678.3 ) ~> java.lang.Integer = 2147483647
+
+1.0.0 todo's
+------------
+java/scala interop
+	calling public functions in a private class
+scala interop
+	CanBuildFrom
+	Numeric
+REPL (coudn't reproduce problem)
+add chaining of comparisons
+math functions (including conj(z), floor(x))
+complex integers and fractions
+  http://rosettacode.org/wiki/Arithmetic/Complex
+  improve complex exponentiation: z^-1 !(exactly)= 1/z: implement inv() in ComplexDouble
+multi-line strings and full string specification
+import sys, math
+http://rosettacode.org/wiki/Gaussian_elimination
+http://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm
+http://rosettacode.org/wiki/Executable_library
+	https://speely.wordpress.com/tag/scripted-main/
+ideas from Coffee
+	using adjacent expression syntax for function application
+	using indentation syntax to implement YAML for maps
