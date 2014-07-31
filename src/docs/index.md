@@ -67,7 +67,7 @@ should produce the expected result of inverting the fraction to yield `6/7`.
 
 FunL also uses JSON syntax for the *map* type.  The following code (with each line entered separately)
 
-	a = {'one': 1, 'two': 2}
+	a = {"one": 1, "two": 2}
 
 	a.two
 
@@ -84,9 +84,7 @@ Now, open a command window (shell) and change to the directory that contains `he
 
 	java -jar <path to funl.jar> hello
 
-You should see `Hello World` being output.
-
-The keyword `main` indicates the entry point of the program.  `println` means "print line" and causes the given expression to be output, followed by a line feed.
+You should see `Hello World` being output.  `println` means "print line" and causes the given expression to be output, followed by a new-line character.
 
 As a more interesting example, here is an (not fairly efficient) implementation of the Quick Sort.  Create a file called `quicksort.funl` with the following contents:
 
