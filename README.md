@@ -67,7 +67,7 @@ To give a small example of a complete program in FunL that does something useful
       socket.shutdownOutput()
       socket.close()
 
-    forever thread( connection, listener.accept() ).start()
+    for thread( connection, listener.accept() ).start()
 
 ## License
 
