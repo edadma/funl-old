@@ -81,7 +81,12 @@ The project's website is <http://funl-lang.org> where you will find documentatio
 
 ## Usage
 
-Use the following definition to use FunL in your Maven project:
+Use the following elements to use FunL in your Maven project:
+
+	<repository>
+		<id>hyperreal</id>
+		<url>http://hyperreal.ca/maven2</url>
+	</repository>
 
 	<dependency>
 		<groupId>org.funl-lang</groupId>
