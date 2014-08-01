@@ -98,7 +98,7 @@ Add the following to your build file to use FunL in your SBT project:
 
 	resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
 
-	libraryDependencies ++= "org.funl-lang" %% "funl" % "0.15"
+	libraryDependencies += "org.funl-lang" %% "funl" % "0.15"
 
 
 ## Building
