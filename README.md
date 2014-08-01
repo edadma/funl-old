@@ -86,14 +86,14 @@ Use the following definition to use FunL in your Maven project:
 	<dependency>
 		<groupId>org.funl-lang</groupId>
 		<artifactId>funl</artifactId>
-		<version>0.15-SNAPSHOT</version>
+		<version>0.15</version>
 	</dependency>
 
 Add the following to your build file to use FunL in your SBT project:
 
-	resolvers += Resolver.sonatypeRepo( "snapshots" )
+	resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
 
-	libraryDependencies ++= "org.funl-lang" %% "funl" % "0.15-SNAPSHOT"
+	libraryDependencies ++= "org.funl-lang" %% "funl" % "0.15"
 
 
 ## Building
@@ -118,3 +118,8 @@ to start the REPL, or
 	sbt "run <FunL script file>"
 
 to execute a script.  Note that the double quotes are required.
+
+
+## Executable
+
+The latest executable can be downloaded from <http://hyperreal.ca/releases/funl.jar>.
