@@ -5,7 +5,7 @@ import LaikaKeys._
 
 name := "FunL"
 
-version := "0.15-SNAPSHOT"
+version := "0.15"
 
 scalaVersion := "2.11.2"
 
@@ -15,7 +15,7 @@ incOptions := incOptions.value.withNameHashing( true )
 
 organization := "org.funl-lang"
 
-resolvers += Resolver.sonatypeRepo( "snapshots" )
+resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test"
 
@@ -25,7 +25,7 @@ libraryDependencies += "jline" % "jline" % "2.11"
 
 libraryDependencies += "com.h2database" % "h2" % "1.3.148"
 
-//libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0-SNAPSHOT"
+//libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0"
 
 //libraryDependencies += "org.scala-lang" % "scala-swing" % scalaVersion.value
 
@@ -39,9 +39,9 @@ libraryDependencies ++= Seq(
 	)
 
 libraryDependencies ++= Seq(
-	"org.funl-lang" %% "lia" % "0.11-SNAPSHOT",
-	"org.funl-lang" %% "indentation-lexical" % "0.1-SNAPSHOT",
-	"org.funl-lang" %% "json" % "0.1-SNAPSHOT"
+	"org.funl-lang" %% "lia" % "0.11",
+	"org.funl-lang" %% "indentation-lexical" % "0.1",
+	"org.funl-lang" %% "json" % "0.1"
 	)
 
 mainClass in (Compile, run) := Some( "funl.Main" )
@@ -67,13 +67,7 @@ templateDirectives in Laika += LaikaExtension.bootstrapToc
 
 publishMavenStyle := true
 
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some("snapshots" at nexus + "content/repositories/snapshots")
-  else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
+publishTo := Some( Resolver.sftp( "private", "hyperreal.ca", "/var/www/maven2" ) )
 
 publishArtifact in Test := false
 
