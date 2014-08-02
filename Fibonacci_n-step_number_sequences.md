@@ -78,7 +78,7 @@ Lastly, we display the contents of the table.
 The above `print` statement should produce the following table:
 
 | k  | Fibonacci | Tribonacci | Tetranacci | Lucas |
-|----|-----------|------------|------------|-------|
+|---:|----------:|-----------:|-----------:|------:|
 |  1 |         1 |          1 |          1 |     2 |
 |  2 |         1 |          1 |          1 |     1 |
 |  3 |         2 |          2 |          2 |     3 |
