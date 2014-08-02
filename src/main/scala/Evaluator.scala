@@ -832,7 +832,7 @@ class Evaluator
 
 		def rewrap( objs: List[Any], types: Array[Class[_]] ) =
 		{
-		val varargs = types.length > 0 && types(types.length - 1).getName == "scala.collection.Seq"
+		val varargs = false//types.length > 0 && types(types.length - 1).getName == "scala.collection.Seq"
 		
 			def wrap( l: List[Any], idx: Int ): List[Any] =
 				if (varargs && idx == types.length - 1)
@@ -858,7 +858,7 @@ class Evaluator
 		def assignable( objs: List[Any], types: Array[Class[_]] ) =
 		{
 		val len = objs.length
-		val varargs = types.length > 0 && types(types.length - 1).getName == "scala.collection.Seq"
+		val varargs = false//types.length > 0 && types(types.length - 1).getName == "scala.collection.Seq"
 		
 			if (varargs && len < types.length - 1 || !varargs && len != types.length)
 				false

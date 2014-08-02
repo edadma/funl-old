@@ -19,7 +19,7 @@ resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
 
 libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test"
 
-libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.3" % "test"
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.5" % "test"
 
 libraryDependencies += "jline" % "jline" % "2.11"
 

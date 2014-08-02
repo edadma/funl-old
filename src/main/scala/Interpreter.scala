@@ -222,26 +222,31 @@ object Interpreter
 		
 		for (l <- lines)
 		{
-			l.indexOf( "~~" ) match
-			{
-				case -1 =>
-					if (appending)
-						append( l )
-				case idx =>
-					if (appending)
-					{
-						append( l.substring(0, idx) )
-						appending = false
-					}
-					else
-						l.indexOf( "~~", idx + 2 ) match
+			if (!appending && l.startsWith( "    " ))
+				append( l.substring(4) )
+			else if (!appending && l.startsWith( "\t" ))
+				append( l.substring(1) )
+			else
+				l.indexOf( "~~" ) match
+				{
+					case -1 =>
+						if (appending)
+							append( l )
+					case idx =>
+						if (appending)
 						{
-							case -1 =>
-								append( l.substring(idx + 2) )
-								appending = true
-							case end => append( l.substring(idx + 2, end) )
+							append( l.substring(0, idx) )
+							appending = false
 						}
-			}
+						else
+							l.indexOf( "~~", idx + 2 ) match
+							{
+								case -1 =>
+									append( l.substring(idx + 2) )
+									appending = true
+								case end => append( l.substring(idx + 2, end) )
+							}
+				}
 		}
 
 		parse( module, new CharSequenceReader(source) )
@@ -259,7 +264,12 @@ object Interpreter
 				moduleInput( module, "lf" ) match
 				{
 					case Some( input ) => parseLiterate( m, input )
-					case None => sys.error( "module '" + module + "' not found" )
+					case None => 
+						moduleInput( module, "md" ) match
+						{
+							case Some( input ) => parseLiterate( m, input )
+							case None => sys.error( "module '" + module + "' not found" )
+						}
 				}
 		}
 	}
