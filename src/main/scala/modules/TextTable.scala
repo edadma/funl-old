@@ -41,7 +41,7 @@ object TextTable
 		t.line
 
 		while (result.next)
-			t.row( (for (i <- 1 to cols) yield result.getObject(i).toString): _* )
+			t.row( (for (i <- 1 to cols) yield result.getObject(i).toString) )
 
 		t
 	}
@@ -79,7 +79,7 @@ class TextTable
 
 	def header( s: String* )
 	{
-		row( s: _* )
+		row( s.toIndexedSeq )
 
 		for (i <- 1 to columns)
 		{
@@ -88,7 +88,7 @@ class TextTable
 		}
 	}
 
-	def row( s: Any* )
+	def row( s: IndexedSeq[Any] )
 	{
 		require( s.length > 0, "need at least one column" )
 
@@ -100,7 +100,7 @@ class TextTable
 		else if (columns != s.length)
 			sys.error( "table is " + columns + " column(s) wide" )
 
-		table += s.map( _.toString ).toIndexedSeq
+		table += s.map( String.valueOf(_) )
 		widths = null
 	}
 

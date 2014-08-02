@@ -1,0 +1,51 @@
+=={{header|FunL}}==
+<lang funl>~~import util.TextTable
+native scala.collection.mutable.Queue
+
+def fibLike( init ) =
+  q = Queue()
+
+  for i <- init do q.enqueue( i )
+
+  def fib =
+    q.enqueue( sum(q) )
+    q.dequeue() # fib()
+
+  0 # fib()
+
+def fibN( n ) = fibLike( [1] + [2^i | i <- 0:n-1] )
+
+val lucas = fibLike( [2, 1] )
+
+t = TextTable()
+t.header( 'k', 'Fibonacci', 'Tribonacci', 'Tetranacci', 'Lucas' )
+t.line()
+
+for i <- 1..5
+  t.rightAlignment( i )
+
+seqs = (fibN(2), fibN(3), fibN(4), lucas)
+
+for k <- 1..10
+  t.row( ([k] + [seqs(i)(k) | i <- 0:4]).toIndexedSeq() )
+
+print( t )~~</lang>
+
+{{out}}
+
+<pre>
++----+-----------+------------+------------+-------+
+| k  | Fibonacci | Tribonacci | Tetranacci | Lucas |
++----+-----------+------------+------------+-------+
+|  1 |         1 |          1 |          1 |     2 |
+|  2 |         1 |          1 |          1 |     1 |
+|  3 |         2 |          2 |          2 |     3 |
+|  4 |         3 |          4 |          4 |     4 |
+|  5 |         5 |          7 |          8 |     7 |
+|  6 |         8 |         13 |         15 |    11 |
+|  7 |        13 |         24 |         29 |    18 |
+|  8 |        21 |         44 |         56 |    29 |
+|  9 |        34 |         81 |        108 |    47 |
+| 10 |        55 |        149 |        208 |    76 |
++----+-----------+------------+------------+-------+
+</pre>

@@ -208,11 +208,9 @@ object Interpreter
 		parse( module, new CharSequenceReader(source) )
 	}
 
-	def parseLiterate( module: String, input: InputStream ): AST =
+	abstract class Literate
 	{
-	val lines = Source.fromInputStream( input ).getLines
 	val source = new StringBuilder
-	var appending = false
 
 		def append( line: String )
 		{
@@ -220,36 +218,53 @@ object Interpreter
 			source append '\n'
 		}
 		
-		for (l <- lines)
-		{
-			if (!appending && l.startsWith( "    " ))
-				append( l.substring(4) )
-			else if (!appending && l.startsWith( "\t" ))
-				append( l.substring(1) )
-			else
-				l.indexOf( "~~" ) match
+		def line( text: String )
+	}
+
+	class FunLLiterate extends Literate
+	{
+	var appending = false
+	
+		def line( text: String ) =
+				text.indexOf( "~~" ) match
 				{
 					case -1 =>
 						if (appending)
-							append( l )
+							append( text )
 					case idx =>
 						if (appending)
 						{
-							append( l.substring(0, idx) )
+							append( text.substring(0, idx) )
 							appending = false
 						}
 						else
-							l.indexOf( "~~", idx + 2 ) match
+							text.indexOf( "~~", idx + 2 ) match
 							{
 								case -1 =>
-									append( l.substring(idx + 2) )
+									append( text.substring(idx + 2) )
 									appending = true
-								case end => append( l.substring(idx + 2, end) )
+								case end => append( text.substring(idx + 2, end) )
 							}
 				}
-		}
+	}
 
-		parse( module, new CharSequenceReader(source) )
+	class MarkdownLiterate extends Literate
+	{
+		def line( text: String ) =
+			if (text.startsWith( "    " ))
+				append( text.substring(4) )
+			else if (text.startsWith( "\t" ))
+				append( text.substring(1) )
+	}
+
+	def parseLiterate( module: String, input: InputStream, lit: Literate ): AST =
+	{
+	val lines = Source.fromInputStream( input ).getLines
+		
+		for (l <- lines)
+			lit.line( l )
+
+		parse( module, new CharSequenceReader(lit.source) )
 	}
 
 //		val r = new PagedSeqReader( PagedSeq fromFile (args.head + ".fun") )
@@ -263,11 +278,11 @@ object Interpreter
 			case None =>
 				moduleInput( module, "lf" ) match
 				{
-					case Some( input ) => parseLiterate( m, input )
+					case Some( input ) => parseLiterate( m, input, new FunLLiterate )
 					case None => 
 						moduleInput( module, "md" ) match
 						{
-							case Some( input ) => parseLiterate( m, input )
+							case Some( input ) => parseLiterate( m, input, new MarkdownLiterate )
 							case None => sys.error( "module '" + module + "' not found" )
 						}
 				}
