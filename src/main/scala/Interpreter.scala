@@ -344,6 +344,7 @@ object Interpreter
 		{
 			case parser.Success( l, _ ) =>
 				markTailRecursion( l )
+println( l )
 				eval.apply( l )
 				eval.last
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )

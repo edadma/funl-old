@@ -14,6 +14,8 @@ import collection.mutable.ListBuffer
 
 import funl.indentation._
 
+import funl.lia.Math
+
 
 class FunLParser( module: String ) extends StandardTokenParsers with PackratParsers
 {
@@ -420,7 +422,10 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 
 	lazy val negationExpression: PackratParser[ExprAST] =
 		"-" ~> incrementExpression ^^
-			(UnaryExprAST( '-, _ )) |
+			{
+        case LiteralExprAST( n: Number ) => LiteralExprAST( Math('-, n) )
+				case v                           => UnaryExprAST( '-, v )
+			} |
 		incrementExpression
 
 	lazy val incrementExpression: PackratParser[ExprAST] =
