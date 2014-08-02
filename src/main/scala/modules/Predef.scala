@@ -30,7 +30,6 @@ object Predef
 			case _ => Console.print( display(a) )
 		}
 
-
 	def printf( a: Any ) =
 		a match
 		{

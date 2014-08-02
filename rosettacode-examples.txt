@@ -141,11 +141,6 @@ Execute_a_system_command
 execute( if $os.startsWith('Windows') then 'dir' else 'ls' )</lang>
 
 --------------------
-Fibonacci_n-step_number_sequences
---------------------
-
-
---------------------
 Fibonacci_sequence
 --------------------
 

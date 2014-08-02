@@ -54,7 +54,7 @@ def
 	map( f, (a::Array|a::Iterable) ) = map( f, list(a) )
 
 	filter( p, [] )                       = []
-	filter( p, x:xs::Stream	) | p( x )   = x # filter( p, xs )
+	filter( p, inx@x:_::Stream	) | p( x )   = x # filter( p, inx.tail() )
 	filter( p, x:xs	) | p( x )           = x : filter( p, xs )
 	filter( p, _:xs	)                    = filter( p, xs )
 	filter( p, (a::Array|a::Iterable) )        = filter( p, list(a) )

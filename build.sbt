@@ -39,7 +39,7 @@ libraryDependencies ++= Seq(
 	)
 
 libraryDependencies ++= Seq(
-	"org.funl-lang" %% "lia" % "0.11",
+	"org.funl-lang" %% "lia" % "0.12",
 	"org.funl-lang" %% "indentation-lexical" % "0.1",
 	"org.funl-lang" %% "json" % "0.1"
 	)

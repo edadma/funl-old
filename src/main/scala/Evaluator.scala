@@ -11,7 +11,7 @@ import java.lang.reflect.{Method, Modifier}
 import java.util.concurrent.Callable
 
 import collection.mutable.{ArrayBuffer, ArrayStack, ListBuffer, HashMap, HashSet, Seq => MutableSeq, Map => MutableMap}
-import collection.immutable.{Seq => ImmutableSeq, Map => ImmutableMap}
+import collection.immutable.{LinearSeq, Seq => ImmutableSeq, Map => ImmutableMap}
 import util.parsing.input.{Reader, CharSequenceReader}
 import math._
 import compat.Platform._
@@ -1311,7 +1311,7 @@ class Evaluator
 				
 				push( tl match
 				{
-					case t: List[Any] => hd :: t
+					case t: LinearSeq[Any] => hd :: t.toList
 					case end: Int if hd.isInstanceOf[Int] => hd.asInstanceOf[Int] until end
 					case r: Range if hd.isInstanceOf[Int] && tail.isInstanceOf[ConsExprAST] && !tail.asInstanceOf[ConsExprAST].tail.isInstanceOf[ConsExprAST] =>
 						hd.asInstanceOf[Int] until r.start by r.end
@@ -1631,7 +1631,8 @@ class Evaluator
 		{
 			case "String" => a.isInstanceOf[String]
 			case "Integer" => a.isInstanceOf[Int] || a.isInstanceOf[BigInt]
-			case "Float" => a.isInstanceOf[Double]
+      case "Rational" => a.isInstanceOf[funl.lia.Rational]
+			case "Float" => a.isInstanceOf[Double] ||  a.isInstanceOf[BigDecimal]
 			case "Seq" => a.isInstanceOf[Seq[_]]
 			case "List" => a.isInstanceOf[List[_]]
 			case "Stream" => a.isInstanceOf[Stream[_]]
