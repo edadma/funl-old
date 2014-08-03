@@ -1,6 +1,13 @@
-import util.TextTable
+import util.*
 
-t = TextTable()
-t.header( ['k', 'Fibonacci', 'Tribonacci', 'Tetranacci', 'Lucas'] )
-t.row( [1] + [j | j <- 0:4] )
-print( t )
+val slash = Regex( '(.+)/(.+)' )
+val comma = Regex( '(.+),(.+)' )
+
+def
+	f( p(v) ) = println( v )
+	f( _ ) = println( 'bad' )
+
+case 'left,right'
+	slash(a, b) -> println( "slash $a $b" )
+	comma(a, b) -> println( "comma $a $b" )
+	_ -> println( 'bad' )

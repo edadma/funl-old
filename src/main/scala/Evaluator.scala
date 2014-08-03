@@ -15,6 +15,7 @@ import collection.immutable.{LinearSeq, Seq => ImmutableSeq, Map => ImmutableMap
 import util.parsing.input.{Reader, CharSequenceReader}
 import math._
 import compat.Platform._
+import util.matching.Regex
 
 import funl.lia.{Complex, Math}
 import Interpreter._
@@ -34,12 +35,12 @@ class Evaluator
 				val c = Closure.this
 				val module = c.module
 				val funcs = c.funcs
-				
+
 				def invoke( argList: List[Any] )( implicit env: Environment ) = c.invoke( (args ++ argList).toList )
 			}
 
 		def runnable = _runnable( Nil )
-		
+
 		def runnable( arg: Any ) =
 			arg match
 			{
@@ -69,7 +70,7 @@ class Evaluator
 			new Callable[Any]
 			{
 			implicit val env = new Environment
-			
+
 				def call =
 				{
 					invoke( args )
@@ -112,10 +113,10 @@ class Evaluator
 					pop
 				}
 			}
-		
+
 		override def toString = "<closure>"
 	}
-  
+
 	class BasicClosure( _referencing: =>Activation, val module: Module, val funcs: List[FunctionExprAST] ) extends Closure
 	{
 		lazy val referencing = _referencing
@@ -125,7 +126,7 @@ class Evaluator
 			referencing	// this line should not be removed; it forces 'referencing' to be computed
 			this
 		}
-		
+
 		def invoke( argList: List[Any] )( implicit env: Environment )
 		{
 			def occur( argList: List[Any] )
@@ -178,7 +179,7 @@ class Evaluator
 					restoreEnvironment( st )
 					push( ret )
 			}
-			
+
 			exitActivation
 		}
 	}
@@ -187,7 +188,7 @@ class Evaluator
 	{
 		// think about copying referencing too
 		def copy: Activation = new Activation( closure, if (referencing ne null) referencing.copy else null, module, scope.copy )
-		
+
 		def apply( key: String ) = synchronized (scope.top( key ))
 
 		def get( key: String ) = synchronized (scope.top.get( key ))
@@ -199,7 +200,7 @@ class Evaluator
 		def remove( key: String ) = synchronized (scope.top( scope.top - key ))
 
 		def clear = synchronized (scope.top( symbolMap ))
-		
+
 		override def toString = "Activation( " + scope + ", " + referencing + " )"
 	}
 
@@ -215,23 +216,23 @@ class Evaluator
 	}
 
 	class Datatype( name: String )
-	
+
 	case class Constructor( module: Module, datatype: String, name: String, fields: List[String] )
 
 	case class NativeMethod( o: Any, m: List[Method] )
-	
+
 	class Record( val module: Module, val datatype: String, val name: String, val fields: List[String], val args: Vector[Any] ) extends Seq[Any]
 	{
 		private val map = Map[String, Any]( (fields zip args): _* )
 
 		def apply( idx: Int ) = args( idx )
-		
+
 		def iterator = args.iterator
-		
+
 		def get( key: String ) = map.get( key )
 
 		def length = args.length
-		
+
 		override def hashCode = datatype.hashCode ^ name.hashCode ^ fields.hashCode ^ args.hashCode
 
 		override def equals( o: Any ) =
@@ -240,7 +241,7 @@ class Evaluator
 				case r: Record => module == r.module && name == r.name && args == r.args
 				case _ => false
 			}
-			
+
 		override def toString = name + (if (args isEmpty) "" else args.map( display(_) ).mkString("(", ", ", ")"))
 	}
 
@@ -254,7 +255,7 @@ class Evaluator
 
 	private var symbols = symbolMap
 	private var sysvars = symbolMap
-	
+
 	var last: Option[Any] = None
 
 	def rosysvar( k: String )( v: => Any )
@@ -283,14 +284,14 @@ class Evaluator
   rosysvar( "ls" ) {System.getProperty( "line.separator" )}
 	rosysvar( "stdin" ) {scala.io.StdIn.readLine}
 	wosysvar( "stdout", println )
-	
+
 	def module( m: String ) = synchronized
 	{
 		symbols.get(m) match
 		{
 			case None =>
 				val res = new Module( m )
-			
+
 				symbols += m -> res
 				res
 			case Some( res ) => res.asInstanceOf[Module]
@@ -298,7 +299,7 @@ class Evaluator
 	}
 
 	def loaded( m: String ) = synchronized {symbols.contains( m ) && symbols(m).isInstanceOf[Module]}
-	
+
 	def symbol( m: String, key: String ) = module( m )( key )
 
 	def symbolExists( m: String, key: String ) = module( m ) contains key
@@ -306,19 +307,19 @@ class Evaluator
 	def assign( m: String, key: String, value: Any ) = synchronized
 	{
 	val syms = module(m)
-	
+
 		if (syms contains key)
 			RuntimeException( "already declared: " + key )
 		else
 			syms(key) = value
 	}
-	
+
 	def assign( module: String, vs: (String, Any)* )
 	{
 		for ((k, v) <- vs)
 			assign( module, k, v )
 	}
-	
+
 	def function( m: String, n: String, f: Function ) = assign( m, n, f )
 
 	def eval( t: AST )( implicit env: Environment ) =
@@ -342,17 +343,17 @@ class Evaluator
 		apply( t )
 		env.stack.pop
 	}
-	
+
 	def neval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Number]
-	
+
 	def ieval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Int]
-  
+
   def bieval( t: AST )( implicit env: Environment ) = Math.toBigInt( eval(t).asInstanceOf[Number] )
-	
+
 	def deval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Number].doubleValue
-	
+
 	def beval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Boolean]
-	
+
 	def reval( t: AST )( implicit env: Environment ) =
 	{
 		apply( t, createvars = true )
@@ -372,11 +373,11 @@ class Evaluator
 			case p: Product => p.productIterator
 			case o => 	RuntimeException( "non traversable object: " + o )
 		}
-	
+
 	def assignOperation( r: Reference, op: Symbol, n: Number ) =
 	{
 	val v = Math( op, r.value, n )
-		
+
 		r.assign( v )
 		v
 	}
@@ -457,7 +458,7 @@ class Evaluator
 			case LiteralPatternAST( v ) =>
 				if (v.isInstanceOf[String] && v.asInstanceOf[String].charAt(0) >= '\ue000')
 					RuntimeException( "string interpolation not allowed in patterns" )
-					
+
 				a == v
 			case EmptySetPatternAST => a == Set.empty
 			case VoidPatternAST => a == ()
@@ -496,7 +497,7 @@ class Evaluator
 							}
 						case _ =>
 					}
-					
+
 				if (map contains n)
 					a == deref( map(n) )
 				else
@@ -517,6 +518,16 @@ class Evaluator
 				{
 					case r: Record => r.name == n && r.args.length == l.length && (r.args zip l).forall( pair => unify(map, pair._1, pair._2) )
 					case p: Product => p.productPrefix == n && p.productArity == l.length && l.zipWithIndex.forall {case (te, i) => unify( map, p.productElement(i), te )}
+					case s: String if map.isInstanceOf[Activation] =>
+						varSearch( n, map.asInstanceOf[Activation], false ) match
+						{
+							case Some( r: Reference ) if r.value.isInstanceOf[Regex] => r.value.asInstanceOf[Regex].unapplySeq( s ) match
+							{
+								case Some( groups ) => (groups zip l).forall( pair => unify(map, pair._1, pair._2) )
+								case None => false
+							}
+							case None => false
+						}
 					case _ => false
 				}
 			case ListPatternAST( ps ) =>
@@ -623,7 +634,7 @@ class Evaluator
 				restoreEnvironment( st )
 				push( ret )
 		}
-		
+
 		exitActivation
 	}*/
 
@@ -675,7 +686,7 @@ class Evaluator
 		def export( sym: String ) =
 			if (topLevel)
 				env.activations.top.module.exports.add( sym )
-		
+
 		def declarationSymbolMapContainer =
 			if (topLevel)
 				currentModule
@@ -737,7 +748,7 @@ class Evaluator
 							}
 					}
 				}
-				
+
 				loop( gen )
 
 				if (els != None)
@@ -784,7 +795,7 @@ class Evaluator
 
 							// force the iterator's next() to be called, since unit()'s second parameter is call-by-name
 							val next = deref( is(i).next )
-							
+
 								if (!unify( currentActivation(itenv), next, ps(i) ))
 									RuntimeException( "unification error in iterator" )
 
@@ -806,7 +817,7 @@ class Evaluator
 									false
 							}
 						}
-						
+
 						avail = _hasNext( len - 1 )
 						avail
 					}
@@ -833,7 +844,7 @@ class Evaluator
 		def rewrap( objs: List[Any], types: Array[Class[_]] ) =
 		{
 		val varargs = types.length > 0 && types(types.length - 1).getName == "scala.collection.Seq"
-		
+
 			def wrap( l: List[Any], idx: Int ): List[Any] =
 				if (varargs && idx == types.length - 1)
 					List( l )
@@ -851,15 +862,15 @@ class Evaluator
 							case (x: Closure, "scala.Function2") => x.function2
 							case (x, _) => x.asInstanceOf[AnyRef]
 						}) :: wrap( l.tail, idx + 1 )
-			
+
 			wrap( objs, 0 ).asInstanceOf[Seq[Object]]
 		}
-		
+
 		def assignable( objs: List[Any], types: Array[Class[_]] ) =
 		{
 		val len = objs.length
 		val varargs = types.length > 0 && types(types.length - 1).getName == "scala.collection.Seq"
-		
+
 			if (varargs && len < types.length - 1 || !varargs && len != types.length)
 				false
 			else
@@ -878,7 +889,7 @@ class Evaluator
 					} )
 			}
 		}
-		
+
 		def compound( l: List[StatementAST] ): Any =
 			if (l.tail == Nil)
 				apply( l.head.asInstanceOf[ExpressionStatementAST].e )
@@ -911,7 +922,7 @@ class Evaluator
 					load( qual )
 
 				val m = module( qual )
-				
+
 					if (names eq null)
 						for ((k, v) <- m.iterator if synchronized (m.exports contains k))
 							declare( k, v )
@@ -956,7 +967,7 @@ class Evaluator
 // 				for ((n, a) <- names)
 // 				{
 // 				val methods = Class.forName( cls ).getMethods.toList.filter( m => m.getName == n && (m.getModifiers&Modifier.STATIC) == Modifier.STATIC )
-// 
+//
 // 					declare( a.getOrElse(n), NativeMethod(null, methods) )
 // 				}
 			case FunctionAST( cls, names ) =>
@@ -972,7 +983,7 @@ class Evaluator
 				declare( n, new VariableReference(if (v == None) null else eval(v.get)) )
 			case DataAST( n, cs ) =>
 				if (!topLevel) RuntimeException( "data declarations are only allowed as module level declarations" )
-				
+
 				if (currentModule.datatypes contains n) RuntimeException( "already declared: " + n )
 
 				currentModule.datatypes.add( n )
@@ -1030,10 +1041,10 @@ class Evaluator
 			case StringLiteralExprAST( s ) => push( s )
 			case InterpolationExprAST( l ) =>
 				val buf = new StringBuilder
-				
+
 				for (e <- l)
 					buf append (display( eval(e) ))
-					
+
 				push( buf.toString )
 			case BinaryExprAST( left, op, right ) =>
 				val l = eval( left )
@@ -1064,7 +1075,7 @@ class Evaluator
 						push( (op == 'notin)^res )
 					case '+ =>
 						val r = eval( right )
-						
+
 						if (l.isInstanceOf[String] || r.isInstanceOf[String])
 							push( display(l) + display(r) )
 						else if (l.isInstanceOf[collection.Map[_, _]] && r.isInstanceOf[collection.Map[_, _]])
@@ -1091,7 +1102,7 @@ class Evaluator
 								case '<= => c <= 0
 								case '>= => c >= 0
 							}
-							
+
 						val r = eval( right )
 
 						if (l.isInstanceOf[String] || r.isInstanceOf[String])
@@ -1135,7 +1146,7 @@ class Evaluator
 				}
 			case NotExprAST( e ) =>
 				val o = eval( e )
-				
+
 				if (o.isInstanceOf[Boolean])
 					push( !o.asInstanceOf[Boolean] )
 				else
@@ -1207,7 +1218,7 @@ class Evaluator
 									}
 								case head :: tail => head :: conv( tail )
 							}
-							
+
 						if (argListLength == 1)
 							push( b(conv(argList).head) )
 						else
@@ -1241,7 +1252,7 @@ class Evaluator
 				}
 			case UnaryExprAST( op, exp ) =>
 				apply( exp )
-				
+
 				op match
 				{
 					case '- => push( Math(op, pop) )
@@ -1252,13 +1263,13 @@ class Evaluator
 					case Symbol( "post--" ) =>
 						val h = rpop
 						val v = h.value
-						
+
 						h.assign( Math('-, h.value, 1) )
 						push( v )
 					case Symbol( "post++" ) =>
 						val h = rpop
 						val v = h.value
-						
+
 						h.assign( Math('+, h.value, 1) )
 						push( v )
 				}
@@ -1267,7 +1278,7 @@ class Evaluator
 					RuntimeException( "left hand side must have the same number of elements as the right hand side" )
 
 				var result: Any = null
-				
+
 				for ((l, r) <- (lhs map (reval)) zip (rhs map (eval)))
 					op match
 					{
@@ -1289,7 +1300,7 @@ class Evaluator
 						case _ =>
 							result = assignOperation( l, Symbol(op.substring(0, op.length - 1)), r.asInstanceOf[Number] )
 					}
-				
+
 				push( result )
 			case VectorExprAST( l ) =>
 				apply( l )
@@ -1308,7 +1319,7 @@ class Evaluator
 			case ConsExprAST( head, tail ) =>
 				val hd = eval( head )
 				val tl = eval( tail )
-				
+
 				push( tl match
 				{
 					case t: LinearSeq[Any] => hd :: t.toList
@@ -1327,9 +1338,9 @@ class Evaluator
 						case _ => RuntimeException( "not a valid stream: " + tail )
 					}
 				}
-				
+
 				val callable = thunk( tail ).callable
-				
+
 				push( eval(head) #:: stream(callable.call) )
 			case SetExprAST( l ) =>
 				apply( l )
@@ -1344,7 +1355,7 @@ class Evaluator
 			case BlockExprAST( l ) =>
 				var res: Any = null
 
-				enterScope				
+				enterScope
 				res = compound( l )
 				exitScope
 				res
@@ -1365,7 +1376,7 @@ class Evaluator
 				void
 			case ForeverExprAST( body ) =>
 				enterScope
-				
+
 				val st = env.copy
 
 				void
@@ -1399,7 +1410,7 @@ class Evaluator
 				exitScope
 			case RepeatExprAST( count, body, e ) =>
 				enterScope
-				
+
 				val st = env.copy
 
 				void
@@ -1439,7 +1450,7 @@ class Evaluator
 				exitScope
 			case WhileExprAST( cond, body, e ) =>
 				enterScope
-				
+
 				val st = env.copy
 
 				void
@@ -1575,7 +1586,7 @@ class Evaluator
 						case None => 1
 						case Some( e ) => neval( e )
 					}
-					
+
 				push( Stream.iterate(eval(f))
 					{	v =>
 						Math( '+, v, by )
@@ -1612,10 +1623,10 @@ class Evaluator
 						}
 					case o =>
 						if (o == null) RuntimeException( "'" + f + "' not a field of null" )
-						
+
 						val c = o.getClass
 						val methods = c.getMethods.toList.filter( m => m.getName == f && (m.getModifiers&Modifier.STATIC) != Modifier.STATIC )
-						
+
 						if (methods isEmpty)
 							RuntimeException( "object method '" + f + "' not found in:" + o )
 
