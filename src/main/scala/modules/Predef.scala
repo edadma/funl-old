@@ -22,7 +22,7 @@ object Predef
 			case ArgList( l ) => Console.println( l map (display(_)) mkString(", ") )
 			case _ => Console.println( display(a) )
 		}
-	
+
 	def print( a: Any ) =
 		a match
 		{
@@ -56,7 +56,7 @@ object Predef
 		Console.err.println( msg )
 		sys.exit( 1 )
 	}
-	
+
 	def assert( a: Any ) =
 		a match
 		{
@@ -76,6 +76,8 @@ object Predef
 		{
 			case n: Int => ArraySeq.fill[Any]( n )( null )
 			case ArgList( List(n1: Int, n2: Int) ) => ArraySeq.fill[Any]( n1, n2 )( null )
+			case ArgList( List(n: Int, f: (Int => Any)) ) => ArraySeq.tabulate[Any]( n )( f )
+			case ArgList( List(n1: Int, n2: Int, f: ((Int, Int) => Any)) ) => ArraySeq.tabulate[Any]( n1, n2 )( f )
 			case init: Array[Any] => ArraySeq[Any]( init: _* )
 			case init: Array[Byte] => ArraySeq[Any]( init: _* )
 			case init: Array[Int] => ArraySeq[Any]( init: _* )
@@ -136,7 +138,7 @@ object Predef
 			case x: Seq[Any] => HashSet( x: _* )
 			case _ => HashSet( a )
 		}
-		
+
 	def dict( a: Any ) =
 		a match
 		{
@@ -144,7 +146,7 @@ object Predef
 			case m: collection.Map[Any, Any] => HashMap( m.toSeq: _* )
 			case s: collection.TraversableOnce[Vector[Any]] => HashMap( s.toSeq.map(v => (v(0), v(1))): _* )
 		}
-		
+
 	def tuple( a: Any ) =
 		a match
 		{
@@ -160,6 +162,7 @@ object Predef
 			case d: BigDecimal => funl.lia.Math.maybeDemote( d.toBigInt )
 			case n: Number => n.intValue
 			case s: String => s.toInt
+			case b: Boolean => if (b) 1 else 0
 		}
 
 	def float( a: Any ) =
@@ -202,7 +205,7 @@ object Predef
 	def islower( ch: String ) = ch.head.toChar.isLower
 
 	private val INTEGER = """-?(?:0|[1-9]\d*)""".r.pattern
-	
+
 	private val DECIMAL = """-?(?:(?:0|[1-9]\d*)(?:\.\d*)?|\.\d+)(?:(?:e|E)(?:\+|-|)\d+)?""".r.pattern
 
 	def number( s: String ) =
@@ -224,7 +227,7 @@ object Predef
 	}
 
 	def none = None
-	
+
 	def rnd( a: Any ): Any =
 		a match
 		{
@@ -239,9 +242,9 @@ object Predef
 		{
 			case s: String => expression( s )
 		}
-		
-		
-		
+
+
+
 // Scala interop: implicit Ordering
 
 // 	def min( a: List[Any] ) =

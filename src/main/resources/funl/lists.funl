@@ -36,12 +36,15 @@ def
 
 	zip3( xs, ys, zs )        =  zipWith3( (a, b, c) -> (a, b, c), xs, ys, zs )
 
-	zipWith( f, a:as::Stream, b:bs::Stream )  = f( a, b ) # zipWith( f, as, bs )
-	zipWith( f, a:as, b:bs )  = f( a, b ) : zipWith( f, as, bs )
-	zipWith( _, _, _ )        = []
+	zipWith( f, a:as, b:bs::Stream )  =  f( a, b ) # zipWith( f, as, bs )
+	zipWith( f, a:as::Stream, b:bs )  =  f( a, b ) # zipWith( f, as, bs )
+	zipWith( f, a:as, b:bs )          =  f( a, b ) : zipWith( f, as, bs )
+	zipWith( _, _, _ )                =  []
 
 	zipWith3( f, a:as, b:bs, c:cs )  =  f( a, b, c ) : zipWith3( f, as, bs, cs )
 	zipWith3( _, _, _, _ )           =  []
+
+	zipWithIndex( l ) = zip( l, 0.. )
 
 	partition( p, l ) =
 		def

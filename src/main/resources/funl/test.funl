@@ -1,13 +1,10 @@
-import util.*
+def show( s ) =
+	println( list(WrappedString(s).stripMargin().split('\n')).drop(1).dropRight(1) )
 
-val slash = Regex( '(.+)/(.+)' )
-val comma = Regex( '(.+),(.+)' )
-
-def
-	f( p(v) ) = println( v )
-	f( _ ) = println( 'bad' )
-
-case 'left,right'
-	slash(a, b) -> println( "slash $a $b" )
-	comma(a, b) -> println( "comma $a $b" )
-	_ -> println( 'bad' )
+show(
+	'''
+	|
+	| **
+	|   **
+	|   **
+	''' )

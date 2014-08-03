@@ -1091,6 +1091,8 @@ class Evaluator
 
 						if (l.isInstanceOf[String])
 							push( l.asInstanceOf[String]*r.asInstanceOf[Int] )
+						else if (r.isInstanceOf[String])
+							push( r.asInstanceOf[String]*l.asInstanceOf[Int] )
 						else
 							push( Math(op, l, r) )
 					case '< | '> | '<= | '>= =>
@@ -1248,6 +1250,8 @@ class Evaluator
 							}
 					case p: Product =>
 						push( p.productElement(argList.head.asInstanceOf[Int]) )
+					case s: String =>
+						push( s.charAt(argList.head.asInstanceOf[Int]).toString )
 					case o => RuntimeException( "not callable: " + o )
 				}
 			case UnaryExprAST( op, exp ) =>
