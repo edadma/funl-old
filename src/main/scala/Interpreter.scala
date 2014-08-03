@@ -24,10 +24,10 @@ object Interpreter
 		{
 			val p = getClass.getPackage
 			val name = p.getImplementationTitle
-			
+
 			p.getImplementationVersion
 		}
-	
+
 	val NATURAL_ORDERING =
 		new Ordering[Any]
 		{
@@ -55,9 +55,9 @@ object Interpreter
 		for ((u, v) <- a zip b)
 			if (u != v)
 				return naturalCompare( u, v )
-	
+
 		val (alen, blen) = (a.length, b.length)
-		
+
 		if (alen < blen)
 			-1
 		else if (alen > blen)
@@ -65,13 +65,13 @@ object Interpreter
 		else
 			0
 	}
-	
+
 	def markTailRecursion( m: ModuleAST )
 	{
 		for (s <- m.statements)
 			markTailRecursion( s )
 	}
-	
+
 	def markTailRecursion( s: StatementAST )
 	{
 		s match
@@ -88,7 +88,7 @@ object Interpreter
 			case _ =>
 		}
 	}
-	
+
 	def markTailRecursion( n: String, e: ExprAST )
 	{
 		e match
@@ -146,10 +146,10 @@ object Interpreter
 		{
 			case s: String =>
 				var t = s
-				
+
 				for ((k, v) <- List( "\\" -> "\\\\", "\"" -> "\\\"", "\t" -> "\\t", "\b" -> "\\b", "\f" -> "\\f", "\n" -> "\\n", "\r" -> "\\r", "\b" -> "\\b" ))
 					t = t.replaceAllLiterally( k, v )
-					
+
 				'"' + t + '"'
 			case _ => display( a )
 		}
@@ -217,14 +217,14 @@ object Interpreter
 			source append line
 			source append '\n'
 		}
-		
+
 		def line( text: String )
 	}
 
 	class FunLLiterate extends Literate
 	{
 	var appending = false
-	
+
 		def line( text: String ) =
 				text.indexOf( "~~" ) match
 				{
@@ -260,7 +260,7 @@ object Interpreter
 	def parseLiterate( module: String, input: InputStream, lit: Literate ): AST =
 	{
 	val lines = Source.fromInputStream( input ).getLines
-		
+
 		for (l <- lines)
 			lit.line( l )
 
@@ -271,7 +271,7 @@ object Interpreter
 	def parse( module: String, name: Option[String] = None ): AST =
 	{
 	val m = name.getOrElse( module )
-	
+
 		moduleInput( module, "funl" ) match
 		{
 			case Some( input ) => parse( m, input )
@@ -279,7 +279,7 @@ object Interpreter
 				moduleInput( module, "lf" ) match
 				{
 					case Some( input ) => parseLiterate( m, input, new FunLLiterate )
-					case None => 
+					case None =>
 						moduleInput( module, "md" ) match
 						{
 							case Some( input ) => parseLiterate( m, input, new MarkdownLiterate )
@@ -293,7 +293,7 @@ object Interpreter
 	{
 	val filename = module + "." + ending
 	val resource = funl.Main.getClass.getResourceAsStream( filename )
-	
+
 		if (resource eq null)
 		{
 		val file = new File( filename )
@@ -316,22 +316,22 @@ object Interpreter
 		eval.assign( m, vs: _* )
 		eval( l )( new eval.Environment )
 	}
-	
+
 	def executeCaptureOutput( module: String, name: Option[String], vs: (String, Any)* ) =
 	{
 	val out = new ByteArrayOutputStream
-	
+
 		Console.withOut( out )( execute(module, name, vs: _*) )
 		out.toString
 	}
-	
+
 	case class PARSE_FAILURE( message: String )
 
 	def statement( m: String, s: String ): Any =
 	{
 	val eval = new Evaluator
 	implicit val env = new eval.Environment
-	
+
 		eval.enterActivation( null, null, eval.module(m) )
 		statement( m, s, eval )
 	}
@@ -344,7 +344,7 @@ object Interpreter
 		{
 			case parser.Success( l, _ ) =>
 				markTailRecursion( l )
-println( l )
+//println( l )
 				eval.apply( l )
 				eval.last
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
@@ -373,7 +373,7 @@ println( l )
 	}
 
 	def snippetWithMargin( code: String, module: String = "-snippet-" ) = snippet( code.stripMargin, module )
-	
+
 	def expression( s: String, vs: (String, Any)* ) =
 	{
 	val eval = new Evaluator

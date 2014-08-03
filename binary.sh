@@ -1,0 +1,1 @@
+rsync -azP -e ssh --delete /home/ed/projects/funl/target/scala-2.11/funl.jar ed@funl-lang.org:/var/www/funl-lang.org/releases

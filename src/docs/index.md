@@ -23,7 +23,7 @@ Another goal in creating FunL was to have a scripting language that is highly Ja
 ## Installing
 
 If you haven't yet done so, please download the software by clicking on the *Download* link at the top.  If you are on Windows, then it's probably best to just download it to your Desktop.  Their is no special installation procedure for the software itself, other than the fact that it runs on a platform known as the JVM (Java Virtual Machine), which you can get for free at <http://java.com>.  Just click on *Free Java Download* and follow their installation instructions.  Once the JVM is installed, you will be able to run the FunL REPL (repeat evaluate print loop) by starting a command line window (however you do that in the operating system you are using), changing to the directory where you downloaded the program, and typing
-	
+
 	java -jar funl.jar
 
 After executing the above command to run the REPL, you shoud see
@@ -33,8 +33,8 @@ After executing the above command to run the REPL, you shoud see
 	  / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr.
 	 / /   / /_/ / / / / /__     http://funl-lang.org/
 	/_/    \____/_/ /_/____/
-	
-	Welcome to FunL version 0.15-SNAPSHOT
+
+	Welcome to FunL version 0.15
 	Type in expressions to have them evaluated.
 	Type :help for more information.
 
@@ -45,7 +45,7 @@ If so, you can now enter FunL expressions at the prompt.
 Program files are executed by the following command
 
 	java -jar <path to funl.jar> <program filename>
-	
+
 The program filename can be entered without the `.funl` filename extension.  If the filename does not end with `.funl`, it is assumed.
 
 
@@ -62,7 +62,7 @@ at the prompt, you should see
 The example highlights FunL's *exact arithmetic* capability.  The type `funl.lia.Rational` is the rational or fraction type. The REPL creates a new variable for every result.  In this case, the result variable is `res1`.  The following code
 
 	res1^-1
-	
+
 should produce the expected result of inverting the fraction to yield `6/7`.
 
 FunL also uses JSON syntax for the *map* type.  The following code (with each line entered separately)
@@ -98,7 +98,7 @@ As a more interesting example, here is an (not fairly efficient) implementation 
 Run the program by typing
 
 	java -jar <path to funl.jar> quicksort
-	
+
 at the command prompt.  You should see
 
 	[0, 1, 2, 2, 3, 4]

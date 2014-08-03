@@ -1,0 +1,1 @@
+rsync -azP -e ssh --delete /home/ed/projects/funl/target/docs/site/ ed@funl-lang.org:/var/www/funl-lang.org/html

@@ -10,7 +10,7 @@ If the interpreter is to run a program or import a module, the input is refered 
 	source = Newline | statements
 
 	statements = statement+
-	
+
 A `source` is just a list of statements that are execute one after the other.  If a source file is empty, the lexer will still emit a `Newline` token.
 
 
@@ -43,7 +43,7 @@ FunL knows about several different types of numbers:
 - **integers** can be any number of digits.  Internally FunL uses two different ways of dealing with integers depending on how big they are.  The conversion is handled automatically.
 - **decimals** are IEEE 754 double precision (binary64) number objects.  FunL 1.0 will support arbitrary precision BCD numbers as well.
 - **rationals** or fractions are what you get if you divide two integers where the first is not a multiple of the second.  So, strictly speaking there's no literal syntax for rationals.  FunL just gives the feeling that there is.  If you type `2/3`, you'll get a rational object with the value of two thirds. There's no limit to the size of the numerator or denominator of a rational number object.
-- **complex numbers** are supported directly.  Current, complex numbers are a pair of double precision numbers, however FunL 1.0 will support arbitrary precision as well as complex (Gaussian) integers and complex fractions.  As for rationals, there's no literal syntax for complex numbers.  The variables `i` and `j`, which are equal and represent the imaginary unit, are predefined.  So, you can type `2 + 3i`, for example to the complex number equal to 2 plus 3 times the imaginary unit.  Note that an asterisk (`*`) is not need between the `3` and the `i`.  FunL understands that it's multiplication.
+- **complex numbers** are supported directly.  Current, complex numbers are a pair of double precision numbers, however FunL 1.0 will support arbitrary precision as well as complex (Gaussian) integers and complex fractions.  As for rationals, there's no literal syntax for complex numbers.  The variables `i` and `j`, which are equal and represent the imaginary unit, are predefined.  So, you can type `2 + 3i`, for example to the complex number equal to 2 plus 3 times the imaginary unit.  Note that an asterisk (`*`) is not needed between the `3` and the `i`.  FunL understands that it's multiplication.
 
 ### Booleans
 
@@ -113,7 +113,7 @@ where
 A case expression has the syntax
 
     'case' expression ('of' functionExpression | caseFunctionExpression)
-    
+
 where
 
     lambdaExpression ::=
@@ -179,13 +179,13 @@ produces
 ### Simple Loop
 
   The simple loop is for situation where you either want to terminate the loop using a `break` or `return`, or the application doesn't terminate.  For example
-  
+
     n = 1
-    
+
     for println( n++ )
-  
+
   prints numbers starting from 1 without end.
-  
+
 ### Sections
 
 ### Lambda Expressions
