@@ -67,13 +67,13 @@ templateDirectives in Laika += LaikaExtension.bootstrapToc
 
 publishMavenStyle := true
 
-publishTo := Some( Resolver.sftp( "private", "hyperreal.ca", "/var/www/hyperreal.ca/html/maven2" ) )
+publishTo := Some( Resolver.sftp( "private", "hyperreal.ca", "/var/www/hyperreal.ca/maven2" ) )
 
 publishArtifact in Test := false
 
 pomIncludeRepository := { _ => false }
 
-licenses := Seq("LGPL" -> url("http://opensource.org/licenses/lgpl-3.0.html"))
+licenses := Seq("LGPL" -> url("http://opensource.org/licenses/LGPL-3.0"))
 
 homepage := Some(url("https://github.com/FunL/funl"))
 
