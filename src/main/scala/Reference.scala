@@ -259,9 +259,14 @@ trait WriteOnlyReference extends Reference
 	def value: Any = RuntimeException( name + " is write-only" )
 }
 
-class OutputReference( val name: String, output: Any => Unit ) extends WriteOnlyReference
+abstract class OutputReference( val name: String, output: Any => Unit ) extends Reference
 {
 	def assign( v: Any ) = output( v )
 }
 
-class WriteOnlySystemReference( sysvar: String, output: Any => Unit ) extends OutputReference( "$" + sysvar, output )
+class WriteOnlySystemReference( sysvar: String, output: Any => Unit ) extends OutputReference( "$" + sysvar, output ) with WriteOnlyReference
+
+class ReadWriteSystemReference( sysvar: String, output: Any => Unit )( thunk: => Any ) extends OutputReference( "$" + sysvar, output )
+{
+	def value = thunk
+}

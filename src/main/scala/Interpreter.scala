@@ -13,6 +13,7 @@ import java.io.{File, InputStream, FileInputStream, ByteArrayOutputStream}
 // import scala.collection.immutable.PagedSeq
 import util.parsing.input.{Reader, CharSequenceReader}
 import io.Source
+import collection.mutable.{ListBuffer}
 
 import funl.lia.Math
 
@@ -34,6 +35,16 @@ object Interpreter
 			def compare( x: Any, y: Any ): Int = naturalCompare( x, y )
 		}
 
+	private var path: List[String] = Nil
+		
+	def modulePath_=( p: List[String] ) =
+		if (p == null)
+			throw new NullPointerException( "null module path list" )
+		else
+			path = p
+	
+	def modulePath = path
+	
 	def naturalCompare( x: Any, y: Any ): Int =
 		(x, y) match
 		{
@@ -296,12 +307,22 @@ object Interpreter
 
 		if (resource eq null)
 		{
-		val file = new File( filename )
+			def search( path: List[String] ): Option[InputStream] =
+			{
+				path match
+				{
+					case Nil => None
+					case h :: t =>
+						val file = new File( h, filename )
 
-			if (!file.exists || !file.isFile)
-				None
-			else
-				Some( new FileInputStream(file) )
+						if (!file.exists || !file.isFile)
+							search( t )
+						else
+							Some( new FileInputStream(file) )
+				}
+			}
+			
+			search( path )
 		}
 		else
 			Some( resource )
@@ -354,25 +375,25 @@ object Interpreter
 
 	def statement( s: String ): Any = statement( "-statement-", s )
 
-	def snippet( code: String, module: String = "-snippet-" ) =
+	def snippet( code: String, vs: (String, Any)* ) =
 	{
+	val module = "-snippet-"
 	val eval = new Evaluator
 	val parser = new FunLParser( module )
 	implicit val env = new eval.Environment
 
-		parser.parseSource( new CharSequenceReader(code) ) match
+		parser.parseSource( new CharSequenceReader(code.stripMargin) ) match
 		{
 			case parser.Success( l, _ ) =>
 				markTailRecursion( l )
 				eval.enterActivation( null, null, eval.module(module) )
+				eval.assign( module, vs: _* )
 				eval.apply( l )
 				eval.last
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
 			case parser.Error( m, r ) => PARSE_FAILURE( m )
 		}
 	}
-
-	def snippetWithMargin( code: String, module: String = "-snippet-" ) = snippet( code.stripMargin, module )
 
 	def expression( s: String, vs: (String, Any)* ) =
 	{

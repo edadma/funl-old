@@ -21,8 +21,7 @@ http://rosettacode.org/wiki/Numerical_integration#Scala
 -----------
 Closure should have arity so that assignable can be done properly
 scala Map.getOrElse
-improve conversion to Function0 to support Scala "call-by-name"
-// operator to return decimal results
+\\ operator to return decimal results
 int( 3456784567845678678.3 ) ~> java.lang.Integer = 2147483647
 
 1.0.0 todo's
@@ -32,13 +31,11 @@ java/scala interop
 scala interop
 	CanBuildFrom
 	Numeric
-REPL (coudn't reproduce problem)
 add chaining of comparisons
 math functions (including conj(z), floor(x))
 complex integers and fractions
   http://rosettacode.org/wiki/Arithmetic/Complex
   improve complex exponentiation: z^-1 !(exactly)= 1/z: implement inv() in ComplexDouble
-multi-line strings and full string specification
 import sys, math
 http://rosettacode.org/wiki/Gaussian_elimination
 http://rosettacode.org/wiki/Bitmap/Bresenham%27s_line_algorithm

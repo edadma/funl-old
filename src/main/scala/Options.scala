@@ -10,22 +10,32 @@ package funl
 
 object Options
 {
+// 	def apply( args: Array[String] )( options: PartialFunction[List[String], List[String]] )
+// 	{
+// 		def nextOption( list: List[String] ): Unit =
+// 			if (list != Nil)
+// 				nextOption( options(list) )
+// 
+// 		nextOption( args.toList )
+// 	}
+	
 	type OptionMap = Map[Symbol, String]
 	type OptionValue = (Symbol, String)
-	type OptionFunction = PartialFunction[List[String], (OptionValue, List[String])]
 
-	def apply( args: Array[String], defaults: OptionValue* )( options: OptionFunction ): OptionMap =
-		nextOption( Map(), args.toList, options, defaults.toList )
-
-	private def nextOption( map: OptionMap, list: List[String], options: OptionFunction, defaults: List[OptionValue] ): OptionMap =
+	def apply( args: Array[String], defaults: OptionValue* )( options: PartialFunction[List[String], (OptionValue, List[String])] ): OptionMap =
 	{
-		if (list == Nil)
-			map ++ defaults.filterNot( d => map.contains(d._1) )
-		else
+		def nextOption( map: OptionMap, list: List[String], defaults: List[OptionValue] ): OptionMap =
 		{
-		val (kv, t) = options( list )
+			if (list == Nil)
+				map ++ defaults.filterNot( d => map.contains(d._1) )
+			else
+			{
+			val (kv, t) = options( list )
 
-			nextOption( map ++ Map(kv), t, options, defaults )
+				nextOption( map ++ Map(kv), t, defaults )
+			}
 		}
+		
+		nextOption( Map(), args.toList, defaults.toList )
 	}
 }

@@ -16,37 +16,24 @@ import funl.interp.Interpreter._
 
 object Main extends App
 {
-// 	val opts =
-// 		Options( args )
-// 		{
-// 			case "-b" :: t => ('b -> "set", t)
-// 			case o :: _ if o startsWith "-" => sys.error( "bad option: " + o )
-// 			case f :: t => ('input -> f, t)
-// 		}
+	val opts =
+		Options( args, 'args -> "", 'path -> "." )
+		{
+	//		case "-b" :: t => ('b -> "set", t)
+			case "-a" :: a :: t => ('args -> a, t)
+			case "-p" :: p :: t => ('path -> p, t)
+			case o :: _ if o startsWith "-" => sys.error( "bad option: " + o )
+			case f :: t => ('input -> f, t)
+		}
 
-// 	if (opts isEmpty)
-// 		REPL.main( args )
-  if (args isEmpty)
-    REPL.main( Array[String]() )
+	modulePath = opts('path).split( ";" ).toList
+	
+	if (!(opts contains 'input))
+		REPL.main( args )
 	else
 	{
-//	val m = opts('input)
-  val m = args(0)
+	val m = opts('input)
   
-		execute( m, Some("-main-"), "args" -> args.tail.toVector )
-//	val l = parse( m, Some("-main-") )
-	
-// 		if (opts contains 'b)
-// 		{
-// 			println( "binary" )
-// 		}
-// 		else
-// 		{
-// 		val eval = new Evaluator
-// 		implicit val env = new eval.Environment
-// 
-// 			eval.assign( "-main-", "args" -> args.tail.toVector )
-// 			eval( l )
-// 		}
+		execute( m, Some("-main-"), "args" -> opts('args).split(" +").toVector )
 	}
 }

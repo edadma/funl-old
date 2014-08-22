@@ -7,6 +7,7 @@
 
 package funl.interp
 
+import java.io.File
 import java.lang.reflect.{Method, Modifier}
 import java.util.concurrent.Callable
 
@@ -268,6 +269,12 @@ class Evaluator
 		sysvars += k -> new WriteOnlySystemReference( k, output )
 	}
 
+	def rwsysvar( k: String, output: Any => Unit )( v: => Any )
+	{
+		sysvars += k -> new ReadWriteSystemReference( k, output )( v )
+	}
+
+	rwsysvar( "path", p => modulePath = p.asInstanceOf[String].split(";").toList )( modulePath map (new File(_).getCanonicalPath) mkString ";" )
 	rosysvar( "time" ) {compat.Platform.currentTime}
 	rosysvar( "timeZone" ) {java.util.TimeZone.getDefault}
 	rosysvar( "timeZoneOffset" )
@@ -278,10 +285,10 @@ class Evaluator
 		}
 	rosysvar( "date" ) {new java.util.Date}
 	rosysvar( "os" ) {System.getProperty( "os.name" )}
-  rosysvar( "user" ) {System.getProperty( "user.name" )}
-  rosysvar( "home" ) {System.getProperty( "user.home" )}
-  rosysvar( "fs" ) {System.getProperty( "file.separator" )}
-  rosysvar( "ls" ) {System.getProperty( "line.separator" )}
+	rosysvar( "user" ) {System.getProperty( "user.name" )}
+	rosysvar( "home" ) {System.getProperty( "user.home" )}
+	rosysvar( "fs" ) {System.getProperty( "file.separator" )}
+	rosysvar( "ls" ) {System.getProperty( "line.separator" )}
 	rosysvar( "stdin" ) {scala.io.StdIn.readLine}
 	wosysvar( "stdout", println )
 
