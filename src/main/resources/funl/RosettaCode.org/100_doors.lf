@@ -1,0 +1,11 @@
+=={{header|FunL}}==
+=== Unoptimized ===
+<lang funl>~~for i <- 1..100
+  r = foldl1( \a, b -> a xor b, [(a|i) | a <- 1..100] )
+  println( i + ' ' + (if r then 'open' else 'closed') )~~</lang>
+
+=== Optimized ===
+<lang funl>import math.sqrt
+
+for i <- 1..100
+  println( i + ' ' + (if sqrt(i) is Integer then 'open' else 'closed') )</lang>

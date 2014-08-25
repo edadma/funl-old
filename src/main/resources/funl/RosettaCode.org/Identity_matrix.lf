@@ -1,5 +1,5 @@
 =={{header|FunL}}==
-<lang funl>~~def identity( n ) = vector( n, n, (r, c) -> if r == c then 1 else 0 )
+<lang funl>~~def identity( n ) = vector( n, n, \r, c -> if r == c then 1 else 0 )
 
 println( identity(3) )~~</lang>
 

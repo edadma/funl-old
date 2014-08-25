@@ -17,7 +17,7 @@ def
 
 	splitAt( n, xs )					= (take( n, xs ), drop( n, xs ))
 
-	concat( xss )           = foldr( (x, y) -> x + y, [], xss )
+	concat( xss )           = foldr( (+), [], xss )
 
 	last( [x] )							= x
 	last( _:xs )							= last( xs )
@@ -32,9 +32,9 @@ def
 
 	break_( p, xs )           =  span( x -> not p(x), xs )
 
-	zip( xs, ys )             =  zipWith( (a, b) -> (a, b), xs, ys )
+	zip( xs, ys )             =  zipWith( \a, b -> (a, b), xs, ys )
 
-	zip3( xs, ys, zs )        =  zipWith3( (a, b, c) -> (a, b, c), xs, ys, zs )
+	zip3( xs, ys, zs )        =  zipWith3( \a, b, c -> (a, b, c), xs, ys, zs )
 
 	zipWith( f, a:as, b:bs::Stream )  =  f( a, b ) # zipWith( f, as, bs )
 	zipWith( f, a:as::Stream, b:bs )  =  f( a, b ) # zipWith( f, as, bs )
