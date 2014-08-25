@@ -78,7 +78,8 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 				}
 
 			private def hexParser: Parser[Token] =
-				'0' ~> 'x' ~> rep1(digit | elem('a') | elem('b') | elem('c') | elem('d') | elem('e') | elem('f') | elem('A') | elem('B') | elem('C') | elem('D') | elem('E') | elem('F')) ^^
+				'0' ~> 'x' ~> rep1(digit | elem('a') | elem('b') | elem('c') | elem('d') | elem('e') | elem('f') |
+					elem('A') | elem('B') | elem('C') | elem('D') | elem('E') | elem('F')) ^^
 					(d => NumericLit( "0x" + (d mkString "") ))
 				
 			reserved += (
@@ -312,7 +313,8 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
   nonAssignmentExpression
 
  	lazy val lambdaExpression =
- 	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> booleanExpression) ~ ("->" ~> expressionOrBlock) ^^
+// 	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> booleanExpression) ~ ("->" ~> expressionOrBlock) ^^
+ 	("\\" ~> rep1sep(pattern, ",") | repN(1, pattern)) ~ opt("|" ~> booleanExpression) ~ ("->" ~> expressionOrBlock) ^^
 		{case p ~ g ~ b => FunctionExprAST( p, List(FunctionPartExprAST(g, b)) )}
 
 	lazy val caseFunctionExpression =
