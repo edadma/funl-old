@@ -160,6 +160,7 @@ object Predef
 		{
 			case n: BigInt => n
 			case d: BigDecimal => funl.lia.Math.maybeDemote( d.toBigInt )
+			case d: Double => funl.lia.Math.maybeDemote( BigInt(d.toLong) )
 			case n: Number => n.intValue
 			case s: String => s.toInt
 			case b: Boolean => if (b) 1 else 0

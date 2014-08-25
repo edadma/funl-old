@@ -22,7 +22,6 @@ http://rosettacode.org/wiki/Numerical_integration#Scala
 Closure should have arity so that assignable can be done properly
 scala Map.getOrElse
 \\ operator to return decimal results
-int( 3456784567845678678.3 ) ~> java.lang.Integer = 2147483647
 
 1.0.0 todo's
 ------------
