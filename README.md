@@ -91,14 +91,14 @@ Use the following elements to use FunL in your Maven project:
 	<dependency>
 		<groupId>org.funl-lang</groupId>
 		<artifactId>funl</artifactId>
-		<version>0.15</version>
+		<version>0.16</version>
 	</dependency>
 
 Add the following to your build file to use FunL in your SBT project:
 
 	resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
 
-	libraryDependencies += "org.funl-lang" %% "funl" % "0.15"
+	libraryDependencies += "org.funl-lang" %% "funl" % "0.16"
 
 
 ## Building

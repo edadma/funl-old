@@ -5,7 +5,7 @@ import LaikaKeys._
 
 name := "FunL"
 
-version := "0.15"
+version := "0.16"
 
 scalaVersion := "2.11.2"
 
@@ -17,7 +17,7 @@ organization := "org.funl-lang"
 
 resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.0" % "test"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.5" % "test"
 
