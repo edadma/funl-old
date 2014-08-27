@@ -1,0 +1,13 @@
+=={{header|FunL}}==
+<lang funl>~~import lists.zip3
+
+for x <- zip3( ['a', 'b', 'c'], ['A', 'B', 'C'], [1, 2, 3] )
+    println( x.mkString() )~~</lang>
+
+{{out}}
+
+<pre>
+aA1
+bB2
+cC3
+</pre>
