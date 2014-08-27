@@ -127,4 +127,4 @@ to execute a script.  Note that the double quotes are required.
 
 ## Executable
 
-The latest executable can be downloaded from <http://funl-lang.org/releases/funl-0.16.jar>.
+The latest development executable can be downloaded from <http://funl-lang.org/releases/funl-dev.jar>.
