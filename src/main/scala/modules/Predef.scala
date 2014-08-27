@@ -13,6 +13,8 @@ import util.Random.{nextInt, nextDouble}
 import funl.interp.{Function, ArgList, RuntimeException}
 import funl.interp.Interpreter._
 
+import funl.lia.{Math => M}
+
 
 object Predef
 {
@@ -159,11 +161,15 @@ object Predef
 		a match
 		{
 			case n: BigInt => n
-			case d: BigDecimal => funl.lia.Math.maybeDemote( d.toBigInt )
-			case d: Double => funl.lia.Math.maybeDemote( BigInt(d.toLong) )
+			case d: BigDecimal => M.maybeDemote( d.toBigInt )
+			case d: Double => M.maybeDemote( BigInt(d.toLong) )
 			case n: Number => n.intValue
 			case s: String => s.toInt
 			case b: Boolean => if (b) 1 else 0
+			case ArgList( List(s: String, base: Int) ) =>
+				if (base < 2) sys.error( "int: base should be at least 2" )
+				
+				M.maybeDemote( BigInt(s, base) )
 		}
 
 	def float( a: Any ) =
@@ -193,6 +199,14 @@ object Predef
 		{
 			case n: BigInt => n.toString( 16 )
 			case n: Int => Integer.toHexString( n )
+		}
+
+	def str( a: Any ) =
+		a match
+		{
+			case ArgList( List(n: BigInt, r: Int) ) => n.toString( r )
+			case ArgList( List(n: Int, r: Int) ) => Integer.toString( n, r )
+			case _ => String.valueOf( a )
 		}
 
 	def chr( code: Int ) = code.toChar.toString

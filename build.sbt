@@ -57,7 +57,7 @@ assemblySettings
 
 mainClass in assembly := Some( "funl.Main" )
 
-jarName in assembly := "funl-" + version.value + ".jar"
+jarName in assembly := "funl-dev.jar"
 
 
 LaikaPlugin.defaults
