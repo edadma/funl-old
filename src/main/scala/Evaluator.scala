@@ -588,62 +588,6 @@ class Evaluator
 		else
 			pattern( args.head, args.tail, parms.head, parms.tail )
 	}
-/*
-	def invoke( c: Closure, argList: List[Any] )( implicit env: Environment )
-	{
-		def occur( argList: List[Any] )
-		{
-			def findPart: Option[FunctionPartExprAST] =
-			{
-				for (alt <- c.funcs)
-					if (pattern( currentActivation, argList, alt.parms ))
-					{
-						for (part <- alt.parts)
-							part.cond match
-							{
-								case None => return Some( part )
-								case Some( cond ) =>
-									if (beval( cond ))
-										return Some( part )
-							}
-
-						currentActivation.clear
-					}
-
-				None
-			}
-
-			findPart match
-			{
-				case None => RuntimeException( "function application failure: " + c.funcs + " applied to " + argList )
-				case Some( part ) =>
-					apply( part.body ) match
-					{
-						case a: List[Any] =>
-							currentActivation.clear
-							occur( a )
-						case _ =>
-					}
-			}
-		}
-
-		enterActivation( c, c.referencing, c.module )
-
-	val st = env.copy
-
-		try
-		{
-			occur( argList )
-		}
-		catch
-		{
-			case ReturnThrowable( ret ) =>
-				restoreEnvironment( st )
-				push( ret )
-		}
-
-		exitActivation
-	}*/
 
 	def varSearch( name: String, a: Activation, createvars: Boolean )( implicit env: Environment ): Option[Any] =
 		a.scope find (_ contains name) match
@@ -800,7 +744,7 @@ class Evaluator
 								else
 									clear( currentActivation(itenv), ps(i) )
 
-							// force the iterator's next() to be called, since unit()'s second parameter is call-by-name
+							// force the iterator's next() to be called, since unify()'s second parameter is call-by-name
 							val next = deref( is(i).next )
 
 								if (!unify( currentActivation(itenv), next, ps(i) ))
@@ -913,7 +857,7 @@ class Evaluator
 					loadPredef( m )
 
 				enterActivation( null, null, module(m) )
-        currentModule( "_name_" ) = m
+				currentModule( "_name_" ) = m
 				apply( s )
 			case DeclarationBlockAST( s ) =>
 				apply( s )
