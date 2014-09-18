@@ -355,7 +355,7 @@ class Evaluator
 
 	def ieval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Int]
 
-  def bieval( t: AST )( implicit env: Environment ) = Math.toBigInt( eval(t).asInstanceOf[Number] )
+	def bieval( t: AST )( implicit env: Environment ) = Math.toBigInt( eval(t).asInstanceOf[Number] )
 
 	def deval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Number].doubleValue
 
