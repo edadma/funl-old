@@ -1,8 +1,1 @@
-a = 3
-
-if a == 1
-	println( 'one' )
-elif a == 2
-	println( 'two' )
-else
-	println( 'other' )
+[1, 2, 3].foreach( a -> println(2a) )
