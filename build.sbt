@@ -5,9 +5,9 @@ import LaikaKeys._
 
 name := "FunL"
 
-version := "0.16"
+version := "0.17"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.4"
 
 scalacOptions ++= Seq( "-deprecation", "-feature", "-language:postfixOps", "-language:implicitConversions", "-language:existentials" )
 
@@ -39,9 +39,9 @@ libraryDependencies ++= Seq(
 	)
 
 libraryDependencies ++= Seq(
-	"org.funl-lang" %% "lia" % "0.12",
-	"org.funl-lang" %% "indentation-lexical" % "0.1",
-	"org.funl-lang" %% "json" % "0.2"
+	"org.funl-lang" %% "lia" % "0.13",
+	"org.funl-lang" %% "indentation-lexical" % "0.2",
+	"org.funl-lang" %% "json" % "0.3"
 	)
 
 mainClass in (Compile, run) := Some( "funl.Main" )
