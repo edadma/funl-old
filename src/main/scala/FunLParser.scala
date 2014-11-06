@@ -86,11 +86,11 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 				"and", "break", "by", "case", "class", "continue", "data", "def", "do", "elif",
 				"else", "false", "for", "function", "if", "import", "in", "is", "mod",
 				"native", "not", "null", "of", "or", "otherwise", "private", "return", "repeat", "then", "true",
-				"until", "val", "var", "while", "xor", "yield", "shiftright", "shiftleft", "rotateright", "rotateleft"
+				"until", "val", "var", "while", "xor", "yield", "rotateright", "rotateleft"
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", ";",
 				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
-				"=>", "+=", "++=", "-=", "--=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "\\%", "::", "@")
+				"=>", "+=", "++=", "-=", "--=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "\\%", "::", "@", ">>>", "<<")
 		}
 		
 		def interpolate( s: String, handleEscape: Boolean ): String =
@@ -413,7 +413,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 		multiplicativeExpression
 
 	lazy val multiplicativeExpression: PackratParser[ExprAST] =
-		multiplicativeExpression ~ ("*" | "/" | """\""" | "%" | "\\%" | "mod" | "rotateright" | "rotateleft" | "shiftright" | "shiftleft") ~ exponentialExpression ^^
+		multiplicativeExpression ~ ("*" | "/" | """\""" | "%" | "\\%" | "mod" | "rotateright" | "rotateleft" | ">>>" | "<<") ~ exponentialExpression ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
 		multiplicativeExpression ~ applyExpression ^^
 			{case l ~ r => BinaryExprAST( l, '*, r )} |

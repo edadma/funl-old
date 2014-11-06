@@ -1050,7 +1050,7 @@ class Evaluator
 
 				op match
 				{
-					case 'rotateright | 'rotateleft | 'shiftright | 'shiftleft =>
+					case 'rotateright | 'rotateleft | '>>> | '<< =>
 						val bits = l.asInstanceOf[Number].intValue
 						val k = ieval( right )
 
@@ -1058,8 +1058,8 @@ class Evaluator
 						{
 							case 'rotateright => Integer.rotateRight( bits, k )
 							case 'rotateleft => Integer.rotateRight( bits, k )
-							case 'shiftright => bits >>> k
-							case 'shiftleft => bits << k
+							case '>>> => bits >>> k
+							case '<< => bits << k
 						} )
 					case 'in | 'notin =>
 						val r = eval( right )
