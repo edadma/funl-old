@@ -380,7 +380,9 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 		comparisonExpression
 
 	lazy val comparisonExpression: PackratParser[ExprAST] =
-		iteratorExpression ~ ("==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" | "|" | "/|") ~ iteratorExpression ^^
+		iteratorExpression ~ rep1(("==" | "!=" | "<" | ">" | "<=" | ">=") ~ iteratorExpression) ^^
+			{case l ~ comps => ComparisonExprAST( l, comps map {case o ~ e => (Symbol(o), e)} )} |
+		iteratorExpression ~ ("in" | "not" ~ "in" ^^^ "notin" | "|" | "/|") ~ iteratorExpression ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
 		iteratorExpression ~ "is" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
     iteratorExpression ~ "is" ~ "not" ~ ident ^^ {case e ~ _ ~ _ ~ t => NotExprAST( TypeExprAST(e, t) )} |

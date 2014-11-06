@@ -47,6 +47,7 @@ case class LiteralExprAST( v: Any ) extends ExprAST
 case class StringLiteralExprAST( s: String ) extends ExprAST
 case class VariableExprAST( name: String ) extends ExprAST
 case class ApplyExprAST( f: ExprAST, args: List[ExprAST], var tailrecursive: Boolean ) extends ExprAST
+case class ComparisonExprAST( left: ExprAST, comps: List[(Symbol, ExprAST)] ) extends ExprAST
 case class BinaryExprAST( left: ExprAST, op: Symbol, right: ExprAST ) extends ExprAST
 case class UnaryExprAST( op: Symbol, exp: ExprAST ) extends ExprAST
 case class AssignmentExprAST( lhs: List[ExprAST], op: String, rhs: List[ExprAST] ) extends ExprAST

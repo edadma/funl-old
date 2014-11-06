@@ -850,6 +850,34 @@ class Evaluator
 				compound( l.tail )
 			}
 
+		def comparison( l: Any, op: Symbol, r: Any ): Boolean =
+			op match
+			{
+				case '< | '> | '<= | '>= =>
+					def comp( c: Int ) =
+						op match
+						{
+							case '< => c < 0
+							case '> => c > 0
+							case '<= => c <= 0
+							case '>= => c >= 0
+						}
+
+					if (l.isInstanceOf[String] || r.isInstanceOf[String])
+						comp(l.toString.compare(r.toString))
+					else if (l.isInstanceOf[Seq[Any]] && r.isInstanceOf[Seq[Any]])
+						comp(lexicographicalCompare(l.asInstanceOf[Seq[Any]], r.asInstanceOf[Seq[Any]]))
+					else if (l.isInstanceOf[Product] && r.isInstanceOf[Product])
+						comp(lexicographicalCompare(l.asInstanceOf[Product].productIterator.toSeq, r.asInstanceOf[Product].productIterator.toSeq))
+					else
+						Math(op, l, r).asInstanceOf[Boolean]
+				case '== | '!= =>
+					if (l.isInstanceOf[Number] && r.isInstanceOf[Number])
+						Math(op, l, r).asInstanceOf[Boolean]
+					else
+						if (op == '==) l == r else l != r
+			}
+			
 		t match
 		{
 			case ModuleAST( m, s ) =>
@@ -997,6 +1025,26 @@ class Evaluator
 					buf append (display( eval(e) ))
 
 				push( buf.toString )
+			case ComparisonExprAST( left, comps ) =>
+				var l = eval( left )
+				
+				def comp( cs: List[(Symbol, ExprAST)] ): Boolean =
+					cs match
+					{
+						case Nil => true
+						case (c, e) :: t =>
+							val r = eval( e )
+							
+							if (comparison( l, c, r ))
+							{
+								l = r
+								comp( t )
+							}
+							else
+								false
+					}
+					
+				push( comp(comps) )
 			case BinaryExprAST( left, op, right ) =>
 				val l = eval( left )
 
@@ -1046,33 +1094,8 @@ class Evaluator
 							push( r.asInstanceOf[String]*l.asInstanceOf[Int] )
 						else
 							push( Math(op, l, r) )
-					case '< | '> | '<= | '>= =>
-						def comp( c: Int ) =
-							op match
-							{
-								case '< => c < 0
-								case '> => c > 0
-								case '<= => c <= 0
-								case '>= => c >= 0
-							}
-
-						val r = eval( right )
-
-						if (l.isInstanceOf[String] || r.isInstanceOf[String])
-							push( comp(l.toString.compare(r.toString)) )
-						else if (l.isInstanceOf[Seq[Any]] && r.isInstanceOf[Seq[Any]])
-							push( comp(lexicographicalCompare(l.asInstanceOf[Seq[Any]], r.asInstanceOf[Seq[Any]])) )
-						else if (l.isInstanceOf[Product] && r.isInstanceOf[Product])
-							push( comp(lexicographicalCompare(l.asInstanceOf[Product].productIterator.toSeq, r.asInstanceOf[Product].productIterator.toSeq)) )
-						else
-							push( Math(op, l, r) )
-					case '== | '!= =>
-						val r = eval( right )
-
-						if (l.isInstanceOf[Number] && r.isInstanceOf[Number])
-							push( Math(op, l, r) )
-						else
-							push( if (op == '==) l == r else l != r )
+					case '< | '> | '<= | '>= | '== | '!= =>
+						push( comparison(l, op, eval(right)) )
 					case 'or =>
 						if (l.isInstanceOf[Boolean])
 							if (l.asInstanceOf[Boolean])

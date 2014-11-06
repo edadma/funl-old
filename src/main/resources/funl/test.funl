@@ -1,1 +1,1 @@
-[1, 2, 3].foreach( a -> println(2a) )
+1 < a < 5
