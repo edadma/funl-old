@@ -371,7 +371,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 		andExpression
 
 	lazy val andExpression: PackratParser[ExprAST] =
-		andExpression ~ ("and" | "rotateright" | "rotateleft" | "shiftright" | "shiftleft") ~ notExpression ^^
+		andExpression ~ "and" ~ notExpression ^^
 			{case lhs ~ op ~ rhs => BinaryExprAST( lhs, Symbol(op), rhs )} |
 		notExpression
 
@@ -413,7 +413,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 		multiplicativeExpression
 
 	lazy val multiplicativeExpression: PackratParser[ExprAST] =
-		multiplicativeExpression ~ ("*" | "/" | """\""" | "%" | "\\%" | "mod") ~ exponentialExpression ^^
+		multiplicativeExpression ~ ("*" | "/" | """\""" | "%" | "\\%" | "mod" | "rotateright" | "rotateleft" | "shiftright" | "shiftleft") ~ exponentialExpression ^^
 			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
 		multiplicativeExpression ~ applyExpression ^^
 			{case l ~ r => BinaryExprAST( l, '*, r )} |
