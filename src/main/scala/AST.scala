@@ -7,6 +7,8 @@
 
 package funl.interp
 
+import funl.lia.FunctionMap
+
 
 trait AST
 
@@ -31,9 +33,9 @@ case class GeneratorAST( pattern: PatternAST, traversable: ExprAST, filter: Opti
 
 trait ExprAST extends AST
 case class InterpolationExprAST( l: List[ExprAST] ) extends ExprAST
-case class SectionExprAST( op: Symbol ) extends ExprAST
-case class LeftSectionExprAST( e: ExprAST, op: Symbol ) extends ExprAST
-case class RightSectionExprAST( op: Symbol, e: ExprAST ) extends ExprAST
+case class SectionExprAST( op: Symbol, func: FunctionMap ) extends ExprAST
+case class LeftSectionExprAST( e: ExprAST, op: Symbol, func: FunctionMap ) extends ExprAST
+case class RightSectionExprAST( op: Symbol, func: FunctionMap, e: ExprAST ) extends ExprAST
 case class IteratorExprAST( e: ExprAST, gen: List[GeneratorAST] ) extends ExprAST
 case class ListComprehensionExprAST( iterator: IteratorExprAST ) extends ExprAST
 case class SetComprehensionExprAST( iterator: IteratorExprAST ) extends ExprAST
@@ -47,8 +49,8 @@ case class LiteralExprAST( v: Any ) extends ExprAST
 case class StringLiteralExprAST( s: String ) extends ExprAST
 case class VariableExprAST( name: String ) extends ExprAST
 case class ApplyExprAST( f: ExprAST, args: List[ExprAST], var tailrecursive: Boolean ) extends ExprAST
-case class ComparisonExprAST( left: ExprAST, comps: List[(Symbol, ExprAST)] ) extends ExprAST
-case class BinaryExprAST( left: ExprAST, op: Symbol, right: ExprAST ) extends ExprAST
+case class ComparisonExprAST( left: ExprAST, comps: List[(Symbol, FunctionMap, ExprAST)] ) extends ExprAST
+case class BinaryExprAST( left: ExprAST, op: Symbol, func: FunctionMap, right: ExprAST ) extends ExprAST
 case class UnaryExprAST( op: Symbol, exp: ExprAST ) extends ExprAST
 case class AssignmentExprAST( lhs: List[ExprAST], op: String, rhs: List[ExprAST] ) extends ExprAST
 case class VectorExprAST( l: List[ExprAST] ) extends ExprAST

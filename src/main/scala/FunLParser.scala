@@ -365,14 +365,24 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 
 	lazy val booleanExpression = orExpression
 	
+	lazy val mathSymbols = Set( '+, '-, '*, '/, Symbol("\\"), Symbol("\\%"), '^, '%, 'mod, '|, '/|, '==, '!=, '<, '>, '<=, '>= )
+	
+	def lookup( s: Symbol ) =
+		if (mathSymbols contains s)
+			Math.lookup( s )
+		else
+			null
+	
 	lazy val orExpression: PackratParser[ExprAST] =
 		orExpression ~ ("or" | "xor") ~ andExpression ^^
-			{case lhs ~ op ~ rhs => BinaryExprAST( lhs, Symbol(op), rhs )} |
+			{case lhs ~ op ~ rhs =>
+				val s = Symbol(op)
+				BinaryExprAST( lhs, s, Math.lookup(s), rhs )} |
 		andExpression
 
 	lazy val andExpression: PackratParser[ExprAST] =
 		andExpression ~ "and" ~ notExpression ^^
-			{case lhs ~ op ~ rhs => BinaryExprAST( lhs, Symbol(op), rhs )} |
+			{case lhs ~ op ~ rhs => BinaryExprAST( lhs, 'and, Math.lookup('and), rhs )} |
 		notExpression
 
 	lazy val notExpression: PackratParser[ExprAST] =
@@ -381,12 +391,19 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 
 	lazy val comparisonExpression: PackratParser[ExprAST] =
 		iteratorExpression ~ rep1(("==" | "!=" | "<" | ">" | "<=" | ">=") ~ iteratorExpression) ^^
-			{case l ~ comps => ComparisonExprAST( l, comps map {case o ~ e => (Symbol(o), e)} )} |
+			{case l ~ comps => ComparisonExprAST( l, comps map {
+				case o ~ e =>
+					val s = Symbol( o )
+					
+					(s, Math.lookup(s), e)} )} |
 		iteratorExpression ~ ("in" | "not" ~ "in" ^^^ "notin" | "|" | "/|") ~ iteratorExpression ^^
-			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
+			{case l ~ o ~ r =>
+				val s = Symbol( o )
+					
+				BinaryExprAST( l, s, lookup(s), r )} |
 		iteratorExpression ~ "is" ~ ident ^^ {case e ~ _ ~ t => TypeExprAST( e, t )} |
-    iteratorExpression ~ "is" ~ "not" ~ ident ^^ {case e ~ _ ~ _ ~ t => NotExprAST( TypeExprAST(e, t) )} |
-  iteratorExpression
+		iteratorExpression ~ "is" ~ "not" ~ ident ^^ {case e ~ _ ~ _ ~ t => NotExprAST( TypeExprAST(e, t) )} |
+		iteratorExpression
 
 	lazy val iteratorExpression: PackratParser[ExprAST] =
 		(consExpression <~ "|") ~ generators ^^
@@ -405,29 +422,35 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 			{case f ~ op ~ t ~ b => RangeExprAST( f, t, b, if (op == "..") true else false )} |
 		(additiveExpression <~ "..") ~ opt("by" ~> additiveExpression) ^^
       {case f ~ b => UnboundedStreamExprAST( f, b )} |
-  additiveExpression
+		additiveExpression
 
 	lazy val additiveExpression: PackratParser[ExprAST] =
 		additiveExpression ~ ("+" | "-") ~ multiplicativeExpression ^^
-			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
+			{case l ~ o ~ r =>
+				val s = Symbol(o)
+				
+				BinaryExprAST( l, s, lookup(s), r )} |
 		multiplicativeExpression
 
 	lazy val multiplicativeExpression: PackratParser[ExprAST] =
 		multiplicativeExpression ~ ("*" | "/" | """\""" | "%" | "\\%" | "mod" | "rotateright" | "rotateleft" | ">>>" | "<<") ~ exponentialExpression ^^
-			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
+			{case l ~ o ~ r =>
+				val s = Symbol(o)
+				
+				BinaryExprAST( l, s, lookup(s), r )} |
 		multiplicativeExpression ~ applyExpression ^^
-			{case l ~ r => BinaryExprAST( l, '*, r )} |
-  exponentialExpression
+			{case l ~ r => BinaryExprAST( l, '*, lookup('*), r )} |
+		exponentialExpression
 
 	lazy val exponentialExpression: PackratParser[ExprAST] =
 		exponentialExpression ~ "^" ~ negationExpression ^^
-			{case l ~ o ~ r => BinaryExprAST( l, Symbol(o), r )} |
-  negationExpression
+			{case l ~ _ ~ r => BinaryExprAST( l, '^, lookup('^), r )} |
+		negationExpression
 
 	lazy val negationExpression: PackratParser[ExprAST] =
 		"-" ~> incrementExpression ^^
 			{
-        case LiteralExprAST( n: Number ) => LiteralExprAST( Math('-, n) )
+				case LiteralExprAST( n: Number ) => LiteralExprAST( Math('-, n) )
 				case v                           => UnaryExprAST( '-, v )
 			} |
 		incrementExpression
@@ -453,7 +476,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 	lazy val comprehensionExpression =
 		consExpression ~ ("|" ~> generators) ^^
 			{case e ~ g => IteratorExprAST( e, g )}
-	
+			
 	lazy val primaryExpression: PackratParser[ExprAST] =
 		numericLit ^^
 			(n =>
@@ -504,14 +527,23 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 				}
 				else
 					StringLiteralExprAST( s )) |
-    "(" ~> infix <~ ")" ^^
-      (o => SectionExprAST( Symbol(o) )) |
-    "(" ~> expression ~ infix <~ ")" ^^
-      {case e ~ o => LeftSectionExprAST( e, Symbol(o) )} |
-    "(" ~> infixNoMinus ~ expression <~ ")" ^^
-      {case o ~ e => RightSectionExprAST( Symbol(o), e )} |
+		"(" ~> infix <~ ")" ^^
+			{o =>
+				val s = Symbol(o)
+				
+				SectionExprAST( s, lookup(s) )} |
+		"(" ~> expression ~ infix <~ ")" ^^
+			{case e ~ o =>
+				val s = Symbol(o)
+				
+				LeftSectionExprAST( e, s, lookup(s) )} |
+		"(" ~> infixNoMinus ~ expression <~ ")" ^^
+			{case o ~ e =>
+				val s = Symbol(o)
+				
+				RightSectionExprAST( s, lookup(s), e )} |
 		"(" ~> expression <~ ")" |
-		ident ^^
+			ident ^^
 			{case v => VariableExprAST( v )} |
 		("true" | "false") ^^
 			(b => LiteralExprAST( b.toBoolean )) |
@@ -525,14 +557,14 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 			{case l => ListExprAST( l )} |
 		"null" ^^^
 			NullExprAST |
-    "{" ~> comprehensionExpression <~ "}" ^^
-      (SetComprehensionExprAST( _ )) |
+		"{" ~> comprehensionExpression <~ "}" ^^
+		(SetComprehensionExprAST( _ )) |
 		"{" ~> repsep(keyExpression, ",") <~ "}" ^^
 			(SetExprAST( _ )) |
 		"{" ~> rep1sep(MapEntry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
-    "{" ~ ":" ~ "}" ^^^
-      EmptyMapExprAST |
+		"{" ~ ":" ~ "}" ^^^
+		EmptyMapExprAST |
 		"$" ~> ident ^^
 			(SysvarExprAST( _ )) |
 		"?" ~> ident ^^

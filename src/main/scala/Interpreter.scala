@@ -144,10 +144,10 @@ object Interpreter
 
 				if (no != None)
 					markTailRecursion( n, no.get )
-			case BinaryExprAST( LiteralExprAST(false), 'or | 'xor, e ) => 	markTailRecursion( n, e )
-			case BinaryExprAST( LiteralExprAST(true), 'and, e ) => 	markTailRecursion( n, e )
-			case BinaryExprAST( e, 'or | 'xor, LiteralExprAST(false) ) => 	markTailRecursion( n, e )
-			case BinaryExprAST( e, 'and, LiteralExprAST(true) ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( LiteralExprAST(false), 'or | 'xor, _, e ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( LiteralExprAST(true), 'and, _, e ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( e, 'or | 'xor, _, LiteralExprAST(false) ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( e, 'and, _, LiteralExprAST(true) ) => 	markTailRecursion( n, e )
 			case _ =>
 		}
 	}

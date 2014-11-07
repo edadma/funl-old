@@ -18,7 +18,7 @@ import math._
 import compat.Platform._
 import util.matching.Regex
 
-import funl.lia.{Complex, Math}
+import funl.lia.{FunctionMap, Complex, Math}
 import Interpreter._
 
 
@@ -784,12 +784,12 @@ class Evaluator
 						RuntimeException( "iterator empty" )
 			}
 
-		def section( l: ExprAST, op: Symbol, r: ExprAST ) =
+		def section( l: ExprAST, op: Symbol, func: FunctionMap, r: ExprAST ) =
 			op match
 			{
 				case ': => ConsExprAST( l, r )
 				case '# => StreamExprAST( l, r )
-				case _ => BinaryExprAST( l, op, r )
+				case _ => BinaryExprAST( l, op, func, r )
 			}
 
 		def rewrap( objs: List[Any], types: Array[Class[_]] ) =
@@ -850,7 +850,7 @@ class Evaluator
 				compound( l.tail )
 			}
 
-		def comparison( l: Any, op: Symbol, r: Any ): Boolean =
+		def comparison( l: Any, op: Symbol, f: FunctionMap, r: Any ): Boolean =
 			op match
 			{
 				case '< | '> | '<= | '>= =>
@@ -870,10 +870,10 @@ class Evaluator
 					else if (l.isInstanceOf[Product] && r.isInstanceOf[Product])
 						comp(lexicographicalCompare(l.asInstanceOf[Product].productIterator.toSeq, r.asInstanceOf[Product].productIterator.toSeq))
 					else
-						Math(op, l, r).asInstanceOf[Boolean]
+						Math(f, l, r).asInstanceOf[Boolean]
 				case '== | '!= =>
 					if (l.isInstanceOf[Number] && r.isInstanceOf[Number])
-						Math(op, l, r).asInstanceOf[Boolean]
+						Math(f, l, r).asInstanceOf[Boolean]
 					else
 						if (op == '==) l == r else l != r
 			}
@@ -1004,18 +1004,18 @@ class Evaluator
 				throw new ContinueThrowable
 			case ReturnExprAST( ret ) =>
 				throw new ReturnThrowable( eval(ret) )
-			case SectionExprAST( op ) =>
+			case SectionExprAST( op, func ) =>
 				push( new BasicClosure(null, currentModule,
 					List(FunctionExprAST(List(VariablePatternAST("$a"), VariablePatternAST("$b")),
-						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, VariableExprAST("$b"))))))) )
-			case LeftSectionExprAST( e, op ) =>
+						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, func, VariableExprAST("$b"))))))) )
+			case LeftSectionExprAST( e, op, func ) =>
 				push( (new BasicClosure(currentActivation.copy, currentModule,
 					List(FunctionExprAST(List(VariablePatternAST("$a")),
-						List(FunctionPartExprAST(None, section(e, op, VariableExprAST("$a")))))))).computeReferencing )
-			case RightSectionExprAST( op, e ) =>
+						List(FunctionPartExprAST(None, section(e, op, func, VariableExprAST("$a")))))))).computeReferencing )
+			case RightSectionExprAST( op, func, e ) =>
 				push( (new BasicClosure(currentActivation.copy, currentModule,
 					List(FunctionExprAST(List(VariablePatternAST("$a")),
-						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, e))))))).computeReferencing )
+						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, func, e))))))).computeReferencing )
 			case LiteralExprAST( v ) => push( v )
 			case StringLiteralExprAST( s ) => push( s )
 			case InterpolationExprAST( l ) =>
@@ -1028,14 +1028,14 @@ class Evaluator
 			case ComparisonExprAST( left, comps ) =>
 				var l = eval( left )
 				
-				def comp( cs: List[(Symbol, ExprAST)] ): Boolean =
+				def comp( cs: List[(Symbol, FunctionMap, ExprAST)] ): Boolean =
 					cs match
 					{
 						case Nil => true
-						case (c, e) :: t =>
+						case (c, f, e) :: t =>
 							val r = eval( e )
 							
-							if (comparison( l, c, r ))
+							if (comparison( l, c, f, r ))
 							{
 								l = r
 								comp( t )
@@ -1045,7 +1045,7 @@ class Evaluator
 					}
 					
 				push( comp(comps) )
-			case BinaryExprAST( left, op, right ) =>
+			case BinaryExprAST( left, op, func, right ) =>
 				val l = eval( left )
 
 				op match
@@ -1084,7 +1084,7 @@ class Evaluator
 						else if (l.isInstanceOf[Iterable[_]] && r.isInstanceOf[Iterable[_]])
 							push( l.asInstanceOf[Iterable[_]] ++ r.asInstanceOf[Iterable[_]] )
 						else
-							push( Math(op, l, r) )
+							push( Math(func, l, r) )
 					case '* =>
 						val r = eval( right )
 
@@ -1093,9 +1093,9 @@ class Evaluator
 						else if (r.isInstanceOf[String])
 							push( r.asInstanceOf[String]*l.asInstanceOf[Int] )
 						else
-							push( Math(op, l, r) )
+							push( Math(func, l, r) )
 					case '< | '> | '<= | '>= | '== | '!= =>
-						push( comparison(l, op, eval(right)) )
+						push( comparison(l, op, func, eval(right)) )
 					case 'or =>
 						if (l.isInstanceOf[Boolean])
 							if (l.asInstanceOf[Boolean])
@@ -1103,12 +1103,12 @@ class Evaluator
 							else
 								push( beval(right) )
 						else
-							push( Math(op, l, eval(right)) )
+							push( Math(func, l, eval(right)) )
 					case 'xor =>
 						if (l.isInstanceOf[Boolean])
 							push( l.asInstanceOf[Boolean] ^ beval(right) )
 						else
-							push( Math(op, l, eval(right)) )
+							push( Math(func, l, eval(right)) )
 					case 'and =>
 						if (l.isInstanceOf[Boolean])
 							if (!l.asInstanceOf[Boolean])
@@ -1116,9 +1116,9 @@ class Evaluator
 							else
 								push( beval(right) )
 						else
-							push( Math(op, l, eval(right)) )
+							push( Math(func, l, eval(right)) )
 					case _ =>
-						push( Math(op, l, eval(right)) )
+						push( Math(func, l, eval(right)) )
 				}
 			case NotExprAST( e ) =>
 				val o = eval( e )
