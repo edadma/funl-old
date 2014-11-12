@@ -83,10 +83,11 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 					(d => NumericLit( "0x" + (d mkString "") ))
 				
 			reserved += (
-				"and", "break", "by", "case", "class", "continue", "data", "def", "do", "elif",
-				"else", "false", "for", "function", "if", "import", "in", "is", "mod",
-				"native", "not", "null", "of", "or", "otherwise", "private", "return", "repeat", "then", "true",
-				"until", "val", "var", "while", "xor", "yield", "rotateright", "rotateleft"
+				"and", 			"break",		"by", 			"case", 		"class",		"continue",		"data",			"def",			"do", 			
+				"elif",			"else", 		"false", 		"for", 			"function",		"if", 			"import",		"in", 			"is", 
+				"loop",			"mod",			"native", 		"not",			"null", 		"of",			"or", 			"otherwise",	"private",
+				"return", 		"repeat", 		"rotateleft",	"rotateright",	"then",			"true",			"until",		"val", 			"var",
+				"while",		"xor", 			"yield"
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", ";",
 				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
@@ -345,7 +346,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 			{case c ~ t ~ ei ~ e => ConditionalExprAST( (c, t) +: ei, e )} |
 		"for" ~> generators ~ ("do" ~> expressionOrBlock | blockExpression) ~ elsePart ^^
 			{case g ~ b ~ e => ForExprAST( g, b, e )} |
-		"for" ~> expressionOrBlock ^^
+		"loop" ~> expressionOrBlock ^^
 			(ForeverExprAST( _ )) |
 		"repeat" ~> expression ~ ("do" ~> expressionOrBlock | blockExpression) ~ elsePart ^^
 			{case c ~ b ~ e => RepeatExprAST( c, b, e )} |
@@ -359,6 +360,8 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 		"continue" ^^^ ContinueExprAST |
 		"return" ~> opt(expression) ^^
 			{case e => ReturnExprAST( e.getOrElse(VoidExprAST) )} |
+		"yield" ~> expression ^^
+			(YieldExprAST( _ )) |
 		("case" ~> expression) ~ ("of" ~> functionExpression | caseFunctionExpression) ^^
 			{case e ~ f => ApplyExprAST( f, List(e), false )} |
 		orExpression

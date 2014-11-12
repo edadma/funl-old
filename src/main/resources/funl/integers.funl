@@ -68,7 +68,7 @@ def
 		q = 3
 
 		def oddprimes =
-			for
+			loop
 				p1 = d.>remove( q )
 
 				if p1 != None

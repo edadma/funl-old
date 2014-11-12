@@ -45,6 +45,7 @@ case class TestExprAST( name: String ) extends ExprAST
 case object BreakExprAST extends ExprAST
 case object ContinueExprAST extends ExprAST
 case class ReturnExprAST( ret: ExprAST ) extends ExprAST
+case class YieldExprAST( ret: ExprAST ) extends ExprAST
 case class LiteralExprAST( v: Any ) extends ExprAST
 case class StringLiteralExprAST( s: String ) extends ExprAST
 case class VariableExprAST( name: String ) extends ExprAST
