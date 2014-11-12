@@ -182,7 +182,8 @@ object Interpreter
 			case m: collection.Map[_, _] if m isEmpty => "{:}"
 			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => displayQuoted(k) + ": " + displayQuoted(v)} ).mkString( "{", ", ", "}" )
 			case t: Vector[_] => t.map( display(_) ).mkString( "(", ", ", ")" )
-			case p: Product if p.productArity > 0 && !p.productPrefix.startsWith( "Tuple" ) => p.productPrefix + '(' + p.productIterator.map( display(_) ).mkString( ", " ) + ')'
+			case p: Product if p.productArity > 0 && !p.productPrefix.startsWith( "Tuple" ) =>
+				p.productPrefix + '(' + p.productIterator.map( display(_) ).mkString( ", " ) + ')'
 			case p: Product if p.productArity == 0 => p.productPrefix
 //			case Some( a ) => "Some(" + display(a) + ")"
 			case _ => String.valueOf( a )
