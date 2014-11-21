@@ -12,7 +12,7 @@ import funl.interp.Interpreter._
 
 object EmbeddedTestMain extends App
 {
-    println( snippet( """	|a = 2 + 3
+    println( snippet( """   |a = 2 + 3
                             |b = 'asdf'
                             |(a, b)
                             """) )
