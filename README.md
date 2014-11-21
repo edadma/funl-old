@@ -78,6 +78,8 @@ FunL is distributed under the LGPL v3 License, meaning that you are free to use 
 
 The project's website is <http://funl-lang.org> where you will find documentation and download instructions so that you can get a binary executable of the interpreter.
 
+There are also many examples of FunL code to be found at <http://rosettacode.org/wiki/FunL>, which serve to document how FunL can be used in solving various types of programming problems in a concise and functional way.
+
 
 ## Usage
 

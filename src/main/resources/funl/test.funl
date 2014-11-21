@@ -1,1 +1,16 @@
-println( 1 + 2 )
+import integers.egcd
+
+def modinv( a, m ) =
+	val (g, x, _) = egcd( a, m )
+
+	if g != 1 then error( a + ' and ' + m + ' not coprime' )
+		
+	val res = x % m
+
+	if res < 0 then res + m else res
+
+def crt( congruences ) =
+	N = product( n | (_, n) <- congruences )
+	sum( a*modinv(N/n, n)*N/n | (a, n) <- congruences ) mod N
+
+println( crt( [(2, 3), (3, 5), (2, 7)] ) )

@@ -1,4 +1,5 @@
 re-up Tree_traversal
+re-up Modular_inverse
 
 virtual methods: <string>.format, <list>.map
 
@@ -30,7 +31,6 @@ java/scala interop
 scala interop
 	CanBuildFrom
 	Numeric
-add chaining of comparisons
 math functions (including conj(z), floor(x))
 complex integers and fractions
   http://rosettacode.org/wiki/Arithmetic/Complex
