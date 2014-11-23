@@ -13,7 +13,7 @@ import util.Random.{nextInt, nextDouble}
 import funl.interp.{Function, ArgList, RuntimeException}
 import funl.interp.Interpreter._
 
-import funl.lia.{Math => M}
+import funl.lia.{Math => M, Complex}
 
 
 object Predef
@@ -178,6 +178,17 @@ object Predef
 			case (_: Double) | (_: BigDecimal) => a
 			case n: Number => n.doubleValue
 			case s: String => s.toDouble
+		}
+
+	def complex( a: Any ) =
+		a match
+		{
+			case n: Double => Complex( n )
+			case n: Int => Complex( n )
+			case ArgList( List(re: Double, im: Double) ) => Complex( re, im )
+			case ArgList( List(re: Int, im: Int) ) => Complex( re, im )
+			case ArgList( List(re: Int, im: Double) ) => Complex( re, im )
+			case ArgList( List(re: Double, im: Int) ) => Complex( re, im )
 		}
 
 	def bin( a: Any ) =
