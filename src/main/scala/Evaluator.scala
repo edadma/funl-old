@@ -1160,7 +1160,7 @@ class Evaluator
 							case List( r: Range, c: Range ) => push( new MutableSeq2DRangeReference(ms, r, c) )
 						}
 					case ms: MutableSeq[Any] if argList.head.isInstanceOf[Int] => push( new MutableSeqReference(ms, argList.head.asInstanceOf[Int]) )
-          case ms: MutableSeq[Any] => push( new MutableSeqRangeReference(ms, argList.head.asInstanceOf[Range]) )
+					case ms: MutableSeq[Any] => push( new MutableSeqRangeReference(ms, argList.head.asInstanceOf[Range]) )
 					case a: Array[Any] => push( new MutableSeqReference(a, argList.head.asInstanceOf[Int]) )
 					case m: Map[Any, Any] => push( new ImmutableMapReference(m, argList.head) )
 					case mm: MutableMap[Any, Any] => push( new MutableMapReference(mm, argList.head) )
@@ -1173,7 +1173,7 @@ class Evaluator
 							case List( r: Range, c: Range ) => push( new ImmutableSeq2DRangeReference(ms, r, c) )
 						}
 					case s: ImmutableSeq[_] if argList.head.isInstanceOf[Int] => push( new ImmutableSeqReference(s, argList.head.asInstanceOf[Int]) )
-          case s: ImmutableSeq[_] => push( new ImmutableSeqRangeReference(s, argList.head.asInstanceOf[Range]) )
+					case s: ImmutableSeq[_] => push( new ImmutableSeqRangeReference(s, argList.head.asInstanceOf[Range]) )
 					case s: collection.Set[Any] => push( s(argList.head) )
 					case c: Closure =>
 						if (tailrecursive)
@@ -1204,11 +1204,11 @@ class Evaluator
 
 						push( new Record(m, t, n, fields, argList.toVector) )
 					case r :Record =>
-            argList match
-            {
-              case List( idx: Int ) => push( r(idx) )
-              case List( field: String ) => push( r.get(field).get )
-            }
+						argList match
+						{
+						case List( idx: Int ) => push( r(idx) )
+						case List( field: String ) => push( r.get(field).get )
+						}
 					case NativeMethod( o, m ) =>
 						m.find( cm => assignable(argList, cm.getParameterTypes) ) match
 							{

@@ -358,7 +358,7 @@ Least_common_multiple
 --------------------
 
 =={{header|FunL}}==
-FunL has function <code>lcm</code> in module <code>integers</code> with the following implement:
+FunL has function <code>lcm</code> in module <code>integers</code> with the following definition:
 
 <lang funl>def
   lcm( _, 0 ) =  0

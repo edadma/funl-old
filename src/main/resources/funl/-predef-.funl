@@ -19,9 +19,8 @@ function funl.modules.Predef.{
 	}
 
 native funl.modules.Predef.{
-  chr, ord, isalpha, isupper, islower,
-	sum, number
-  }
+	chr, ord, isalpha, isupper, islower, sum, number
+	}
 
 native funl.modules.BitArray
 
@@ -36,6 +35,11 @@ val None =
 	none()
 
 native scala.Tuple2
+
+val naturalOrdering =
+	native funl.interp.Interpreter.NATURAL_ORDERING
+	
+	NATURAL_ORDERING()
 
 def
 	fst( (a, _) ) = a
@@ -88,3 +92,5 @@ def
 	
 	min( a, b )							= if a >= b then b else a
 	min( xs )								= foldl1( min, xs )
+	
+	sort( a ) = a.sorted( naturalOrdering )
