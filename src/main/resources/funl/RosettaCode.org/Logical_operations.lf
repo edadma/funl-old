@@ -1,0 +1,36 @@
+=={{header|FunL}}==
+<lang funl>~~def logical( a, b ) = println( """
+a and b   = ${a and b}
+a or b    = ${a or b}
+not a     = ${not a}
+a xor b   = ${a xor b}
+""" )
+
+for i <- [false, true], j <- [false, true] do logical( i, j )~~</lang>
+
+{{out}}
+
+<pre>
+a and b   = false
+a or b    = false
+not a     = true
+a xor b   = false
+
+
+a and b   = false
+a or b    = true
+not a     = true
+a xor b   = true
+
+
+a and b   = false
+a or b    = true
+not a     = false
+a xor b   = true
+
+
+a and b   = true
+a or b    = true
+not a     = false
+a xor b   = false
+</pre>
