@@ -41,7 +41,8 @@ libraryDependencies ++= Seq(
 libraryDependencies ++= Seq(
 	"org.funl-lang" %% "lia" % "0.14",
 	"org.funl-lang" %% "indentation-lexical" % "0.2",
-	"org.funl-lang" %% "json" % "0.3"
+	"org.funl-lang" %% "json" % "0.3",
+	"ca.hyperreal" %% "options" % "0.1"
 	)
 
 mainClass in (Compile, run) := Some( "funl.Main" )

@@ -323,7 +323,17 @@ object Interpreter
 				}
 			}
 			
-			search( path )
+			if (filename startsWith System.getProperty( "file.separator" ))
+			{
+				val file = new File( filename )
+
+				if (!file.exists || !file.isFile)
+					search( path )
+				else
+					Some( new FileInputStream(file) )
+			}
+			else
+				search( path )
 		}
 		else
 			Some( resource )

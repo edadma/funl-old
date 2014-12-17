@@ -1,0 +1,25 @@
+=={{header|FunL}}==
+<lang funl>~~import io.File
+
+for f <- sort( list(File( "." ).list()).filterNot(s -> s.startsWith(".")) )
+    println( f )~~</lang>
+
+{{out}}
+
+The above script has been place of a file called <code>ls.lf</code> which has been place in the home directory.
+
+<pre>
+$ sudo mkdir -p /foo/bar
+$ cd /foo/bar
+$ sudo touch 1 2 a b
+$ cd ..
+$ funl ~/ls
+bar
+$ cd bar
+$ funl ~/ls
+1
+2
+a
+b
+$ 
+</pre>
