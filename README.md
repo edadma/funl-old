@@ -131,7 +131,7 @@ to execute a script.  Note that the double quotes are required.
 
 These instructions apply to Ubuntu or any Debian based distribution.  It is assumed that Java is installed and in your PATH, as well as the `unzip` utility.
 
-In these instructions *<path to jar>* means the path where the executable JAR file was downloaded to, and *<path to funl>* means the path to the directory that you created in which to install FunL.
+In these instructions `<path to jar>` means the path where the executable JAR file was downloaded to, and `<path to funl>` means the path to the directory that you created in which to install FunL.
 
 Here are the steps.
 
@@ -141,7 +141,7 @@ Here are the steps.
 3.  Enter `cd <path to jar>`
 4.  Enter `unzip funl-0.17.jar bin/funl -d <path to funl>`
 5.  Enter `chmod a+x <path to funl>/bin/*`
-6.  Enter `cp funl-0.17.jar <path to funl>/bin
+6.  Enter `cp funl-0.17.jar <path to funl>/bin`
 7.  Open ~/.profile in an editor.
 8.  Add `PATH="<path to funl>/bin:$PATH"`
 9.  Enter `source ~/.profile`
