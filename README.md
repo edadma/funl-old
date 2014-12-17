@@ -93,14 +93,14 @@ Use the following elements to use FunL in your Maven project:
 	<dependency>
 		<groupId>org.funl-lang</groupId>
 		<artifactId>funl</artifactId>
-		<version>0.16</version>
+		<version>0.17</version>
 	</dependency>
 
-Add the following to your build file to use FunL in your SBT project:
+Add the following to your `build.sbt` file to use FunL in your SBT project:
 
 	resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
 
-	libraryDependencies += "org.funl-lang" %% "funl" % "0.16"
+	libraryDependencies += "org.funl-lang" %% "funl" % "0.17"
 
 
 ## Building
@@ -127,6 +127,43 @@ to start the REPL, or
 to execute a script.  Note that the double quotes are required.
 
 
+## Installing
+
+These instructions apply to Ubuntu or any Debian based distribution.  It is assumed that Java is installed and in your PATH, as well as the `unzip` utility.
+
+In these instructions *<path to jar>* means the path where the executable JAR file was downloaded to, and *<path to funl>* means the path to the directory that you created in which to install FunL.
+
+Here are the steps.
+
+1.  Download the latest release from <http://funl-lang.org/releases/funl-0.17.jar>.
+2.  Create a directory where FunL should be installed.
+2.  Start a shell.
+3.  Enter `cd <path to jar>`
+4.  Enter `unzip funl-0.17.jar bin/funl -d <path to funl>`
+5.  Enter `chmod a+x <path to funl>/bin/*`
+6.  Enter `cp funl-0.17.jar <path to funl>/bin
+7.  Open ~/.profile in an editor.
+8.  Add `PATH="<path to funl>/bin:$PATH"`
+9.  Enter `source ~/.profile`
+10. Enter `funl`
+
+After the last step, you should see
+
+```
+    ______            __
+   / ____/_  __ ___  / /     FunL Programming Language
+  / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr.
+ / /   / /_/ / / / / /__     http://funl-lang.org/
+/_/    \____/_/ /_/____/                                     
+
+Welcome to FunL version 0.17
+Type in expressions to have them evaluated.
+Type :help for more information.
+```
+
+indicating that the installation worked.  You are inside the FunL REPL.  Press Ctrl-C to get out.
+
+
 ## Executable
 
-The latest development executable can be downloaded from <http://funl-lang.org/releases/funl-dev.jar>.
+The latest development executable can be downloaded from <http://funl-lang.org/releases/funl-dev.jar>.  An executable of the latest release can be downloaded from <http://funl-lang.org/releases/funl-0.17.jar>.
