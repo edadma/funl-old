@@ -25,7 +25,7 @@ native funl.modules.Predef.{
 native funl.modules.BitArray
 
 val i =
-	native funl.lia.ComplexDouble
+	native ca.hyperreal.lia.ComplexDouble
 	ComplexDouble( 0.0, 1.0 )
 val j = i
 

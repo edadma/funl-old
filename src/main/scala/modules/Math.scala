@@ -7,7 +7,7 @@
 
 package funl.modules
 
-import funl.lia.{Complex, Math => MATH}
+import ca.hyperreal.lia.{Complex, Math => MATH}
 import funl.interp.Interpreter._
 import funl.interp.RuntimeException
 

@@ -7,7 +7,7 @@ name := "FunL"
 
 version := "0.17"
 
-scalaVersion := "2.11.4"
+scalaVersion := "2.11.6"
 
 scalacOptions ++= Seq( "-deprecation", "-feature", "-language:postfixOps", "-language:implicitConversions", "-language:existentials" )
 
@@ -15,15 +15,15 @@ incOptions := incOptions.value.withNameHashing( true )
 
 organization := "org.funl-lang"
 
-resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
+resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.0" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.5" % "test"
 
-libraryDependencies += "jline" % "jline" % "2.11"
+libraryDependencies += "jline" % "jline" % "2.12.1"
 
-libraryDependencies += "com.h2database" % "h2" % "1.3.148"
+libraryDependencies += "com.h2database" % "h2" % "1.4.187"
 
 //libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0"
 
@@ -39,9 +39,9 @@ libraryDependencies ++= Seq(
 	)
 
 libraryDependencies ++= Seq(
-	"org.funl-lang" %% "lia" % "0.14",
-	"org.funl-lang" %% "indentation-lexical" % "0.2",
-	"org.funl-lang" %% "json" % "0.3",
+	"ca.hyperreal" %% "lia" % "0.15",
+	"ca.hyperreal" %% "indentation-lexical" % "0.3",
+	"ca.hyperreal" %% "json" % "0.3",
 	"ca.hyperreal" %% "options" % "0.1"
 	)
 
@@ -66,15 +66,17 @@ LaikaPlugin.defaults
 templateDirectives in Laika += LaikaExtension.bootstrapToc
 
 
+seq(bintraySettings:_*)
+
 publishMavenStyle := true
 
-publishTo := Some( Resolver.sftp( "private", "hyperreal.ca", "/var/www/hyperreal.ca/maven2" ) )
+//publishTo := Some( Resolver.sftp( "private", "hyperreal.ca", "/var/www/hyperreal.ca/maven2" ) )
 
 publishArtifact in Test := false
 
 pomIncludeRepository := { _ => false }
 
-licenses := Seq("LGPL" -> url("http://opensource.org/licenses/LGPL-3.0"))
+licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 homepage := Some(url("https://github.com/FunL/funl"))
 

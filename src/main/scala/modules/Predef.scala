@@ -13,7 +13,7 @@ import util.Random.{nextInt, nextDouble}
 import funl.interp.{Function, ArgList, RuntimeException}
 import funl.interp.Interpreter._
 
-import funl.lia.{Math => M, Complex}
+import ca.hyperreal.lia.{Math => M, Complex}
 
 
 object Predef
@@ -247,7 +247,7 @@ object Predef
 	var res: Any = 0
 
 		for (a <- t)
-			res = funl.lia.Math( '+, res, a )
+			res = ca.hyperreal.lia.Math( '+, res, a )
 
 		res
 	}

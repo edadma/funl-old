@@ -7,7 +7,7 @@
 
 package funl.interp
 
-import funl.lia.FunctionMap
+import ca.hyperreal.lia.FunctionMap
 
 
 trait AST

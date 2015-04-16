@@ -12,9 +12,8 @@ import util.parsing.combinator.syntactical.StandardTokenParsers
 import util.parsing.input.{Reader, CharSequenceReader}
 import collection.mutable.ListBuffer
 
-import funl.indentation._
-
-import funl.lia.Math
+import ca.hyperreal.indentation._
+import ca.hyperreal.lia.Math
 
 
 class FunLParser( module: String ) extends StandardTokenParsers with PackratParsers
