@@ -87,7 +87,7 @@ Use the following elements to use FunL in your Maven project:
 
 	<repository>
 		<id>hyperreal</id>
-		<url>http://hyperreal.ca/maven2</url>
+		<url>https://dl.bintray.com/edadma/maven</url>
 	</repository>
 
 	<dependency>
@@ -98,7 +98,7 @@ Use the following elements to use FunL in your Maven project:
 
 Add the following to your `build.sbt` file to use FunL in your SBT project:
 
-	resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
+	resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
 
 	libraryDependencies += "org.funl-lang" %% "funl" % "0.17"
 
@@ -112,7 +112,7 @@ Add the following to your `build.sbt` file to use FunL in your SBT project:
 
 Clone and build:
 
-	git clone git://github.com/FunL/funl.git
+	git clone git://github.com/edadma/funl.git
 	cd funl
 	sbt assembly
 
@@ -135,13 +135,13 @@ In these instructions `<path to jar>` means the path where the executable JAR fi
 
 Here are the steps.
 
-1.  Download the latest release from <http://funl-lang.org/releases/funl-0.17.jar>.
+1.  Download the latest release from <https://dl.bintray.com/edadma/generic/funl-dev.jar>.
 2.  Create a directory where FunL should be installed.
 2.  Start a shell.
 3.  Enter `cd <path to jar>`
-4.  Enter `unzip funl-0.17.jar bin/funl -d <path to funl>`
+4.  Enter `unzip funl-dev.jar bin/funl -d <path to funl>`
 5.  Enter `chmod a+x <path to funl>/bin/*`
-6.  Enter `cp funl-0.17.jar <path to funl>/bin`
+6.  Enter `cp funl-dev.jar <path to funl>/bin`
 7.  Open ~/.profile in an editor.
 8.  Add `PATH="<path to funl>/bin:$PATH"`
 9.  Enter `source ~/.profile`
@@ -166,4 +166,4 @@ indicating that the installation worked.  You are inside the FunL REPL.  Press C
 
 ## Executable
 
-The latest development executable can be downloaded from <http://funl-lang.org/releases/funl-dev.jar>.  An executable of the latest release can be downloaded from <http://funl-lang.org/releases/funl-0.17.jar>.
+The latest development executable can be downloaded from <https://dl.bintray.com/edadma/generic/funl-dev.jar>.
