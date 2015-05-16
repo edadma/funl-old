@@ -1,9 +1,13 @@
-# Grammar
+Grammar
+=======
 
 Here is the grammar used to parse FunL presented in EBNF.
 
 
-## Syntactic Grammar
+Syntactic Grammar
+-----------------
+
+The syntactic grammar productions::
 
     source ::= Newline | statements
 
@@ -69,7 +73,7 @@ Here is the grammar used to parse FunL presented in EBNF.
         ('|' booleanExpression)? '=' expressionOrBlock Newline
 
     guardedPart ::=
-        '|' ('otherwise' | booleanExpression) '=' expressionOrBlock Newline
+      '|' ('otherwise' | booleanExpression) '=' expressionOrBlock Newline
 
     guardedParts ::= Indent guardedPart+ Dedent Newline
 
@@ -250,16 +254,14 @@ Here is the grammar used to parse FunL presented in EBNF.
       | '(' pattern '|' pattern ('|' pattern)* ')'
       | '(' pattern ')'
 
-## Lexical Grammar
+Lexical Grammar
+---------------
 
-The reserved words in the language are:
-				`and`, `break`, `by`, `case`, `class`, `continue`, `data`, `def`, `do`, `elif`,
-				`else`, `false`, `for`, `forever`, `function`, `if`, `import`, `in`, `is`, `mod`, `native`,
-				`not`, `null`, `of`, `or`, `otherwise`, `repeat`, `return`, `then`, `true`, `until`,
-				`val`, `var`, `while`, `xor`, `yield`.
+The reserved words in the language are: ``and``, ``break``, ``by``, ``case``, ``class``, ``continue``, ``data``, ``def``, ``do``, ``elif``, ``else``, ``false``, ``for``, ``forever``, ``function``, ``if``, ``import``, ``in``, ``is``, ``mod``, ``native``, ``not``, ``null``, ``of``, ``or``, ``otherwise``, ``repeat``, ``return``, ``then``, ``true``, ``until``, ``val``, ``var``, ``while``, ``xor``, ``yield``.
 
-The special delimiters are: `+`, `*`, `-`, `/`, `^`, `(`, `)`, `[`, `]`, `|`, `{`, `}`, `,`, `=`, `==`, `!=`, `<`, `$`,
-`>`, `<-`, `<=`, `>=`, `--`, `++`, `.`, `..`, `<-`, `->`, `=>`, `+=`, `-=`, `*=`, `/=`, `^=`, `:`, `\\`, `::`, `@`, `?`.
+The special delimiters are: ``+``, ``*``, ``-``, ``/``, ``^``, ``(``, ``)``, ``[``, ``]``, ``|``, ``{``, ``}``, ``,``, ``=``, ``==``, ``!=``, ``<``, ``$``, ``>``, ``<-``, ``<=``, ``>=``, ``--``, ``++``, ``.``, ``..``, ``<-``, ``->``, ``=>``, ``+=``, ``-=``, ``*=``, ``/=``, ``^=``, ``:``, ``\\``, ``::``, ``@``, ``?``.
+
+The lexical grammar productions::
 
 	decimalParser =
 		rep1(digit) ~ optFraction ~ optExponent |
