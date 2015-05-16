@@ -1,1 +1,1 @@
-Comments, suggestions, bugs can be emailed to <info@funl-lang.org>.
+Comments, suggestions, bugs can be emailed to <edadma@gmail.com>.
