@@ -8,7 +8,7 @@ scalacOptions ++= Seq( "-deprecation", "-feature", "-language:postfixOps", "-lan
 
 incOptions := incOptions.value.withNameHashing( true )
 
-organization := "org.funl-lang"
+organization := "ca.hyperreal"
 
 resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
 
@@ -19,19 +19,6 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.5" % "test"
 libraryDependencies += "jline" % "jline" % "2.12.1"
 
 libraryDependencies += "com.h2database" % "h2" % "1.4.187"
-
-//libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0"
-
-//libraryDependencies += "org.scala-lang" % "scala-swing" % scalaVersion.value
-
-//libraryDependencies += "org.ow2.asm" % "asm" % "4.2"
-
-//libraryDependencies += "org.scaloid" %% "scaloid" % "3.2-8"
-
-libraryDependencies ++= Seq(
-//	"org.postgresql" % "postgresql" % "9.3-1101-jdbc41",		//9.2-1004-jdbc4"
-//	"org.mongodb" % "casbah_2.9.3" % "2.7.0"
-	)
 
 libraryDependencies ++= Seq(
 	"ca.hyperreal" %% "lia" % "0.15",

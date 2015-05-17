@@ -468,7 +468,7 @@ class Evaluator
 
 				a == v
 			case EmptySetPatternAST => a == Set.empty
-			case VoidPatternAST => a == ()
+			case VoidPatternAST => a == (())
 			case NullPatternAST => a == null
 			case AliasPatternAST( alias, pat ) =>
 				if (map contains alias)
@@ -648,7 +648,7 @@ class Evaluator
 
 		def bpop = pop.asInstanceOf[Boolean]
 
-		def void = env.stack push ()
+		def void = env.stack push (())
 
 		def list( len: Int ) =
 		{
@@ -714,7 +714,9 @@ class Evaluator
 			exitScope
 		}
 
-		def thunk( t: ExprAST ) = (new BasicClosure( currentActivation.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )).computeReferencing
+		def thunk( t: ExprAST ) =
+			(new BasicClosure( currentActivation.copy, currentModule,
+				List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )).computeReferencing
 
 		def iterator( e: ExprAST, gs: List[GeneratorAST] ) =
 			new Iterator[Any]
@@ -1180,6 +1182,12 @@ class Evaluator
 							argList
 						else
 							c.invoke( argList )
+					case r: Record =>
+						argList match
+						{
+						case List( idx: Int ) => push( r(idx) )
+						case List( field: String ) => push( r.get(field).get )
+						}
 					case b: Function =>
 						def conv( l: List[Any] ): List[Any] =
 							l match
@@ -1203,12 +1211,6 @@ class Evaluator
 						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 
 						push( new Record(m, t, n, fields, argList.toVector) )
-					case r :Record =>
-						argList match
-						{
-						case List( idx: Int ) => push( r(idx) )
-						case List( field: String ) => push( r.get(field).get )
-						}
 					case NativeMethod( o, m ) =>
 						m.find( cm => assignable(argList, cm.getParameterTypes) ) match
 							{
@@ -1620,7 +1622,7 @@ class Evaluator
 		{
 			case "String" => a.isInstanceOf[String]
 			case "Integer" => a.isInstanceOf[Int] || a.isInstanceOf[BigInt]
-      case "Rational" => a.isInstanceOf[ca.hyperreal.lia.Rational]
+			case "Rational" => a.isInstanceOf[ca.hyperreal.lia.Rational]
 			case "Float" => a.isInstanceOf[Double] ||  a.isInstanceOf[BigDecimal]
 			case "Seq" => a.isInstanceOf[Seq[_]]
 			case "List" => a.isInstanceOf[List[_]]
@@ -1630,7 +1632,7 @@ class Evaluator
 			case "Product" => a.isInstanceOf[Product]
 			case "Tuple"|"Vector" => a.isInstanceOf[Vector[_]]
 			case "Array" => a.isInstanceOf[Array[_]] || a.isInstanceOf[ArrayBuffer[_]]
-			case _ /*if datatypes.contains( t )*/ => a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == t
+			//case _ /*if datatypes.contains( t )*/ => a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == t
 			case _ => RuntimeException( "unknown type: " + t )
 		}
 
