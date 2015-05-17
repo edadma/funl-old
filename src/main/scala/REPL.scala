@@ -27,7 +27,7 @@ object REPL extends App
 	implicit val env = new eval.Environment
 
 	reader.setBellEnabled( false )
-	reader.setPrompt( "FunL> " )
+	reader.setPrompt( "> " )
 
 	for {line <- """|    ______            __
 									|   / ____/_  __ ___  / /     FunL Programming Language
@@ -56,7 +56,7 @@ object REPL extends App
 			case ":quit" =>
 				sys.exit
 			case "" =>
-        out.println
+				out.println
 			case _ =>
 				try
 				{
