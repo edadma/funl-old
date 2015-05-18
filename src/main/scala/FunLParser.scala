@@ -314,8 +314,8 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 
  	lazy val lambdaExpression =
 // 	("(" ~> rep1sep(pattern, ",") <~ ")" | repN(1, pattern)) ~ opt("|" ~> booleanExpression) ~ ("->" ~> expressionOrBlock) ^^
- 	("\\" ~> rep1sep(pattern, ",") | repN(1, pattern)) ~ opt("|" ~> booleanExpression) ~ ("->" ~> expressionOrBlock) ^^
-		{case p ~ g ~ b => FunctionExprAST( p, List(FunctionPartExprAST(g, b)) )}
+ 	("\\" ~> rep1sep(pattern, ",") | repN(1, pattern)) ~ opt("|" ~> booleanExpression) ~ ("->" ~> opt(expressionOrBlock)) ^^
+		{case p ~ g ~ b => FunctionExprAST( p, List(FunctionPartExprAST(g, b.getOrElse(VoidExprAST))) )}
 
 	lazy val caseFunctionExpression =
 		Indent ~> rep1(lambdaExpression <~ Newline) <~ Dedent ^^
