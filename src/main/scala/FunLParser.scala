@@ -225,7 +225,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 			{case pkg ~ names => (pkg.mkString( "." ), names)} |
 		dottedName <~ "." <~ "*" <~ Newline ^^
 			{case name => (name.mkString( "." ), null)}
-
+	
 	lazy val identifiers = rep1sep( ident, "," )
 
 	lazy val constants =
