@@ -1284,6 +1284,8 @@ class Evaluator
 			case VectorExprAST( l ) =>
 				apply( l )
 				push( list(l.length).toVector )
+			case TupleExprAST( VariableExprAST(v), r ) if vars( v ) == None =>
+				push( (v, eval(r)) )
 			case TupleExprAST( l, r ) =>
 				push( (eval(l), eval(r)) )
 			case IteratorExprAST( e, gs ) =>
