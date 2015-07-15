@@ -40,7 +40,7 @@ dependencies = '''
   synopsys         
   '''
 
-// convert dependencies data into a directed graph
+;; convert dependencies data into a directed graph
 graph = dict()
 deps = set()
 
@@ -49,11 +49,11 @@ for l <- WrappedString( dependencies ).lines() if l.trim() != ''
     [a] -> graph(a) = []
     h:t ->
       d = set( t )
-      d -= h                  // remove self dependencies
+      d -= h                  ;; remove self dependencies
       graph(h) = d
       deps ++= t
 
-// add graph vertices for dependencies not appearing in left column
+;; add graph vertices for dependencies not appearing in left column
 for e <- deps if e not in graph
   graph(e) = []
 

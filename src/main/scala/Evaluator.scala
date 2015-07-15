@@ -997,7 +997,6 @@ class Evaluator
 				{
 					case None => RuntimeException( s + " not a system variable" )
 					case Some( v ) => push( v )
-					case _ => RuntimeException( "problem" )
 				}
 			case TestExprAST( name ) => push( vars( name ) != None )
 			case BreakExprAST =>
@@ -1008,16 +1007,16 @@ class Evaluator
 				throw new ReturnThrowable( eval(ret) )
 			case SectionExprAST( op, func ) =>
 				push( new BasicClosure(null, currentModule,
-					List(FunctionExprAST(List(VariablePatternAST("$a"), VariablePatternAST("$b")),
-						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, func, VariableExprAST("$b"))))))) )
+					List(FunctionExprAST(List(VariablePatternAST("#a"), VariablePatternAST("#b")),
+						List(FunctionPartExprAST(None, section(VariableExprAST("#a"), op, func, VariableExprAST("#b"))))))) )
 			case LeftSectionExprAST( e, op, func ) =>
 				push( (new BasicClosure(currentActivation.copy, currentModule,
-					List(FunctionExprAST(List(VariablePatternAST("$a")),
-						List(FunctionPartExprAST(None, section(e, op, func, VariableExprAST("$a")))))))).computeReferencing )
+					List(FunctionExprAST(List(VariablePatternAST("#a")),
+						List(FunctionPartExprAST(None, section(e, op, func, VariableExprAST("#a")))))))).computeReferencing )
 			case RightSectionExprAST( op, func, e ) =>
 				push( (new BasicClosure(currentActivation.copy, currentModule,
-					List(FunctionExprAST(List(VariablePatternAST("$a")),
-						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, func, e))))))).computeReferencing )
+					List(FunctionExprAST(List(VariablePatternAST("#a")),
+						List(FunctionPartExprAST(None, section(VariableExprAST("#a"), op, func, e))))))).computeReferencing )
 			case LiteralExprAST( v ) => push( v )
 			case StringLiteralExprAST( s ) => push( s )
 			case InterpolationExprAST( l ) =>

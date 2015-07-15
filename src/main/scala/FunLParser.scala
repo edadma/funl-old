@@ -10,6 +10,7 @@ package funl.interp
 import util.parsing.combinator.PackratParsers
 import util.parsing.combinator.syntactical.StandardTokenParsers
 import util.parsing.input.{Reader, CharSequenceReader}
+import util.parsing.input.CharArrayReader.EofCh
 import collection.mutable.ListBuffer
 
 import ca.hyperreal.indentation._
@@ -26,9 +27,18 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 	private val INTERPOLATION_EXPRESSION = '\ue002'
 	
 	override val lexical: IndentationLexical =
-		new IndentationLexical( false, true, List("[", "(", "{"), List("]", ")", "}") )
+		new IndentationLexical( false, true, List("[", "(", "{"), List("]", ")", "}"), ";;", "/*", "*/" )
 		{
 			override def token: Parser[Token] = stringParser | hexParser | decimalParser | super.token
+
+			override def identChar = letter | elem('_') | elem('$')
+			
+			override def whitespace: Parser[Any] = rep[Any](
+				whitespaceChar
+				| '/' ~ '*' ~ comment
+				| ';' ~ ';' ~ rep( chrExcept(EofCh, '\n') )
+				| '/' ~ '*' ~ failure("unclosed comment")
+				)
 
 			private def stringParser: Parser[Token] =
         (''' ~ ''' ~ ''') ~> rep(guard(not(''' ~ ''' ~ ''')) ~> elem("", ch => true)) <~ (''' ~ ''' ~ ''') ^^
@@ -89,8 +99,9 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 				"while",		"xor", 			"yield"
 				)
 			delimiters += ("+", "*", "-", "/", "%", "^", "(", ")", "[", "]", "|", "/|", "{", "}", ",", ";",
-				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
-				"=>", "+=", "++=", "-=", "--=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "\\%", "::", "@", ">>>", "<<")
+//				"=", "==", "!=", "<", "$", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
+				"=", "==", "!=", "<", "?", ">", "<-", "<=", ">=", "--", "++", ".", ".>", "..", "<-", "->",
+				"=>", "+=", "++=", "-=", "--=", "*=", "/=", "\\=", "^=", ":", "#", "\\", "\\%", "//", "::", "@", ">>>", "<<")
 		}
 		
 		def interpolate( s: String, handleEscape: Boolean ): String =
@@ -369,7 +380,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 
 	lazy val booleanExpression = orExpression
 	
-	lazy val mathSymbols = Set( '+, '-, '*, '/, Symbol("\\"), Symbol("\\%"), '^, '%, 'mod, '|, '/|, '==, '!=, '<, '>, '<=, '>= )
+	lazy val mathSymbols = Set( '+, '-, '*, '/, '//, Symbol("\\"), Symbol("\\%"), '^, '%, 'mod, '|, '/|, '==, '!=, '<, '>, '<=, '>= )
 	
 	def lookup( s: Symbol ) =
 		if (mathSymbols contains s)
@@ -437,7 +448,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 		multiplicativeExpression
 
 	lazy val multiplicativeExpression: PackratParser[ExprAST] =
-		multiplicativeExpression ~ ("*" | "/" | """\""" | "%" | "\\%" | "mod" | "rotateright" | "rotateleft" | ">>>" | "<<") ~ exponentialExpression ^^
+		multiplicativeExpression ~ ("*" | "/" | """\""" | "%" | "\\%" | "//" | "mod" | "rotateright" | "rotateleft" | ">>>" | "<<") ~ exponentialExpression ^^
 			{case l ~ o ~ r =>
 				val s = Symbol(o)
 				
@@ -569,13 +580,13 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 			(MapExprAST( _ )) |
 		"{" ~ ":" ~ "}" ^^^
 		EmptyMapExprAST |
-		"$" ~> ident ^^
-			(SysvarExprAST( _ )) |
+// 		"$" ~> ident ^^
+// 			(SysvarExprAST( _ )) |
 		"?" ~> ident ^^
 			(TestExprAST( _ ))
 
 	lazy val infixNoMinus =
-		"+" | "*" | "/" | """\""" | "\\%" | "^" | "%" | "mod" | "|" | "/|" | "==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" |
+		"+" | "*" | "/" | """\""" | "\\%" | "//" | "^" | "%" | "mod" | "|" | "/|" | "==" | "!=" | "<" | ">" | "<=" | ">=" | "in" | "not" ~ "in" ^^^ "notin" |
 		":" | "#" | "and" | "or" | "xor"
 	
 	lazy val infix = infixNoMinus | "-"
