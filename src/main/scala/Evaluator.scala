@@ -406,6 +406,7 @@ class Evaluator
 		{
 		val ast = parse( m )
 
+//			markTailRecursion( ast )
 			apply( ast )
 			exitActivation
 		}

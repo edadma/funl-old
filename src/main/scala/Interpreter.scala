@@ -385,20 +385,25 @@ object Interpreter
 	}
 
 	def statement( s: String ): Any = statement( "-statement-", s )
-
-	def snippet( code: String, vs: (String, Any)* ) =
+	
+	def snippet( code: String, vs: (String, Any)* ): Any = {
+		val module = "-snippet-"
+		val eval = new Evaluator
+		implicit val env = new eval.Environment
+		
+		eval.enterActivation( null, null, eval.module(module) )
+		eval.assign( module, vs: _* )
+		snippet( module, code, eval )( env )
+	}
+	
+	def snippet( module: String, code: String, eval: Evaluator )( implicit env: eval.Environment ) =
 	{
-	val module = "-snippet-"
-	val eval = new Evaluator
 	val parser = new FunLParser( module )
-	implicit val env = new eval.Environment
 
 		parser.parseSource( new CharSequenceReader(code.stripMargin) ) match
 		{
 			case parser.Success( l, _ ) =>
 				markTailRecursion( l )
-				eval.enterActivation( null, null, eval.module(module) )
-				eval.assign( module, vs: _* )
 				eval.apply( l )
 				eval.last
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
