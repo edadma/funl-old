@@ -29,10 +29,10 @@ object REPL extends App
 			"Type in expressions to have them evaluated.",
 			"Type :help for more information.",
 			""
-		) map ("$out.println('''" + _ + "''')") mkString ("\n"), true
+		) map ("$out.println('''" + _ + "''')") mkString ("\n"), true, true, true, false
 	)
 	
-	def start( init: String, nulls: Boolean ) {
+	def start( init: String, nulls: Boolean, types: Boolean, iterators: Boolean, trace: Boolean ) {
 		System.getProperties.setProperty( "jline.shutdownhook", "true" )
 
 		val reader = new ConsoleReader
@@ -68,15 +68,23 @@ object REPL extends App
 						statement( "REPL", line, eval ) match
 						{
 							case None =>
-							case Some( res ) =>
+							case Some( _res ) =>
 							val name = "res" + count
-
+							val res =
+								if (!iterators && _res.isInstanceOf[Iterator[_]])
+									_res.asInstanceOf[Iterator[_]].toSeq
+								else
+									_res
+									
 								if (res == null) {
 									if (nulls)
 										out.println( name + " = null" )
 								} else
-									out.println( name + ": " + res.getClass.getName + " = " + display(res) )
-									
+									if (types)
+										out.println( name + ": " + res.getClass.getName + " = " + display(res) )
+									else
+										out.println( name + " = " + display(res) )
+										
 								eval.assign( "REPL", name -> ConstantReference(name, res) )
 								count += 1
 						}
@@ -86,8 +94,11 @@ object REPL extends App
 					catch
 					{
 						case e: Exception =>
-						e.printStackTrace( out )
-							out.println( e )
+							if (trace)
+								e.printStackTrace( out )
+							else
+								out.println( e )
+								
 							out.println
 					}
 			}

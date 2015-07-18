@@ -29,6 +29,8 @@ libraryDependencies ++= Seq(
 
 mainClass in (Compile, run) := Some( "funl.Main" )
 
+isSnapshot := true
+
 proguardSettings
 
 ProguardKeys.options in Proguard ++= Seq( "-dontnote", "-dontwarn", "-ignorewarnings", "-optimizations !class/merging/*" )
