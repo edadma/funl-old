@@ -26,8 +26,11 @@ native funl.modules.BitArray
 val i =
 	native ca.hyperreal.lia.ComplexDouble
 	ComplexDouble( 0.0, 1.0 )
-val j = i
 
+val void =
+	native funl.modules.Predef.void
+	void()
+	
 native scala.Some
 val None =
 	native funl.modules.Predef.none

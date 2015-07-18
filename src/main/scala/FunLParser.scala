@@ -558,7 +558,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 				
 				RightSectionExprAST( s, lookup(s), e )} |
 		"(" ~> expression <~ ")" |
-			ident ^^
+		ident ^^
 			{case v => VariableExprAST( v )} |
 		("true" | "false") ^^
 			(b => LiteralExprAST( b.toBoolean )) |
@@ -573,13 +573,13 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 		"null" ^^^
 			NullExprAST |
 		"{" ~> comprehensionExpression <~ "}" ^^
-		(SetComprehensionExprAST( _ )) |
-		"{" ~> repsep(keyExpression, ",") <~ "}" ^^
+			(SetComprehensionExprAST( _ )) |
+		"{" ~> rep1sep(keyExpression, ",") <~ "}" ^^
 			(SetExprAST( _ )) |
 		"{" ~> rep1sep(MapEntry, ",") <~ "}" ^^
 			(MapExprAST( _ )) |
-		"{" ~ ":" ~ "}" ^^^
-		EmptyMapExprAST |
+		"{" ~ "}" ^^^
+			EmptyMapExprAST |
 // 		"$" ~> ident ^^
 // 			(SysvarExprAST( _ )) |
 		"?" ~> ident ^^

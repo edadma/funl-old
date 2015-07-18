@@ -254,6 +254,8 @@ object Predef
 
 	def none = None
 
+	def void = Set.empty
+	
 	def rnd( a: Any ): Any =
 		a match
 		{

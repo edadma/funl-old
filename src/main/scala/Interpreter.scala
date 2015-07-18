@@ -178,8 +178,9 @@ object Interpreter
 					bunch take howMany map (display(_)) mkString( "[", ", ", ", ...]" )
 				else
 					display( bunch toList )
+			case s: collection.Set[_] if s isEmpty => "void"
 			case s: collection.Set[_] => s.map( display(_) ).mkString( "{", ", ", "}" )
-			case m: collection.Map[_, _] if m isEmpty => "{:}"
+			case m: collection.Map[_, _] if m isEmpty => "{}"
 			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => displayQuoted(k) + ": " + displayQuoted(v)} ).mkString( "{", ", ", "}" )
 			case t: Vector[_] => t.map( display(_) ).mkString( "(", ", ", ")" )
 			case p: Product if p.productArity > 0 && !p.productPrefix.startsWith( "Tuple" ) =>
