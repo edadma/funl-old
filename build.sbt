@@ -1,50 +1,35 @@
-import AssemblyKeys._
-
-import LaikaKeys._
-
-
 name := "FunL"
 
-version := "0.15"
+version := "0.18"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.7"
 
 scalacOptions ++= Seq( "-deprecation", "-feature", "-language:postfixOps", "-language:implicitConversions", "-language:existentials" )
 
 incOptions := incOptions.value.withNameHashing( true )
 
-organization := "org.funl-lang"
+organization := "ca.hyperreal"
 
-resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
+resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.1.3" % "test"
+libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.5" % "test"
 
-libraryDependencies += "jline" % "jline" % "2.11"
+libraryDependencies += "jline" % "jline" % "2.12.1"
 
-libraryDependencies += "com.h2database" % "h2" % "1.3.148"
-
-//libraryDependencies += "org.scala-lang" %% "scala-pickling" % "0.8.0"
-
-//libraryDependencies += "org.scala-lang" % "scala-swing" % scalaVersion.value
-
-//libraryDependencies += "org.ow2.asm" % "asm" % "4.2"
-
-//libraryDependencies += "org.scaloid" %% "scaloid" % "3.2-8"
+//libraryDependencies += "com.h2database" % "h2" % "1.4.188"
 
 libraryDependencies ++= Seq(
-//	"org.postgresql" % "postgresql" % "9.3-1101-jdbc41",		//9.2-1004-jdbc4"
-//	"org.mongodb" % "casbah_2.9.3" % "2.7.0"
-	)
-
-libraryDependencies ++= Seq(
-	"org.funl-lang" %% "lia" % "0.12",
-	"org.funl-lang" %% "indentation-lexical" % "0.1",
-	"org.funl-lang" %% "json" % "0.1"
+	"ca.hyperreal" %% "lia" % "0.17",
+	"ca.hyperreal" %% "indentation-lexical" % "0.4",
+	"ca.hyperreal" %% "json" % "0.3",
+	"ca.hyperreal" %% "options" % "0.1"
 	)
 
 mainClass in (Compile, run) := Some( "funl.Main" )
+
+isSnapshot := true
 
 proguardSettings
 
@@ -53,27 +38,26 @@ ProguardKeys.options in Proguard ++= Seq( "-dontnote", "-dontwarn", "-ignorewarn
 ProguardKeys.options in Proguard += ProguardOptions.keepMain( "funl.Main" )
 
 
+import AssemblyKeys._
+
 assemblySettings
 
 mainClass in assembly := Some( "funl.Main" )
 
-jarName in assembly := "funl.jar"
+jarName in assembly := "funl-dev.jar"
 
 
-LaikaPlugin.defaults
-
-templateDirectives in Laika += LaikaExtension.bootstrapToc
-
+seq(bintraySettings:_*)
 
 publishMavenStyle := true
 
-publishTo := Some( Resolver.sftp( "private", "hyperreal.ca", "/var/www/hyperreal.ca/html/maven2" ) )
+//publishTo := Some( Resolver.sftp( "private", "hyperreal.ca", "/var/www/hyperreal.ca/maven2" ) )
 
 publishArtifact in Test := false
 
 pomIncludeRepository := { _ => false }
 
-licenses := Seq("LGPL" -> url("http://opensource.org/licenses/lgpl-3.0.html"))
+licenses := Seq("MIT" -> url("http://opensource.org/licenses/MIT"))
 
 homepage := Some(url("https://github.com/FunL/funl"))
 

@@ -67,16 +67,18 @@ To give a small example of a complete program in FunL that does something useful
       socket.shutdownOutput()
       socket.close()
 
-    for thread( connection, listener.accept() ).start()
+    loop thread( connection, listener.accept() ).start()
 
 ## License
 
-FunL is distributed under the LGPL v3 License, meaning that you are free to use it in your free or proprietary software.
+FunL is distributed under the MIT License, meaning that you are free to use it in your free or proprietary software.
 
 
 ## Documentation
 
-The project's website is <http://funl-lang.org> where you will find documentation and download instructions so that you can get a binary executable of the interpreter.
+The project's website is <http://edadma.github.io/funl-docs/> where you will find documentation and download instructions so that you can get a binary executable of the interpreter.
+
+There are also many examples of FunL code to be found at <http://rosettacode.org/wiki/FunL>, which serve to document how FunL can be used in solving various types of programming problems in a concise and functional way.
 
 
 ## Usage
@@ -85,20 +87,20 @@ Use the following elements to use FunL in your Maven project:
 
 	<repository>
 		<id>hyperreal</id>
-		<url>http://hyperreal.ca/maven2</url>
+		<url>https://dl.bintray.com/edadma/maven</url>
 	</repository>
 
 	<dependency>
-		<groupId>org.funl-lang</groupId>
+		<groupId>ca.hyperreal</groupId>
 		<artifactId>funl</artifactId>
-		<version>0.15</version>
+		<version>0.17</version>
 	</dependency>
 
-Add the following to your build file to use FunL in your SBT project:
+Add the following to your `build.sbt` file to use FunL in your SBT project:
 
-	resolvers += "Hyperreal Repository" at "http://hyperreal.ca/maven2"
+	resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
 
-	libraryDependencies += "org.funl-lang" %% "funl" % "0.15"
+	libraryDependencies += "ca.hyperreal" %% "funl" % "0.17"
 
 
 ## Building
@@ -110,7 +112,7 @@ Add the following to your build file to use FunL in your SBT project:
 
 Clone and build:
 
-	git clone git://github.com/FunL/funl.git
+	git clone git://github.com/edadma/funl.git
 	cd funl
 	sbt assembly
 
@@ -125,6 +127,43 @@ to start the REPL, or
 to execute a script.  Note that the double quotes are required.
 
 
+## Installing
+
+These instructions apply to Ubuntu or any Debian based distribution.  It is assumed that Java is installed and in your PATH, as well as the `unzip` utility.
+
+In these instructions `<path to jar>` means the path where the executable JAR file was downloaded to, and `<path to funl>` means the path to the directory that you created in which to install FunL.
+
+Here are the steps.
+
+1.  Download the latest release from <https://dl.bintray.com/edadma/generic/funl-dev.jar>.
+2.  Create a directory where FunL should be installed.
+2.  Start a shell.
+3.  Enter `cd <path to jar>`
+4.  Enter `unzip funl-dev.jar bin/funl -d <path to funl>`
+5.  Enter `chmod a+x <path to funl>/bin/*`
+6.  Enter `cp funl-dev.jar <path to funl>/bin`
+7.  Open ~/.profile in an editor.
+8.  Add `PATH="<path to funl>/bin:$PATH"`
+9.  Enter `source ~/.profile`
+10. Enter `funl`
+
+After the last step, you should see
+
+```
+    ______            __
+   / ____/_  __ ___  / /     FunL Programming Language
+  / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr.
+ / /   / /_/ / / / / /__     http://funl-lang.org/
+/_/    \____/_/ /_/____/                                     
+
+Welcome to FunL version 0.17
+Type in expressions to have them evaluated.
+Type :help for more information.
+```
+
+indicating that the installation worked.  You are inside the FunL REPL.  Press Ctrl-C to get out.
+
+
 ## Executable
 
-The latest executable can be downloaded from <http://hyperreal.ca/releases/funl.jar>.
+The latest development executable can be downloaded from <https://dl.bintray.com/edadma/generic/funl-dev.jar>.
