@@ -1,9 +1,9 @@
-/*     ______            __                                      *\
-**    / ____/_  __ ___  / /     FunL Programming Language        **
+/*     ______            __                                     *\
+**    / ____/_  __ ___  / /     FunL Programming Language       **
 **   / __/ / / / / __ \/ /      (c) 2014 Edward A. Maxedon, Sr. **
-**  / /   / /_/ / / / / /__     http://funl-lang.org/            **
-** /_/    \____/_/ /_/____/                                      **
-\*                                                               */
+**  / /   / /_/ / / / / /__     http://funl-lang.org/           **
+** /_/    \____/_/ /_/____/                                     **
+\*                                                              */
 
 package funl
 
@@ -13,40 +13,22 @@ package funl
 import funl.interp.Evaluator
 import funl.interp.Interpreter._
 
+import ca.hyperreal.options.Options
+
 
 object Main extends App
 {
-// 	val opts =
-// 		Options( args )
-// 		{
-// 			case "-b" :: t => ('b -> "set", t)
-// 			case o :: _ if o startsWith "-" => sys.error( "bad option: " + o )
-// 			case f :: t => ('input -> f, t)
-// 		}
-
-// 	if (opts isEmpty)
-// 		REPL.main( args )
-  if (args isEmpty)
-    REPL.main( Array[String]() )
+	val opts = new Options( Nil, List("-p"), Nil, "-p" -> "." )
+	val moduleArgs = opts parse args
+	
+	modulePath = opts("-p").split( ";" ).toList
+	
+	if (moduleArgs isEmpty)
+		REPL.main( args )
 	else
 	{
-//	val m = opts('input)
-  val m = args(0)
+	val m = moduleArgs.head
   
-		execute( m, Some("-main-"), "args" -> args.tail.toVector )
-//	val l = parse( m, Some("-main-") )
-	
-// 		if (opts contains 'b)
-// 		{
-// 			println( "binary" )
-// 		}
-// 		else
-// 		{
-// 		val eval = new Evaluator
-// 		implicit val env = new eval.Environment
-// 
-// 			eval.assign( "-main-", "args" -> args.tail.toVector )
-// 			eval( l )
-// 		}
+		execute( m, Some("-main-"), "args" -> moduleArgs.tail.toVector )
 	}
 }

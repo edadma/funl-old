@@ -12,13 +12,13 @@ import sys.process._
 
 object Sys
 {
-	def execute( a: List[Any] ) =
+	def execute( a: Any ) =
 		a match
 		{
 			case List( cmd: String ) => cmd!
 		}
 		
-	def executeReturnString( a: List[Any] ) =
+	def executeReturnString( a: Any ) =
 		a match
 		{
 			case List( cmd: String ) => cmd!!

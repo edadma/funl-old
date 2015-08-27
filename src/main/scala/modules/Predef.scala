@@ -13,6 +13,8 @@ import util.Random.{nextInt, nextDouble}
 import funl.interp.{Function, ArgList, RuntimeException}
 import funl.interp.Interpreter._
 
+import ca.hyperreal.lia.{Math => M, Complex}
+
 
 object Predef
 {
@@ -159,10 +161,15 @@ object Predef
 		a match
 		{
 			case n: BigInt => n
-			case d: BigDecimal => funl.lia.Math.maybeDemote( d.toBigInt )
+			case d: BigDecimal => M.maybeDemote( d.toBigInt )
+			case d: Double => M.maybeDemote( BigInt(d.toLong) )
 			case n: Number => n.intValue
 			case s: String => s.toInt
 			case b: Boolean => if (b) 1 else 0
+			case ArgList( List(s: String, base: Int) ) =>
+				if (base < 2) sys.error( "int: base should be at least 2" )
+				
+				M.maybeDemote( BigInt(s, base) )
 		}
 
 	def float( a: Any ) =
@@ -171,6 +178,17 @@ object Predef
 			case (_: Double) | (_: BigDecimal) => a
 			case n: Number => n.doubleValue
 			case s: String => s.toDouble
+		}
+
+	def complex( a: Any ) =
+		a match
+		{
+			case n: Double => Complex( n )
+			case n: Int => Complex( n )
+			case ArgList( List(re: Double, im: Double) ) => Complex( re, im )
+			case ArgList( List(re: Int, im: Int) ) => Complex( re, im )
+			case ArgList( List(re: Int, im: Double) ) => Complex( re, im )
+			case ArgList( List(re: Double, im: Int) ) => Complex( re, im )
 		}
 
 	def bin( a: Any ) =
@@ -192,6 +210,14 @@ object Predef
 		{
 			case n: BigInt => n.toString( 16 )
 			case n: Int => Integer.toHexString( n )
+		}
+
+	def str( a: Any ) =
+		a match
+		{
+			case ArgList( List(n: BigInt, r: Int) ) => n.toString( r )
+			case ArgList( List(n: Int, r: Int) ) => Integer.toString( n, r )
+			case _ => String.valueOf( a )
 		}
 
 	def chr( code: Int ) = code.toChar.toString
@@ -221,13 +247,15 @@ object Predef
 	var res: Any = 0
 
 		for (a <- t)
-			res = funl.lia.Math( '+, res, a )
+			res = ca.hyperreal.lia.Math( '+, res, a )
 
 		res
 	}
 
 	def none = None
 
+	def void = Set.empty
+	
 	def rnd( a: Any ): Any =
 		a match
 		{

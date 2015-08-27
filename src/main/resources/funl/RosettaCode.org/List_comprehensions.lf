@@ -1,0 +1,10 @@
+=={{header|FunL}}==
+<lang funl>~~def triples( n ) = [(a, b, c) | a <- 1..n-2, b <- a+1..n-1, c <- b+1..n if a^2 + b^2 == c^2]
+
+println( triples(20) )~~</lang>
+
+{{out}}
+
+<pre>
+[(3, 4, 5), (5, 12, 13), (6, 8, 10), (8, 15, 17), (9, 12, 15), (12, 16, 20)]
+</pre>

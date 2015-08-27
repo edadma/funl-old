@@ -5,7 +5,7 @@
 ** /_/    \____/_/ /_/____/                                                  **
 \*                                                                           */
 
-package funl.module
+package funl.modules
 
 import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 

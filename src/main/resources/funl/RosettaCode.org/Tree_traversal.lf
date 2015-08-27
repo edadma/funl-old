@@ -14,11 +14,11 @@ def
 
   levelorder( x ) =
     def
-      loop( [] )                 =  []
-      loop( Empty         : xs ) =  loop( xs )
-      loop( Node(v, l, r) : xs ) =  v : loop( xs + [l, r] )
+      order( [] )                 =  []
+      order( Empty         : xs ) =  order( xs )
+      order( Node(v, l, r) : xs ) =  v : order( xs + [l, r] )
 
-    loop( [x] )
+    order( [x] )
 
 tree =    Node( 1,
             Node( 2,

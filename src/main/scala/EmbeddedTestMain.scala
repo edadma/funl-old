@@ -12,8 +12,8 @@ import funl.interp.Interpreter._
 
 object EmbeddedTestMain extends App
 {
-	println( snippetWithMargin( """	|a = 2 + 3
-																	|b = 'asdf'
-																	|(a, b)
-																	""") )
+    println( snippet( """   |a = 2 + 3
+                            |b = 'asdf'
+                            |(a, b)
+                            """) )
 }

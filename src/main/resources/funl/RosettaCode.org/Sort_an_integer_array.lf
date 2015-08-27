@@ -1,0 +1,11 @@
+=={{header|FunL}}==
+<lang funl>~~nums = [5, 2, 78, 2, 578, -42]
+println( sort(nums) )           // sort in ascending order
+println( nums.sortWith((>)) )   // sort in descending order~~</lang>
+
+{{out}}
+
+<pre>
+[-42, 2, 2, 5, 78, 578]
+[578, 78, 5, 2, 2, -42]
+</pre>

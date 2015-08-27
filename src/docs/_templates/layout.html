@@ -1,0 +1,22 @@
+{% extends "!layout.html" %}
+{% block rootrellink %}
+    <li><a href="http://edadma.github.io/funl-docs/">FunL Programming Language</a> &raquo;</li>
+    {{ super() }}
+{% endblock %}
+{% block extrahead %}
+	<script type="text/javascript">
+		function setHeight()
+		{
+			var f = document.getElementById( 'the_iframe' );
+			
+			if (f.contentDocument)
+			{
+				f.height = f.contentDocument.documentElement.scrollHeight;
+			}
+			else
+			{
+				f.height = f.contentWindow.document.body.scrollHeight;
+			}
+		}
+	</script>
+{% endblock %}

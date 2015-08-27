@@ -44,4 +44,4 @@ def connection( socket ) =
 	socket.shutdownOutput()
 	socket.close()
 
-forever thread( connection, listener.accept() ).start()
+loop thread( connection, listener.accept() ).start()

@@ -7,6 +7,7 @@
 
 package funl.interp
 
+import java.io.File
 import java.lang.reflect.{Method, Modifier}
 import java.util.concurrent.Callable
 
@@ -17,7 +18,7 @@ import math._
 import compat.Platform._
 import util.matching.Regex
 
-import funl.lia.{Complex, Math}
+import ca.hyperreal.lia.{FunctionMap, Complex, Math}
 import Interpreter._
 
 
@@ -268,6 +269,12 @@ class Evaluator
 		sysvars += k -> new WriteOnlySystemReference( k, output )
 	}
 
+	def rwsysvar( k: String, output: Any => Unit )( v: => Any )
+	{
+		sysvars += k -> new ReadWriteSystemReference( k, output )( v )
+	}
+
+	rwsysvar( "path", p => modulePath = p.asInstanceOf[String].split(";").toList )( modulePath map (new File(_).getCanonicalPath) mkString ";" )
 	rosysvar( "time" ) {compat.Platform.currentTime}
 	rosysvar( "timeZone" ) {java.util.TimeZone.getDefault}
 	rosysvar( "timeZoneOffset" )
@@ -278,10 +285,10 @@ class Evaluator
 		}
 	rosysvar( "date" ) {new java.util.Date}
 	rosysvar( "os" ) {System.getProperty( "os.name" )}
-  rosysvar( "user" ) {System.getProperty( "user.name" )}
-  rosysvar( "home" ) {System.getProperty( "user.home" )}
-  rosysvar( "fs" ) {System.getProperty( "file.separator" )}
-  rosysvar( "ls" ) {System.getProperty( "line.separator" )}
+	rosysvar( "user" ) {System.getProperty( "user.name" )}
+	rosysvar( "home" ) {System.getProperty( "user.home" )}
+	rosysvar( "fs" ) {System.getProperty( "file.separator" )}
+	rosysvar( "ls" ) {System.getProperty( "line.separator" )}
 	rosysvar( "stdin" ) {scala.io.StdIn.readLine}
 	wosysvar( "stdout", println )
 
@@ -348,7 +355,7 @@ class Evaluator
 
 	def ieval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Int]
 
-  def bieval( t: AST )( implicit env: Environment ) = Math.toBigInt( eval(t).asInstanceOf[Number] )
+	def bieval( t: AST )( implicit env: Environment ) = Math.toBigInt( eval(t).asInstanceOf[Number] )
 
 	def deval( t: AST )( implicit env: Environment ) = eval( t ).asInstanceOf[Number].doubleValue
 
@@ -399,6 +406,7 @@ class Evaluator
 		{
 		val ast = parse( m )
 
+//			markTailRecursion( ast )
 			apply( ast )
 			exitActivation
 		}
@@ -461,7 +469,7 @@ class Evaluator
 
 				a == v
 			case EmptySetPatternAST => a == Set.empty
-			case VoidPatternAST => a == ()
+			case VoidPatternAST => a == (())
 			case NullPatternAST => a == null
 			case AliasPatternAST( alias, pat ) =>
 				if (map contains alias)
@@ -581,62 +589,6 @@ class Evaluator
 		else
 			pattern( args.head, args.tail, parms.head, parms.tail )
 	}
-/*
-	def invoke( c: Closure, argList: List[Any] )( implicit env: Environment )
-	{
-		def occur( argList: List[Any] )
-		{
-			def findPart: Option[FunctionPartExprAST] =
-			{
-				for (alt <- c.funcs)
-					if (pattern( currentActivation, argList, alt.parms ))
-					{
-						for (part <- alt.parts)
-							part.cond match
-							{
-								case None => return Some( part )
-								case Some( cond ) =>
-									if (beval( cond ))
-										return Some( part )
-							}
-
-						currentActivation.clear
-					}
-
-				None
-			}
-
-			findPart match
-			{
-				case None => RuntimeException( "function application failure: " + c.funcs + " applied to " + argList )
-				case Some( part ) =>
-					apply( part.body ) match
-					{
-						case a: List[Any] =>
-							currentActivation.clear
-							occur( a )
-						case _ =>
-					}
-			}
-		}
-
-		enterActivation( c, c.referencing, c.module )
-
-	val st = env.copy
-
-		try
-		{
-			occur( argList )
-		}
-		catch
-		{
-			case ReturnThrowable( ret ) =>
-				restoreEnvironment( st )
-				push( ret )
-		}
-
-		exitActivation
-	}*/
 
 	def varSearch( name: String, a: Activation, createvars: Boolean )( implicit env: Environment ): Option[Any] =
 		a.scope find (_ contains name) match
@@ -697,7 +649,7 @@ class Evaluator
 
 		def bpop = pop.asInstanceOf[Boolean]
 
-		def void = env.stack push ()
+		def void = env.stack push (())
 
 		def list( len: Int ) =
 		{
@@ -763,7 +715,9 @@ class Evaluator
 			exitScope
 		}
 
-		def thunk( t: ExprAST ) = (new BasicClosure( currentActivation.copy, currentModule, List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )).computeReferencing
+		def thunk( t: ExprAST ) =
+			(new BasicClosure( currentActivation.copy, currentModule,
+				List(FunctionExprAST(Nil, List(FunctionPartExprAST(None, t)))) )).computeReferencing
 
 		def iterator( e: ExprAST, gs: List[GeneratorAST] ) =
 			new Iterator[Any]
@@ -793,7 +747,7 @@ class Evaluator
 								else
 									clear( currentActivation(itenv), ps(i) )
 
-							// force the iterator's next() to be called, since unit()'s second parameter is call-by-name
+							// force the iterator's next() to be called, since unify()'s second parameter is call-by-name
 							val next = deref( is(i).next )
 
 								if (!unify( currentActivation(itenv), next, ps(i) ))
@@ -833,12 +787,12 @@ class Evaluator
 						RuntimeException( "iterator empty" )
 			}
 
-		def section( l: ExprAST, op: Symbol, r: ExprAST ) =
+		def section( l: ExprAST, op: Symbol, func: FunctionMap, r: ExprAST ) =
 			op match
 			{
 				case ': => ConsExprAST( l, r )
 				case '# => StreamExprAST( l, r )
-				case _ => BinaryExprAST( l, op, r )
+				case _ => BinaryExprAST( l, op, func, r )
 			}
 
 		def rewrap( objs: List[Any], types: Array[Class[_]] ) =
@@ -899,6 +853,34 @@ class Evaluator
 				compound( l.tail )
 			}
 
+		def comparison( l: Any, op: Symbol, f: FunctionMap, r: Any ): Boolean =
+			op match
+			{
+				case '< | '> | '<= | '>= =>
+					def comp( c: Int ) =
+						op match
+						{
+							case '< => c < 0
+							case '> => c > 0
+							case '<= => c <= 0
+							case '>= => c >= 0
+						}
+
+					if (l.isInstanceOf[String] || r.isInstanceOf[String])
+						comp(l.toString.compare(r.toString))
+					else if (l.isInstanceOf[Seq[Any]] && r.isInstanceOf[Seq[Any]])
+						comp(lexicographicalCompare(l.asInstanceOf[Seq[Any]], r.asInstanceOf[Seq[Any]]))
+					else if (l.isInstanceOf[Product] && r.isInstanceOf[Product])
+						comp(lexicographicalCompare(l.asInstanceOf[Product].productIterator.toSeq, r.asInstanceOf[Product].productIterator.toSeq))
+					else
+						Math(f, l, r).asInstanceOf[Boolean]
+				case '== | '!= =>
+					if (l.isInstanceOf[Number] && r.isInstanceOf[Number])
+						Math(f, l, r).asInstanceOf[Boolean]
+					else
+						if (op == '==) l == r else l != r
+			}
+			
 		t match
 		{
 			case ModuleAST( m, s ) =>
@@ -906,7 +888,7 @@ class Evaluator
 					loadPredef( m )
 
 				enterActivation( null, null, module(m) )
-        currentModule( "_name_" ) = m
+				currentModule( "_name_" ) = m
 				apply( s )
 			case DeclarationBlockAST( s ) =>
 				apply( s )
@@ -1016,7 +998,6 @@ class Evaluator
 				{
 					case None => RuntimeException( s + " not a system variable" )
 					case Some( v ) => push( v )
-					case _ => RuntimeException( "problem" )
 				}
 			case TestExprAST( name ) => push( vars( name ) != None )
 			case BreakExprAST =>
@@ -1025,18 +1006,18 @@ class Evaluator
 				throw new ContinueThrowable
 			case ReturnExprAST( ret ) =>
 				throw new ReturnThrowable( eval(ret) )
-			case SectionExprAST( op ) =>
+			case SectionExprAST( op, func ) =>
 				push( new BasicClosure(null, currentModule,
-					List(FunctionExprAST(List(VariablePatternAST("$a"), VariablePatternAST("$b")),
-						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, VariableExprAST("$b"))))))) )
-			case LeftSectionExprAST( e, op ) =>
+					List(FunctionExprAST(List(VariablePatternAST("#a"), VariablePatternAST("#b")),
+						List(FunctionPartExprAST(None, section(VariableExprAST("#a"), op, func, VariableExprAST("#b"))))))) )
+			case LeftSectionExprAST( e, op, func ) =>
 				push( (new BasicClosure(currentActivation.copy, currentModule,
-					List(FunctionExprAST(List(VariablePatternAST("$a")),
-						List(FunctionPartExprAST(None, section(e, op, VariableExprAST("$a")))))))).computeReferencing )
-			case RightSectionExprAST( op, e ) =>
+					List(FunctionExprAST(List(VariablePatternAST("#a")),
+						List(FunctionPartExprAST(None, section(e, op, func, VariableExprAST("#a")))))))).computeReferencing )
+			case RightSectionExprAST( op, func, e ) =>
 				push( (new BasicClosure(currentActivation.copy, currentModule,
-					List(FunctionExprAST(List(VariablePatternAST("$a")),
-						List(FunctionPartExprAST(None, section(VariableExprAST("$a"), op, e))))))).computeReferencing )
+					List(FunctionExprAST(List(VariablePatternAST("#a")),
+						List(FunctionPartExprAST(None, section(VariableExprAST("#a"), op, func, e))))))).computeReferencing )
 			case LiteralExprAST( v ) => push( v )
 			case StringLiteralExprAST( s ) => push( s )
 			case InterpolationExprAST( l ) =>
@@ -1046,12 +1027,32 @@ class Evaluator
 					buf append (display( eval(e) ))
 
 				push( buf.toString )
-			case BinaryExprAST( left, op, right ) =>
+			case ComparisonExprAST( left, comps ) =>
+				var l = eval( left )
+				
+				def comp( cs: List[(Symbol, FunctionMap, ExprAST)] ): Boolean =
+					cs match
+					{
+						case Nil => true
+						case (c, f, e) :: t =>
+							val r = eval( e )
+							
+							if (comparison( l, c, f, r ))
+							{
+								l = r
+								comp( t )
+							}
+							else
+								false
+					}
+					
+				push( comp(comps) )
+			case BinaryExprAST( left, op, func, right ) =>
 				val l = eval( left )
 
 				op match
 				{
-					case 'rotateright | 'rotateleft | 'shiftright | 'shiftleft =>
+					case 'rotateright | 'rotateleft | '>>> | '<< =>
 						val bits = l.asInstanceOf[Number].intValue
 						val k = ieval( right )
 
@@ -1059,8 +1060,8 @@ class Evaluator
 						{
 							case 'rotateright => Integer.rotateRight( bits, k )
 							case 'rotateleft => Integer.rotateRight( bits, k )
-							case 'shiftright => bits >>> k
-							case 'shiftleft => bits << k
+							case '>>> => bits >>> k
+							case '<< => bits << k
 						} )
 					case 'in | 'notin =>
 						val r = eval( right )
@@ -1085,7 +1086,7 @@ class Evaluator
 						else if (l.isInstanceOf[Iterable[_]] && r.isInstanceOf[Iterable[_]])
 							push( l.asInstanceOf[Iterable[_]] ++ r.asInstanceOf[Iterable[_]] )
 						else
-							push( Math(op, l, r) )
+							push( Math(func, l, r) )
 					case '* =>
 						val r = eval( right )
 
@@ -1094,34 +1095,9 @@ class Evaluator
 						else if (r.isInstanceOf[String])
 							push( r.asInstanceOf[String]*l.asInstanceOf[Int] )
 						else
-							push( Math(op, l, r) )
-					case '< | '> | '<= | '>= =>
-						def comp( c: Int ) =
-							op match
-							{
-								case '< => c < 0
-								case '> => c > 0
-								case '<= => c <= 0
-								case '>= => c >= 0
-							}
-
-						val r = eval( right )
-
-						if (l.isInstanceOf[String] || r.isInstanceOf[String])
-							push( comp(l.toString.compare(r.toString)) )
-						else if (l.isInstanceOf[Seq[Any]] && r.isInstanceOf[Seq[Any]])
-							push( comp(lexicographicalCompare(l.asInstanceOf[Seq[Any]], r.asInstanceOf[Seq[Any]])) )
-						else if (l.isInstanceOf[Product] && r.isInstanceOf[Product])
-							push( comp(lexicographicalCompare(l.asInstanceOf[Product].productIterator.toSeq, r.asInstanceOf[Product].productIterator.toSeq)) )
-						else
-							push( Math(op, l, r) )
-					case '== | '!= =>
-						val r = eval( right )
-
-						if (l.isInstanceOf[Number] && r.isInstanceOf[Number])
-							push( Math(op, l, r) )
-						else
-							push( if (op == '==) l == r else l != r )
+							push( Math(func, l, r) )
+					case '< | '> | '<= | '>= | '== | '!= =>
+						push( comparison(l, op, func, eval(right)) )
 					case 'or =>
 						if (l.isInstanceOf[Boolean])
 							if (l.asInstanceOf[Boolean])
@@ -1129,12 +1105,12 @@ class Evaluator
 							else
 								push( beval(right) )
 						else
-							push( Math(op, l, eval(right)) )
+							push( Math(func, l, eval(right)) )
 					case 'xor =>
 						if (l.isInstanceOf[Boolean])
 							push( l.asInstanceOf[Boolean] ^ beval(right) )
 						else
-							push( Math(op, l, eval(right)) )
+							push( Math(func, l, eval(right)) )
 					case 'and =>
 						if (l.isInstanceOf[Boolean])
 							if (!l.asInstanceOf[Boolean])
@@ -1142,9 +1118,9 @@ class Evaluator
 							else
 								push( beval(right) )
 						else
-							push( Math(op, l, eval(right)) )
+							push( Math(func, l, eval(right)) )
 					case _ =>
-						push( Math(op, l, eval(right)) )
+						push( Math(func, l, eval(right)) )
 				}
 			case NotExprAST( e ) =>
 				val o = eval( e )
@@ -1186,7 +1162,7 @@ class Evaluator
 							case List( r: Range, c: Range ) => push( new MutableSeq2DRangeReference(ms, r, c) )
 						}
 					case ms: MutableSeq[Any] if argList.head.isInstanceOf[Int] => push( new MutableSeqReference(ms, argList.head.asInstanceOf[Int]) )
-          case ms: MutableSeq[Any] => push( new MutableSeqRangeReference(ms, argList.head.asInstanceOf[Range]) )
+					case ms: MutableSeq[Any] => push( new MutableSeqRangeReference(ms, argList.head.asInstanceOf[Range]) )
 					case a: Array[Any] => push( new MutableSeqReference(a, argList.head.asInstanceOf[Int]) )
 					case m: Map[Any, Any] => push( new ImmutableMapReference(m, argList.head) )
 					case mm: MutableMap[Any, Any] => push( new MutableMapReference(mm, argList.head) )
@@ -1199,13 +1175,19 @@ class Evaluator
 							case List( r: Range, c: Range ) => push( new ImmutableSeq2DRangeReference(ms, r, c) )
 						}
 					case s: ImmutableSeq[_] if argList.head.isInstanceOf[Int] => push( new ImmutableSeqReference(s, argList.head.asInstanceOf[Int]) )
-          case s: ImmutableSeq[_] => push( new ImmutableSeqRangeReference(s, argList.head.asInstanceOf[Range]) )
+					case s: ImmutableSeq[_] => push( new ImmutableSeqRangeReference(s, argList.head.asInstanceOf[Range]) )
 					case s: collection.Set[Any] => push( s(argList.head) )
 					case c: Closure =>
 						if (tailrecursive)
 							argList
 						else
 							c.invoke( argList )
+					case r: Record =>
+						argList match
+						{
+						case List( idx: Int ) => push( r(idx) )
+						case List( field: String ) => push( r.get(field).get )
+						}
 					case b: Function =>
 						def conv( l: List[Any] ): List[Any] =
 							l match
@@ -1229,12 +1211,6 @@ class Evaluator
 						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 
 						push( new Record(m, t, n, fields, argList.toVector) )
-					case r :Record =>
-            argList match
-            {
-              case List( idx: Int ) => push( r(idx) )
-              case List( field: String ) => push( r.get(field).get )
-            }
 					case NativeMethod( o, m ) =>
 						m.find( cm => assignable(argList, cm.getParameterTypes) ) match
 							{
@@ -1309,6 +1285,8 @@ class Evaluator
 			case VectorExprAST( l ) =>
 				apply( l )
 				push( list(l.length).toVector )
+			case TupleExprAST( VariableExprAST(v), r ) if vars( v ) == None =>
+				push( (v, eval(r)) )
 			case TupleExprAST( l, r ) =>
 				push( (eval(l), eval(r)) )
 			case IteratorExprAST( e, gs ) =>
@@ -1646,7 +1624,7 @@ class Evaluator
 		{
 			case "String" => a.isInstanceOf[String]
 			case "Integer" => a.isInstanceOf[Int] || a.isInstanceOf[BigInt]
-      case "Rational" => a.isInstanceOf[funl.lia.Rational]
+			case "Rational" => a.isInstanceOf[ca.hyperreal.lia.Rational]
 			case "Float" => a.isInstanceOf[Double] ||  a.isInstanceOf[BigDecimal]
 			case "Seq" => a.isInstanceOf[Seq[_]]
 			case "List" => a.isInstanceOf[List[_]]
@@ -1656,7 +1634,7 @@ class Evaluator
 			case "Product" => a.isInstanceOf[Product]
 			case "Tuple"|"Vector" => a.isInstanceOf[Vector[_]]
 			case "Array" => a.isInstanceOf[Array[_]] || a.isInstanceOf[ArrayBuffer[_]]
-			case _ /*if datatypes.contains( t )*/ => a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == t
+			//case _ /*if datatypes.contains( t )*/ => a.isInstanceOf[Record] && a.asInstanceOf[Record].datatype == t
 			case _ => RuntimeException( "unknown type: " + t )
 		}
 

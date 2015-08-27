@@ -1,0 +1,18 @@
+=={{header|FunL}}==
+Converting from integer to string:
+<lang funl>~~$stdout = int( '1a', 16 )~~</lang>
+
+{{out}}
+
+<pre>
+26
+</pre>
+
+Converting from string to integer:
+<lang funl>~~$stdout = str( 26, 16 )~~</lang>
+
+{{out}}
+
+<pre>
+1a
+</pre>

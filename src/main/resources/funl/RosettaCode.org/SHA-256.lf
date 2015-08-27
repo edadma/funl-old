@@ -8,7 +8,7 @@ def sha256Java( message ) = map( a -> format('%02x', a), list(MessageDigest.getI
 Here is a definition implemented as a direct translation of the pseudocode at '''[[wp:SHA-256|SHA-256]]'''.
 
 <lang funl>~~def sha256( message ) =
-  //Initialize hash values
+  ;;Initialize hash values
   h0 = 0x6a09e667
   h1 = 0xbb67ae85
   h2 = 0x3c6ef372
@@ -18,7 +18,7 @@ Here is a definition implemented as a direct translation of the pseudocode at ''
   h6 = 0x1f83d9ab
   h7 = 0x5be0cd19
 
-  // Initialize array of round constants
+  ;; Initialize array of round constants
   k(0..63) = [
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
     0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -29,7 +29,7 @@ Here is a definition implemented as a direct translation of the pseudocode at ''
     0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2]
 
-  // Pre-processing
+  ;; Pre-processing
   bits = BitArray( message.getBytes('UTF-8') )
   len = bits.length()
   bits.append( 1 )
@@ -40,17 +40,17 @@ Here is a definition implemented as a direct translation of the pseudocode at ''
 
   words = bits.toIntVector()
 
-  // Process the message in successive 512-bit chunks
+  ;; Process the message in successive 512-bit chunks
   for chunk <- 0:words.length():16
     w(0..15) = words(chunk..chunk+15)
 
-    // Extend the first 16 words into the remaining 48 words w[16..63] of the message schedule array
+    ;; Extend the first 16 words into the remaining 48 words w[16..63] of the message schedule array
     for i <- 16..63
-      s0 = (w(i-15) rotateright 7) xor (w(i-15) rotateright 18) xor (w(i-15) shiftright 3)
-      s1 = (w(i-2) rotateright 17) xor (w(i-2) rotateright 19) xor (w(i-2) shiftright 10)
+      s0 = (w(i-15) rotateright 7) xor (w(i-15) rotateright 18) xor (w(i-15) >>> 3)
+      s1 = (w(i-2) rotateright 17) xor (w(i-2) rotateright 19) xor (w(i-2) >>> 10)
       w(i) = w(i-16) + s0 + w(i-7) + s1
 
-    // Initialize working variables to current hash value
+    ;; Initialize working variables to current hash value
     a = h0
     b = h1
     c = h2
@@ -60,7 +60,7 @@ Here is a definition implemented as a direct translation of the pseudocode at ''
     g = h6
     h = h7
 
-    // Compression function main loop
+    ;; Compression function main loop
     for i <- 0..63
       S1 = (e rotateright 6) xor (e rotateright 11) xor (e rotateright 25)
       ch = (e and f) xor ((not e) and g)
@@ -78,7 +78,7 @@ Here is a definition implemented as a direct translation of the pseudocode at ''
       b = a
       a = temp1 + temp2
 
-    // Add the compressed chunk to the current hash value
+    ;; Add the compressed chunk to the current hash value
     h0 = h0 + a
     h1 = h1 + b
     h2 = h2 + c
@@ -88,7 +88,7 @@ Here is a definition implemented as a direct translation of the pseudocode at ''
     h6 = h6 + g
     h7 = h7 + h
 
-  // Produce the final hash value (big-endian)
+  ;; Produce the final hash value (big-endian)
   map( a -> format('%08x', a.intValue()), [h0, h1, h2, h3, h4, h5, h6, h7] ).mkString()~~</lang>
 
 Here is a test comparing the two and also verifying the hash values of the empty message string.

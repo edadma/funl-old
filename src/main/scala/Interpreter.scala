@@ -13,8 +13,9 @@ import java.io.{File, InputStream, FileInputStream, ByteArrayOutputStream}
 // import scala.collection.immutable.PagedSeq
 import util.parsing.input.{Reader, CharSequenceReader}
 import io.Source
+import collection.mutable.{ListBuffer}
 
-import funl.lia.Math
+import ca.hyperreal.lia.Math
 
 
 object Interpreter
@@ -34,6 +35,16 @@ object Interpreter
 			def compare( x: Any, y: Any ): Int = naturalCompare( x, y )
 		}
 
+	private var path: List[String] = Nil
+		
+	def modulePath_=( p: List[String] ) =
+		if (p == null)
+			throw new NullPointerException( "null module path list" )
+		else
+			path = p
+	
+	def modulePath = path
+	
 	def naturalCompare( x: Any, y: Any ): Int =
 		(x, y) match
 		{
@@ -133,10 +144,10 @@ object Interpreter
 
 				if (no != None)
 					markTailRecursion( n, no.get )
-			case BinaryExprAST( LiteralExprAST(false), 'or | 'xor, e ) => 	markTailRecursion( n, e )
-			case BinaryExprAST( LiteralExprAST(true), 'and, e ) => 	markTailRecursion( n, e )
-			case BinaryExprAST( e, 'or | 'xor, LiteralExprAST(false) ) => 	markTailRecursion( n, e )
-			case BinaryExprAST( e, 'and, LiteralExprAST(true) ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( LiteralExprAST(false), 'or | 'xor, _, e ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( LiteralExprAST(true), 'and, _, e ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( e, 'or | 'xor, _, LiteralExprAST(false) ) => 	markTailRecursion( n, e )
+			case BinaryExprAST( e, 'and, _, LiteralExprAST(true) ) => 	markTailRecursion( n, e )
 			case _ =>
 		}
 	}
@@ -167,11 +178,13 @@ object Interpreter
 					bunch take howMany map (display(_)) mkString( "[", ", ", ", ...]" )
 				else
 					display( bunch toList )
+			case s: collection.Set[_] if s isEmpty => "void"
 			case s: collection.Set[_] => s.map( display(_) ).mkString( "{", ", ", "}" )
-			case m: collection.Map[_, _] if m isEmpty => "{:}"
+			case m: collection.Map[_, _] if m isEmpty => "{}"
 			case m: collection.Map[_, _] => m.toList.map( {case (k, v) => displayQuoted(k) + ": " + displayQuoted(v)} ).mkString( "{", ", ", "}" )
 			case t: Vector[_] => t.map( display(_) ).mkString( "(", ", ", ")" )
-			case p: Product if p.productArity > 0 && !p.productPrefix.startsWith( "Tuple" ) => p.productPrefix + '(' + p.productIterator.map( display(_) ).mkString( ", " ) + ')'
+			case p: Product if p.productArity > 0 && !p.productPrefix.startsWith( "Tuple" ) =>
+				p.productPrefix + '(' + p.productIterator.map( display(_) ).mkString( ", " ) + ')'
 			case p: Product if p.productArity == 0 => p.productPrefix
 //			case Some( a ) => "Some(" + display(a) + ")"
 			case _ => String.valueOf( a )
@@ -296,12 +309,32 @@ object Interpreter
 
 		if (resource eq null)
 		{
-		val file = new File( filename )
+			def search( path: List[String] ): Option[InputStream] =
+			{
+				path match
+				{
+					case Nil => None
+					case h :: t =>
+						val file = new File( h, filename )
 
-			if (!file.exists || !file.isFile)
-				None
+						if (!file.exists || !file.isFile)
+							search( t )
+						else
+							Some( new FileInputStream(file) )
+				}
+			}
+			
+			if (filename startsWith System.getProperty( "file.separator" ))
+			{
+				val file = new File( filename )
+
+				if (!file.exists || !file.isFile)
+					search( path )
+				else
+					Some( new FileInputStream(file) )
+			}
 			else
-				Some( new FileInputStream(file) )
+				search( path )
 		}
 		else
 			Some( resource )
@@ -353,26 +386,31 @@ object Interpreter
 	}
 
 	def statement( s: String ): Any = statement( "-statement-", s )
-
-	def snippet( code: String, module: String = "-snippet-" ) =
+	
+	def snippet( code: String, vs: (String, Any)* ): Any = {
+		val module = "-snippet-"
+		val eval = new Evaluator
+		implicit val env = new eval.Environment
+		
+		eval.enterActivation( null, null, eval.module(module) )
+		eval.assign( module, vs: _* )
+		snippet( module, code, eval )( env )
+	}
+	
+	def snippet( module: String, code: String, eval: Evaluator )( implicit env: eval.Environment ) =
 	{
-	val eval = new Evaluator
 	val parser = new FunLParser( module )
-	implicit val env = new eval.Environment
 
-		parser.parseSource( new CharSequenceReader(code) ) match
+		parser.parseSource( new CharSequenceReader(code.stripMargin) ) match
 		{
 			case parser.Success( l, _ ) =>
 				markTailRecursion( l )
-				eval.enterActivation( null, null, eval.module(module) )
 				eval.apply( l )
 				eval.last
 			case parser.Failure( m, r ) => PARSE_FAILURE( m )
 			case parser.Error( m, r ) => PARSE_FAILURE( m )
 		}
 	}
-
-	def snippetWithMargin( code: String, module: String = "-snippet-" ) = snippet( code.stripMargin, module )
 
 	def expression( s: String, vs: (String, Any)* ) =
 	{

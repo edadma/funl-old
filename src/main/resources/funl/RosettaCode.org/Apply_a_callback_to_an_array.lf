@@ -1,0 +1,15 @@
+=={{header|FunL}}==
+<lang funl>~~[1, 2, 3].foreach( println )
+
+[1, 2, 3].foreach( a -> println(2a) )~~</lang>
+
+{{out}}
+
+<pre>
+1
+2
+3
+2
+4
+6
+</pre>

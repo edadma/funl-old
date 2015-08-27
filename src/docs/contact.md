@@ -1,1 +1,0 @@
-Comments, suggestions, bugs can be emailed to <info@funl-lang.org>.

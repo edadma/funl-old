@@ -22,7 +22,7 @@ N = 2
 for (dept, empl) <- employees.groupBy( e -> e.dept ).>toList().sortWith( (<) )
   println( dept )
   
-  for e <- empl.sortWith( (a, b) -> a.salary > b.salary ).take( N )
+  for e <- empl.sortWith( \a, b -> a.salary > b.salary ).take( N )
     printf( "    %-16s  %6s  %7d\n", e.name, e.id, e.salary )
     
   println()~~</lang>

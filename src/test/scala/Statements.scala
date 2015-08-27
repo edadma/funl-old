@@ -10,7 +10,7 @@ class Statements extends FreeSpec with PropertyChecks with Matchers
 {
 	"assignments" in
 	{
-		snippetWithMargin( """
+		snippet( """
 			|a = 3
 			|b = 4
 			|a + b

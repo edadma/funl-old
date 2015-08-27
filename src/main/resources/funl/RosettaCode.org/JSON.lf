@@ -5,7 +5,7 @@ Since FunL map syntax is conforms to JSON, the built-in function <code>eval()</c
 Using module <code>json</code> gives better performance and also pretty prints the JSON output.
 <lang funl>~~import json.*
 
-DefaultJSONWriter.write( JSONReader(true, true).fromString('{ "foo": 1, "bar": [10, "apples"] }') )~~</lang>
+DefaultJSONWriter.write( JSONReader({'ints', 'bigInts'}).fromString('{ "foo": 1, "bar": [10, "apples"] }') )~~</lang>
 
 {{out}}
 
