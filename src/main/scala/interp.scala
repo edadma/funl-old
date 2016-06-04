@@ -7,7 +7,7 @@
 
 package funl
 
-import ca.hyperreal.lia.Math
+import xyz.hyperreal.lia.Math
 
 
 package object interp

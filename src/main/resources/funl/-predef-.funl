@@ -23,9 +23,9 @@ native funl.modules.Predef.{
 
 native funl.modules.BitArray
 
-val i =
-	native ca.hyperreal.lia.ComplexDouble
-	ComplexDouble( 0.0, 1.0 )
+val i = complex( 0, 1 )
+;;	native xyz.hyperreal.numbers.ComplexBigInt
+;;	ComplexBigInt( 0, 1 )
 
 val void =
 	native funl.modules.Predef.void

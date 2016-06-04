@@ -7,24 +7,48 @@
 
 package funl.modules
 
-import ca.hyperreal.lia.{Complex, Math => MATH}
+import xyz.hyperreal.numbers._
+import xyz.hyperreal.lia.{Math => MATH}
 import funl.interp.Interpreter._
 import funl.interp.RuntimeException
 
 
 object Math
 {
-// 	def sqrt( a: List[Any] ) =
-// 		a match
-// 		{
-// 			case List( n: Number ) => MATH.sqrtFunction( n )
-// 		}
-// 		
-// 	def abs( a: List[Any] ) =
-// 		a match
-// 		{
-// 			case List( n: Number ) => MATH.absFunction( n )
-// 		}
+	def sqrt( a: Any ) =
+		a match {
+			case n: Number => MATH.sqrtFunction( n )
+		}
+
+	def sin( a: Any ) =
+		a match {
+			case n: Number => MATH.sinFunction( n )
+		}
+
+	def asin( a: Any ) =
+		a match {
+			case n: Number => MATH.asinFunction( n )
+		}
+
+	def cos( a: Any ) =
+		a match {
+			case n: Number => MATH.cosFunction( n )
+		}
+
+	def acos( a: Any ) =
+		a match {
+			case n: Number => MATH.acosFunction( n )
+		}
+
+	def exp( a: Any ) =
+		a match {
+			case n: Number => MATH.expFunction( n )
+		}
+
+	def abs( a: Any ) =
+		a match {
+			case n: Number => MATH.absFunction( n )
+		}
 
 // 	def choose( a: Vector[Any] ): Any =
 // 		a match

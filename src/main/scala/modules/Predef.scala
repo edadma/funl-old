@@ -13,7 +13,8 @@ import util.Random.{nextInt, nextDouble}
 import funl.interp.{Function, ArgList, RuntimeException}
 import funl.interp.Interpreter._
 
-import ca.hyperreal.lia.{Math => M, Complex}
+import xyz.hyperreal.numbers._
+import xyz.hyperreal.lia.{Math => M}
 
 
 object Predef
@@ -183,12 +184,12 @@ object Predef
 	def complex( a: Any ) =
 		a match
 		{
-			case n: Double => Complex( n )
-			case n: Int => Complex( n )
-			case ArgList( List(re: Double, im: Double) ) => Complex( re, im )
-			case ArgList( List(re: Int, im: Int) ) => Complex( re, im )
-			case ArgList( List(re: Int, im: Double) ) => Complex( re, im )
-			case ArgList( List(re: Double, im: Int) ) => Complex( re, im )
+			case n: Double => ComplexDouble( n )
+			case n: Int => ComplexBigInt( n )
+			case ArgList( List(re: Double, im: Double) ) => ComplexDouble( re, im )
+			case ArgList( List(re: Int, im: Int) ) => ComplexBigInt( re, im )
+			case ArgList( List(re: Int, im: Double) ) => ComplexDouble( re, im )
+			case ArgList( List(re: Double, im: Int) ) => ComplexDouble( re, im )
 		}
 
 	def bin( a: Any ) =
@@ -247,7 +248,7 @@ object Predef
 	var res: Any = 0
 
 		for (a <- t)
-			res = ca.hyperreal.lia.Math( '+, res, a )
+			res = xyz.hyperreal.lia.Math( '+, res, a )
 
 		res
 	}

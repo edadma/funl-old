@@ -13,8 +13,8 @@ import util.parsing.input.{Reader, CharSequenceReader}
 import util.parsing.input.CharArrayReader.EofCh
 import collection.mutable.ListBuffer
 
-import ca.hyperreal.indentation._
-import ca.hyperreal.lia.Math
+import xyz.hyperreal.indentation._
+import xyz.hyperreal.lia.Math
 
 
 class FunLParser( module: String ) extends StandardTokenParsers with PackratParsers

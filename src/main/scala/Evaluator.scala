@@ -18,7 +18,8 @@ import math._
 import compat.Platform._
 import util.matching.Regex
 
-import ca.hyperreal.lia.{FunctionMap, Complex, Math}
+import xyz.hyperreal.numbers._
+import xyz.hyperreal.lia.{FunctionMap, Math}
 import Interpreter._
 
 
@@ -1624,7 +1625,7 @@ class Evaluator
 		{
 			case "String" => a.isInstanceOf[String]
 			case "Integer" => a.isInstanceOf[Int] || a.isInstanceOf[BigInt]
-			case "Rational" => a.isInstanceOf[ca.hyperreal.lia.Rational]
+			case "Rational" => a.isInstanceOf[Rational]
 			case "Float" => a.isInstanceOf[Double] ||  a.isInstanceOf[BigDecimal]
 			case "Seq" => a.isInstanceOf[Seq[_]]
 			case "List" => a.isInstanceOf[List[_]]

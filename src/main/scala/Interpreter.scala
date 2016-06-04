@@ -15,7 +15,7 @@ import util.parsing.input.{Reader, CharSequenceReader}
 import io.Source
 import collection.mutable.{ListBuffer}
 
-import ca.hyperreal.lia.Math
+import xyz.hyperreal.lia.Math
 
 
 object Interpreter

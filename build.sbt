@@ -1,14 +1,14 @@
 name := "FunL"
 
-version := "0.18"
+version := "0.19"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.8"
 
 scalacOptions ++= Seq( "-deprecation", "-feature", "-language:postfixOps", "-language:implicitConversions", "-language:existentials" )
 
 incOptions := incOptions.value.withNameHashing( true )
 
-organization := "ca.hyperreal"
+organization := "xyz.hyperreal"
 
 resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
 
@@ -16,13 +16,13 @@ libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.1" % "test"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.5" % "test"
 
-libraryDependencies += "jline" % "jline" % "2.12.1"
+libraryDependencies += "jline" % "jline" % "2.14.2"
 
 //libraryDependencies += "com.h2database" % "h2" % "1.4.187"
 
 libraryDependencies ++= Seq(
-	"ca.hyperreal" %% "lia" % "0.17",
-	"ca.hyperreal" %% "indentation-lexical" % "0.4",
+	"xyz.hyperreal" %% "lia" % "0.18",
+	"xyz.hyperreal" %% "indentation-lexical" % "0.5",
 	"ca.hyperreal" %% "json" % "0.3",
 	"ca.hyperreal" %% "options" % "0.1"
 	)
