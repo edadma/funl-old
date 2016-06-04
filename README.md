@@ -71,7 +71,7 @@ To give a small example of a complete program in FunL that does something useful
 
 ## License
 
-FunL is distributed under the LGPL v3 License, meaning that you are free to use it in your free or proprietary software.
+FunL is distributed under the MIT License, meaning that you are free to use it in your free or proprietary software.
 
 
 ## Documentation
@@ -91,7 +91,7 @@ Use the following elements to use FunL in your Maven project:
 	</repository>
 
 	<dependency>
-		<groupId>org.funl-lang</groupId>
+		<groupId>ca.hyperreal</groupId>
 		<artifactId>funl</artifactId>
 		<version>0.17</version>
 	</dependency>
@@ -100,7 +100,7 @@ Add the following to your `build.sbt` file to use FunL in your SBT project:
 
 	resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
 
-	libraryDependencies += "org.funl-lang" %% "funl" % "0.17"
+	libraryDependencies += "ca.hyperreal" %% "funl" % "0.17"
 
 
 ## Building

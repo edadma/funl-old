@@ -18,7 +18,7 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.5" % "test"
 
 libraryDependencies += "jline" % "jline" % "2.14.2"
 
-//libraryDependencies += "com.h2database" % "h2" % "1.4.187"
+libraryDependencies += "com.h2database" % "h2" % "1.4.188"
 
 libraryDependencies ++= Seq(
 	"xyz.hyperreal" %% "lia" % "0.18",
@@ -38,16 +38,10 @@ ProguardKeys.options in Proguard ++= Seq( "-dontnote", "-dontwarn", "-ignorewarn
 ProguardKeys.options in Proguard += ProguardOptions.keepMain( "funl.Main" )
 
 
-import AssemblyKeys._
-
-assemblySettings
-
 mainClass in assembly := Some( "funl.Main" )
 
-jarName in assembly := "funl-dev.jar"
+assemblyJarName in assembly := "funl-dev.jar"
 
-
-seq(bintraySettings:_*)
 
 publishMavenStyle := true
 
