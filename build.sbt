@@ -23,8 +23,8 @@ libraryDependencies += "com.h2database" % "h2" % "1.4.188"
 libraryDependencies ++= Seq(
 	"xyz.hyperreal" %% "lia" % "0.18",
 	"xyz.hyperreal" %% "indentation-lexical" % "0.5",
-	"ca.hyperreal" %% "json" % "0.3",
-	"ca.hyperreal" %% "options" % "0.1"
+	"xyz.hyperreal" %% "json" % "0.4",
+	"xyz.hyperreal" %% "options" % "0.1"
 	)
 
 mainClass in (Compile, run) := Some( "funl.Main" )

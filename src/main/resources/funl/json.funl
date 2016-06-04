@@ -5,4 +5,4 @@
 ** /_/    \____/_/ /_/____/                                     **
 \*                                                              */
 
-native ca.hyperreal.json.{DefaultJSONReader, JSONReader, DefaultJSONWriter, JSONWriter}
+native xyz.hyperreal.json.{DefaultJSONReader, JSONReader, DefaultJSONWriter, JSONWriter}

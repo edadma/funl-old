@@ -13,7 +13,7 @@ package funl
 import funl.interp.Evaluator
 import funl.interp.Interpreter._
 
-import ca.hyperreal.options.Options
+import xyz.hyperreal.options.Options
 
 
 object Main extends App
