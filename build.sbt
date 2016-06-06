@@ -40,7 +40,7 @@ ProguardKeys.options in Proguard += ProguardOptions.keepMain( "funl.Main" )
 
 mainClass in assembly := Some( "funl.Main" )
 
-assemblyJarName in assembly := "funl-dev.jar"
+assemblyJarName in assembly := "funl-" + version.value + ".jar"
 
 
 publishMavenStyle := true

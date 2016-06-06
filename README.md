@@ -93,14 +93,14 @@ Use the following elements to use FunL in your Maven project:
 	<dependency>
 		<groupId>ca.hyperreal</groupId>
 		<artifactId>funl</artifactId>
-		<version>0.17</version>
+		<version>0.18</version>
 	</dependency>
 
 Add the following to your `build.sbt` file to use FunL in your SBT project:
 
 	resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
 
-	libraryDependencies += "ca.hyperreal" %% "funl" % "0.17"
+	libraryDependencies += "ca.hyperreal" %% "funl" % "0.18"
 
 
 ## Building
@@ -156,7 +156,7 @@ After the last step, you should see
  / /   / /_/ / / / / /__     http://funl-lang.org/
 /_/    \____/_/ /_/____/                                     
 
-Welcome to FunL version 0.17
+Welcome to FunL version 0.18
 Type in expressions to have them evaluated.
 Type :help for more information.
 ```
@@ -166,4 +166,4 @@ indicating that the installation worked.  You are inside the FunL REPL.  Press C
 
 ## Executable
 
-The latest development executable can be downloaded from <https://dl.bintray.com/edadma/generic/funl-dev.jar>.
+The latest development executable can be downloaded from <https://dl.bintray.com/edadma/generic/funl-0.18.jar>.
