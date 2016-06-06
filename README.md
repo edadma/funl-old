@@ -135,13 +135,13 @@ In these instructions `<path to jar>` means the path where the executable JAR fi
 
 Here are the steps.
 
-1.  Download the latest release from <https://dl.bintray.com/edadma/generic/funl-dev.jar>.
+1.  Download the latest release from <https://dl.bintray.com/edadma/generic/funl-0.18.jar>.
 2.  Create a directory where FunL should be installed.
 2.  Start a shell.
 3.  Enter `cd <path to jar>`
-4.  Enter `unzip funl-dev.jar bin/funl -d <path to funl>`
+4.  Enter `unzip funl-0.18.jar bin/funl -d <path to funl>`
 5.  Enter `chmod a+x <path to funl>/bin/*`
-6.  Enter `cp funl-dev.jar <path to funl>/bin`
+6.  Enter `cp funl-0.18.jar <path to funl>/bin`
 7.  Open ~/.profile in an editor.
 8.  Add `PATH="<path to funl>/bin:$PATH"`
 9.  Enter `source ~/.profile`
