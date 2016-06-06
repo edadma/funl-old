@@ -882,6 +882,27 @@ class Evaluator
 						if (op == '==) l == r else l != r
 			}
 			
+		def function( f: Function, argListLength: Int, argList: List[Any] ) {
+			def conv( l: List[Any] ): List[Any] =
+				l match
+				{
+					case Nil => Nil
+					case (c: Closure) :: tail =>
+						c.funcs.head.parms.length match
+						{
+							case 0 => c.function0 :: conv( tail )
+							case 1 => c.function1 :: conv( tail )
+							case 2 => c.function2 :: conv( tail )
+						}
+					case head :: tail => head :: conv( tail )
+				}
+
+			if (argListLength == 1)
+				push( f(conv(argList).head) )
+			else
+				push( f(ArgList(conv(argList))) )
+		}
+		
 		t match
 		{
 			case ModuleAST( m, s ) =>
@@ -1051,8 +1072,25 @@ class Evaluator
 			case BinaryExprAST( left, op, func, right ) =>
 				val l = eval( left )
 
+				def multiply {
+					val r = eval( right )
+
+					if (l.isInstanceOf[String])
+						push( l.asInstanceOf[String]*r.asInstanceOf[Int] )
+					else if (r.isInstanceOf[String])
+						push( r.asInstanceOf[String]*l.asInstanceOf[Int] )
+					else
+						push( Math(func, l, r) )
+				}
+				
 				op match
 				{
+					case 'adj =>
+						l match {
+							case c: Closure => c.invoke( List(eval(right)) )
+							case f: Function => function( f, 1, List(eval(right)) )
+							case _ => multiply
+						}
 					case 'rotateright | 'rotateleft | '>>> | '<< =>
 						val bits = l.asInstanceOf[Number].intValue
 						val k = ieval( right )
@@ -1088,15 +1126,7 @@ class Evaluator
 							push( l.asInstanceOf[Iterable[_]] ++ r.asInstanceOf[Iterable[_]] )
 						else
 							push( Math(func, l, r) )
-					case '* =>
-						val r = eval( right )
-
-						if (l.isInstanceOf[String])
-							push( l.asInstanceOf[String]*r.asInstanceOf[Int] )
-						else if (r.isInstanceOf[String])
-							push( r.asInstanceOf[String]*l.asInstanceOf[Int] )
-						else
-							push( Math(func, l, r) )
+					case '* => multiply
 					case '< | '> | '<= | '>= | '== | '!= =>
 						push( comparison(l, op, func, eval(right)) )
 					case 'or =>
@@ -1189,25 +1219,7 @@ class Evaluator
 						case List( idx: Int ) => push( r(idx) )
 						case List( field: String ) => push( r.get(field).get )
 						}
-					case b: Function =>
-						def conv( l: List[Any] ): List[Any] =
-							l match
-							{
-								case Nil => Nil
-								case (c: Closure) :: tail =>
-									c.funcs.head.parms.length match
-									{
-										case 0 => c.function0 :: conv( tail )
-										case 1 => c.function1 :: conv( tail )
-										case 2 => c.function2 :: conv( tail )
-									}
-								case head :: tail => head :: conv( tail )
-							}
-
-						if (argListLength == 1)
-							push( b(conv(argList).head) )
-						else
-							push( b(ArgList(conv(argList))) )
+					case b: Function => function( b, argListLength, argList )
 					case Constructor( m, t, n, fields ) =>
 						if (fields.length != argList.length) RuntimeException( "argument list length does not match data declaration" )
 

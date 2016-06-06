@@ -1,6 +1,6 @@
 name := "FunL"
 
-version := "0.19"
+version := "0.18"
 
 scalaVersion := "2.11.8"
 
@@ -18,7 +18,7 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.11.5" % "test"
 
 libraryDependencies += "jline" % "jline" % "2.14.2"
 
-libraryDependencies += "com.h2database" % "h2" % "1.4.188"
+libraryDependencies += "com.h2database" % "h2" % "1.4.192"
 
 libraryDependencies ++= Seq(
 	"xyz.hyperreal" %% "lia" % "0.18",

@@ -454,7 +454,7 @@ class FunLParser( module: String ) extends StandardTokenParsers with PackratPars
 				
 				BinaryExprAST( l, s, lookup(s), r )} |
 		multiplicativeExpression ~ applyExpression ^^
-			{case l ~ r => BinaryExprAST( l, '*, lookup('*), r )} |
+			{case l ~ r => BinaryExprAST( l, 'adj, lookup('*), r )} |
 		exponentialExpression
 
 	lazy val exponentialExpression: PackratParser[ExprAST] =
