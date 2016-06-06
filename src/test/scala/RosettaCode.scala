@@ -34,27 +34,27 @@ class RosettaCode extends FreeSpec with PropertyChecks with Matchers
 	"Power_set" in {executeCaptureOutput( "RosettaCode.org/Power_set", Some("-main-") ).trim shouldBe "{{}, {4}, {1, 2}, {1, 3}, {2, 3, 4}, {3}, {1, 2, 3, 4}, {1, 4}, {1, 2, 3}, {2}, {1, 2, 4}, {1}, {3, 4}, {2, 3}, {2, 4}, {1, 3, 4}}"}
 	"Pi" in {executeCaptureOutput( "RosettaCode.org/Pi", Some("-main-"), "args" -> Vector("1000") ).trim shouldBe "3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679821480865132823066470938446095505822317253594081284811174502841027019385211055596446229489549303819644288109756659334461284756482337867831652712019091456485669234603486104543266482133936072602491412737245870066063155881748815209209628292540917153643678925903600113305305488204665213841469519415116094330572703657595919530921861173819326117931051185480744623799627495673518857527248912279381830119491298336733624406566430860213949463952247371907021798609437027705392171762931767523846748184676694051320005681271452635608277857713427577896091736371787214684409012249534301465495853710507922796892589235420199561121290219608640344181598136297747713099605187072113499999983729780499510597317328160963185950244594553469083026425223082533446850352619311881710100031378387528865875332083814206171776691473035982534904287554687311595628638823537875937519577818577805321712268066130019278766111959092164201989"}
 	"Generator/Exponential" in {executeCaptureOutput( "RosettaCode.org/Generator/Exponential", Some("-main-") ).trim shouldBe "[529, 576, 625, 676, 784, 841, 900, 961, 1024, 1089]"}
-	"Ackermann_function" in {executeCaptureOutput( "RosettaCode.org/Ackermann_function", Some("-main-") ).trim shouldBe
-		"""	|Ackermann( 0, 0 ) = 1
-				|Ackermann( 0, 1 ) = 2
-				|Ackermann( 0, 2 ) = 3
-				|Ackermann( 0, 3 ) = 4
-				|Ackermann( 0, 4 ) = 5
-				|Ackermann( 1, 0 ) = 2
-				|Ackermann( 1, 1 ) = 3
-				|Ackermann( 1, 2 ) = 4
-				|Ackermann( 1, 3 ) = 5
-				|Ackermann( 1, 4 ) = 6
-				|Ackermann( 2, 0 ) = 3
-				|Ackermann( 2, 1 ) = 5
-				|Ackermann( 2, 2 ) = 7
-				|Ackermann( 2, 3 ) = 9
-				|Ackermann( 2, 4 ) = 11
-				|Ackermann( 3, 0 ) = 5
-				|Ackermann( 3, 1 ) = 13
-				|Ackermann( 3, 2 ) = 29
-				|Ackermann( 3, 3 ) = 61
-				|Ackermann( 3, 4 ) = 125""".stripMargin}
+// 	"Ackermann_function" in {executeCaptureOutput( "RosettaCode.org/Ackermann_function", Some("-main-") ).trim shouldBe
+// 		"""	|Ackermann( 0, 0 ) = 1
+// 				|Ackermann( 0, 1 ) = 2
+// 				|Ackermann( 0, 2 ) = 3
+// 				|Ackermann( 0, 3 ) = 4
+// 				|Ackermann( 0, 4 ) = 5
+// 				|Ackermann( 1, 0 ) = 2
+// 				|Ackermann( 1, 1 ) = 3
+// 				|Ackermann( 1, 2 ) = 4
+// 				|Ackermann( 1, 3 ) = 5
+// 				|Ackermann( 1, 4 ) = 6
+// 				|Ackermann( 2, 0 ) = 3
+// 				|Ackermann( 2, 1 ) = 5
+// 				|Ackermann( 2, 2 ) = 7
+// 				|Ackermann( 2, 3 ) = 9
+// 				|Ackermann( 2, 4 ) = 11
+// 				|Ackermann( 3, 0 ) = 5
+// 				|Ackermann( 3, 1 ) = 13
+// 				|Ackermann( 3, 2 ) = 29
+// 				|Ackermann( 3, 3 ) = 61
+// 				|Ackermann( 3, 4 ) = 125""".stripMargin}
 	"Hamming_numbers" in {executeCaptureOutput( "RosettaCode.org/Hamming_numbers", Some("-main-") ).trim shouldBe
 		""" |[1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 15, 16, 18, 20, 24, 25, 27, 30, 32, 36]
 					|2125764000
