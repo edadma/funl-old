@@ -93,14 +93,14 @@ Use the following elements to use FunL in your Maven project:
 	<dependency>
 		<groupId>ca.hyperreal</groupId>
 		<artifactId>funl</artifactId>
-		<version>0.18</version>
+		<version>0.20</version>
 	</dependency>
 
 Add the following to your `build.sbt` file to use FunL in your SBT project:
 
 	resolvers += "Hyperreal Repository" at "https://dl.bintray.com/edadma/maven"
 
-	libraryDependencies += "ca.hyperreal" %% "funl" % "0.18"
+	libraryDependencies += "ca.hyperreal" %% "funl" % "0.20"
 
 
 ## Building
@@ -135,13 +135,13 @@ In these instructions `<path to jar>` means the path where the executable JAR fi
 
 Here are the steps.
 
-1.  Download the latest release from <https://dl.bintray.com/edadma/generic/funl-0.18.jar>.
+1.  Download the latest release from <https://dl.bintray.com/edadma/generic/funl-0.20.jar>.
 2.  Create a directory where FunL should be installed.
 2.  Start a shell.
 3.  Enter `cd <path to jar>`
-4.  Enter `unzip funl-0.18.jar bin/funl -d <path to funl>`
+4.  Enter `unzip funl-0.20.jar bin/funl -d <path to funl>`
 5.  Enter `chmod a+x <path to funl>/bin/*`
-6.  Enter `cp funl-0.18.jar <path to funl>/bin`
+6.  Enter `cp funl-0.20.jar <path to funl>/bin`
 7.  Open ~/.profile in an editor.
 8.  Add `PATH="<path to funl>/bin:$PATH"`
 9.  Enter `source ~/.profile`
@@ -156,7 +156,7 @@ After the last step, you should see
  / /   / /_/ / / / / /__     http://funl-lang.org/
 /_/    \____/_/ /_/____/                                     
 
-Welcome to FunL version 0.18
+Welcome to FunL version 0.20
 Type in expressions to have them evaluated.
 Type :help for more information.
 ```
@@ -166,4 +166,4 @@ indicating that the installation worked.  You are inside the FunL REPL.  Press C
 
 ## Executable
 
-The latest development executable can be downloaded from <https://dl.bintray.com/edadma/generic/funl-0.18.jar>.
+The latest development executable can be downloaded from <https://dl.bintray.com/edadma/generic/funl-0.20.jar>.
