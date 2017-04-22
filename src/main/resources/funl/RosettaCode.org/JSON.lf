@@ -12,9 +12,9 @@ DefaultJSONWriter.write( JSONReader({'ints', 'bigInts'}).fromString('{ "foo": 1,
 <pre>
 {"foo": 1, "bar": [10, "apples"]}
 {
-  "foo": 1,
+  "foo": 1.0,
   "bar": [
-    10,
+    10.0,
     "apples"
   ]
 }

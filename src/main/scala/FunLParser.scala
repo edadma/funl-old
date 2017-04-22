@@ -13,7 +13,7 @@ import util.parsing.input.{Reader, CharSequenceReader}
 import util.parsing.input.CharArrayReader.EofCh
 import collection.mutable.ListBuffer
 
-import xyz.hyperreal.indentation._
+import xyz.hyperreal.indentation_lexical._
 import xyz.hyperreal.lia.Math
 
 
